@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><title>Chattering — Configuración</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111115;color:#dadada;font-family:'Segoe UI',Tahoma,sans-serif;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+/* TITLEBAR */
+#titlebar{height:32px;background:#09090b;border-bottom:1px solid #1a1a1e;display:flex;align-items:center;justify-content:space-between;padding:0 10px;flex-shrink:0;-webkit-app-region:drag}
+#tb-title{font-size:11px;font-weight:800;color:#444;letter-spacing:1.5px;text-transform:uppercase}
+#tb-close{-webkit-app-region:no-drag;width:26px;height:26px;background:none;border:none;color:#444;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:13px}
+#tb-close:hover{background:rgba(255,60,60,.15);color:#ff6060}
+/* LAYOUT */
+#body{flex:1;display:flex;overflow:hidden}
+/* SIDEBAR */
+#sidebar{width:180px;background:#09090b;border-right:1px solid #1a1a1e;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:#2e2e35}
+.sb-section{padding:12px 8px 4px;font-size:9px;font-weight:800;color:#333;text-transform:uppercase;letter-spacing:1.2px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;border-radius:4px;margin:1px 5px;transition:all .15s;color:#555;font-size:12.5px;font-weight:500}
+.sb-item:hover{background:rgba(255,255,255,.04);color:#999}
+.sb-item.active{background:rgba(155,155,245,.12);color:#9b9bf5}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.sb-item.active svg{opacity:1}
+/* CONTENT */
+#content{flex:1;overflow-y:auto;padding:24px 28px}
+#content::-webkit-scrollbar{width:4px}
+#content::-webkit-scrollbar-thumb{background:#2e2e35;border-radius:2px}
+.page{display:none;flex-direction:column;gap:18px}
+.page.active{display:flex}
+.page-title{font-size:18px;font-weight:800;color:#ddd;margin-bottom:4px}
+.page-subtitle{font-size:11px;color:#444;margin-top:-12px}
+/* FORM ELEMENTS */
+.section{display:flex;flex-direction:column;gap:10px}
+.section-title{font-size:10px;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:1px;padding-bottom:6px;border-bottom:1px solid #1a1a1e}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+.row-label{flex:1}
+.label{font-size:12.5px;color:#bbb;font-weight:500}
+.sublabel{font-size:10px;color:#444;margin-top:1px}
+.hint{font-size:10px;color:#3a3a44;line-height:1.5;margin-top:-4px}
+.hint a{color:#7b7bdc;cursor:pointer;text-decoration:none}
+.hint a:hover{text-decoration:underline}
+input[type=text],input[type=password],.s-input{background:#1a1a1e;border:1px solid #2a2a32;color:#dadada;padding:7px 10px;font-size:12.5px;border-radius:4px;outline:none;transition:border .15s;font-family:inherit;width:100%}
+input[type=text]:focus,input[type=password]:focus,.s-input:focus{border-color:#9b9bf5}
+input[type=text]::placeholder,input[type=password]::placeholder,.s-input::placeholder{color:#2e2e35}
+input[type=text]:disabled,.s-input:disabled{opacity:.3;cursor:not-allowed}
+.divider{height:1px;background:#1a1a1e}
+/* TOGGLE */
+.toggle{position:relative;width:38px;height:22px;flex-shrink:0;cursor:pointer}
+.toggle input{display:none}
+.toggle-track{position:absolute;inset:0;background:#252530;border-radius:11px;transition:background .2s}
+.toggle input:checked+.toggle-track{background:#9b9bf5}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .18s;pointer-events:none}
+.toggle input:checked~.toggle-thumb{left:19px}
+/* SELECT / BUTTONS */
+select{background:#1a1a1e;border:1px solid #2a2a32;color:#dadada;padding:6px 10px;font-size:12px;border-radius:4px;outline:none;font-family:inherit;cursor:pointer}
+select:focus{border-color:#9b9bf5}
+.btn{padding:8px 16px;font-size:12px;font-weight:700;border-radius:4px;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-primary{background:#9b9bf5;color:#fff}.btn-primary:hover{background:#7b7bdc}
+.btn-secondary{background:#1e1e28;color:#888;border:1px solid #2a2a32}.btn-secondary:hover{color:#ddd;background:#252530}
+.btn-danger{background:transparent;color:#ff4444;border:1px solid #3a1a1a}.btn-danger:hover{background:#2a0f0f;border-color:#ff4444}
+.btn-twitch{background:#9147ff;color:#fff;display:flex;align-items:center;gap:7px;justify-content:center;width:100%}.btn-twitch:hover{background:#7c2ffc}
+.btn-twitch.connected{background:#1a3a1a;border:1px solid #53fc18;color:#53fc18}
+/* SLIDER */
+.slider-wrap{display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;height:4px;accent-color:#9b9bf5;cursor:pointer}
+.slider-val{font-size:10.5px;color:#666;font-family:'Consolas',monospace;min-width:30px;text-align:right}
+/* THEME PICKER */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.theme-card{border:2px solid #2a2a32;border-radius:6px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .2s;background:#1a1a1e}
+.theme-card:hover{border-color:#555}
+.theme-card.active{border-color:#9b9bf5;background:rgba(155,155,245,.1)}
+.theme-swatch{width:100%;height:26px;border-radius:4px;margin-bottom:6px}
+.theme-name{font-size:10px;font-weight:700;color:#888}
+.theme-card.active .theme-name{color:#9b9bf5}
+/* AVATAR SHAPES */
+.shape-grid{display:flex;gap:8px}
+.shape-card{flex:1;border:2px solid #2a2a32;border-radius:6px;padding:10px;cursor:pointer;text-align:center;transition:all .2s;background:#1a1a1e}
+.shape-card:hover{border-color:#555}
+.shape-card.active{border-color:#9b9bf5}
+.shape-preview{width:36px;height:36px;background:#9b9bf5;margin:0 auto 6px}
+.shape-label{font-size:10px;font-weight:700;color:#666}
+.shape-card.active .shape-label{color:#9b9bf5}
+/* TAGS INPUT */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:4px;background:#1a1a1e;border:1px solid #2a2a32;border-radius:4px;padding:5px 7px;min-height:36px;cursor:text}
+.tags-wrap:focus-within{border-color:#9b9bf5}
+.tag-chip{background:#2a2a32;color:#aaa;padding:2px 7px;border-radius:3px;font-size:11px;display:flex;align-items:center;gap:5px}
+.tag-chip button{background:none;border:none;color:#555;cursor:pointer;padding:0;line-height:1;font-size:11px}
+.tag-chip button:hover{color:#ff6060}
+.tag-chip.hl{background:rgba(155,155,245,.2);color:#9b9bf5}
+.tags-input{border:none;background:transparent;color:#dadada;font-size:11.5px;outline:none;min-width:80px;flex:1;font-family:inherit}
+/* EMOTE GROUP */
+.emote-group{border:1px solid #1a1a1e;border-radius:5px;overflow:hidden}
+.eg-title{padding:7px 11px;font-size:10px;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:.8px;background:#141417}
+.eg-row{padding:6px 11px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #141417}
+.eg-label{font-size:11.5px;color:#777}
+/* SAVE BAR */
+#save-bar{flex-shrink:0;border-top:1px solid #1a1a1e;padding:10px 20px;display:flex;justify-content:flex-end;gap:8px;background:#09090b}
+/* STATUS */
+.status-ok{color:#53fc18;font-size:11px}
+.status-err{color:#ff6060;font-size:11px}
+.status-wait{color:#888;font-size:11px}
+</style>
+</head>
+<body>
+<div id="titlebar">
+  <div id="tb-title">⚙ Configuración — Chattering</div>
+  <button id="tb-close" onclick="window.electronAPI.closeSettings()">✕</button>
+</div>
+
+<div id="body">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div style="padding:8px 8px 4px">
+      <input id="sb-search" type="text" placeholder="🔍 Buscar..." oninput="filterSettings(this.value)"
+        style="width:100%;background:#111115;border:1px solid #2a2a32;color:#dadada;padding:5px 8px;font-size:11px;border-radius:4px;outline:none;font-family:inherit">
+    </div>
+    <div class="sb-section">Plataformas</div>
+    <div class="sb-item active" onclick="goTo('cuentas',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 5.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5C3 11 5.24 9 8 9s5 2 5 4.5z"/></svg>
+      Cuentas
+    </div>
+    <div class="sb-section">Chat</div>
+    <div class="sb-item" onclick="goTo('chat',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5l-3 2V3a1 1 0 0 1 1-1z"/></svg>
+      Chat
+    </div>
+    <div class="sb-item" onclick="goTo('emotes',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="7" r="1"/><circle cx="10" cy="7" r="1"/><path d="M5.5 10.5s.7 1.5 2.5 1.5 2.5-1.5 2.5-1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Emotes
+    </div>
+    <div class="sb-item" onclick="goTo('mod',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 4v5c0 3.5 3 6.5 7 7 4-0.5 7-3.5 7-7V4z"/></svg>
+      Moderación
+    </div>
+    <div class="sb-section">Notificaciones</div>
+    <div class="sb-item" onclick="goTo('alertas',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5 5 0 0 0-5 5v3l-1.5 2h13L13 9V6a5 5 0 0 0-5-5zm0 14a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/></svg>
+      Alertas &amp; TTS
+    </div>
+    <div class="sb-section">Visualización</div>
+    <div class="sb-item" onclick="goTo('apariencia',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>
+      Apariencia
+    </div>
+    <div class="sb-item" onclick="goTo('temas',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 3h4v4H3zm6 0h4v4h-4zM3 9h4v4H3zm6 0h4v4h-4z"/></svg>
+      Temas
+    </div>
+    <div class="sb-section">Sistema</div>
+    <div class="sb-item" onclick="goTo('avanzado',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.4 1H6.6l-.3 2a5 5 0 0 0-1.3.7L2.7 2.9 1 4.7l1.4 1.8a5 5 0 0 0-.3 1.5H0v2.5l2.1.3c.2.5.4 1 .7 1.4L1.2 14l1.8 1.2 1.8-1.4c.4.3.9.5 1.4.7l.4 2.1h2.8l.3-2c.5-.2 1-.5 1.4-.7l1.8 1.4L14.3 14l-1.5-1.8c.3-.4.5-.9.7-1.4l2.1-.3V8h-2.1a5 5 0 0 0-.7-1.5L14 4.7 12.3 2.9l-1.9 1a5 5 0 0 0-1.3-.8zm-.9 5a2 2 0 1 1-1 3.73A2 2 0 0 1 8.5 6z"/></svg>
+      Avanzado
+    </div>
+  </div>
+
+  <!-- CONTENT PAGES -->
+  <div id="content">
+
+    <!-- CUENTAS -->
+    <div class="page active" id="page-cuentas">
+      <div class="page-title">Cuentas</div>
+      <div id="connection-status" class="hint" style="background:rgba(155,155,245,.08);border-radius:4px;padding:8px 10px;display:none"></div>
+      <div class="section">
+        <div class="section-title">TikTok</div>
+        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px"><input type="text" id="s-tt" placeholder="@usuario o usuario"></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">YouTube</div>
+        <div class="row"><div class="row-label"><div class="label">Channel ID</div></div><div style="width:180px"><input type="text" id="s-yt" placeholder="UCxxx..."></div></div>
+        <div class="hint">Empieza con <b>UC</b>. <a onclick="openLink('https://www.youtube.com/account_advanced')">Encontrar →</a></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Twitch</div>
+        <div class="row"><div class="row-label"><div class="label">Usuario</div><div class="sublabel">Solo lectura si no hay token</div></div><div style="width:180px"><input type="text" id="s-tw" placeholder="usuario"></div></div>
+        <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 0L1 4.1v16.4h5.5V24h3l3.2-3.5h4.7l6.1-6.1V0H4.3zm15.2 13.8l-3.7 3.7h-5.8L6.8 20v-2.5H2V2h17.5v11.8zM15.8 7v6.2h-2V7h2zm-5.2 0v6.2H8.6V7h2z"/></svg>
+          <span id="s-tw-oauth-label">Conectar con Twitch</span>
+        </button>
+        <div id="s-tw-status" class="hint"></div>
+        <input type="hidden" id="s-tw-token">
+      </div>
+      <div class="section">
+        <div class="section-title">Kick <span style="font-size:9px;background:#1e2e1e;color:#53fc18;padding:1px 5px;border-radius:2px;margin-left:4px">Beta</span></div>
+        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px"><input type="text" id="s-kk" placeholder="usuario de Kick"></div></div>
+        <div class="row"><div class="row-label"><div class="label">Chatroom ID</div><div class="sublabel">Opcional — si no conecta automáticamente</div></div><div style="width:180px"><input type="text" id="s-kk-chatroom" placeholder="ID numérico"></div></div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="page" id="page-chat">
+      <div class="page-title">Chat</div>
+      <div class="section">
+        <div class="section-title">Identificación</div>
+        <div class="row"><div class="row-label"><div class="label">Tu nombre de usuario</div><div class="sublabel">Para resaltar menciones</div></div><div style="width:160px"><input type="text" id="s-streamer" placeholder="@tucanal"></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Filtros de mensaje</div>
+        <div class="row"><div class="row-label"><div class="label">Solo suscriptores</div></div><label class="toggle"><input type="checkbox" id="s-filter-subs"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Solo moderadores</div></div><label class="toggle"><input type="checkbox" id="s-filter-mods"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Ocultar bots conocidos</div></div><label class="toggle"><input type="checkbox" id="s-hide-bots"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Palabras bloqueadas activo</div></div><label class="toggle"><input type="checkbox" id="s-block-enabled"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div id="blocked-tags-wrap" class="tags-wrap" onclick="document.getElementById('blocked-input').focus()"></div>
+        <input class="tags-input" id="blocked-input" placeholder="Añadir palabra y Enter..." style="display:none">
+      </div>
+      <div class="section">
+        <div class="section-title">Resaltados personalizados</div>
+        <div id="highlight-tags-wrap" class="tags-wrap" onclick="document.getElementById('highlight-input').focus()"></div>
+        <input class="tags-input" id="highlight-input" placeholder="Palabra clave y Enter..." style="display:none">
+      </div>
+      <div class="section">
+        <div class="section-title">Comportamiento</div>
+        <div class="row"><div class="row-label"><div class="label">Pausar scroll al pasar cursor</div></div><label class="toggle"><input type="checkbox" id="s-scroll-pause"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Scroll invertido</div><div class="sublabel">Mensajes nuevos arriba</div></div><label class="toggle"><input type="checkbox" id="s-scroll-invert"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Preview de links</div></div><label class="toggle"><input type="checkbox" id="s-link-previews"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Animación entrada mensajes</div></div><label class="toggle"><input type="checkbox" id="s-msg-anim"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Accesibilidad — forzar colores legibles</div><div class="sublabel">Ajusta nombres con poco contraste</div></div><label class="toggle"><input type="checkbox" id="s-accessibility"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+    </div>
+
+    <!-- EMOTES -->
+    <div class="page" id="page-emotes">
+      <div class="page-title">Emotes</div>
+      <div id="emote-status" class="hint" style="color:#555"></div>
+      <div class="emote-group">
+        <div class="eg-title">7TV</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-7tv-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-7tv-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="emote-group">
+        <div class="eg-title">BetterTTV</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-bttv-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-bttv-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="emote-group">
+        <div class="eg-title">FrankerFaceZ</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-ffz-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-ffz-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+    </div>
+
+    <!-- MODERACIÓN -->
+    <div class="page" id="page-mod">
+      <div class="page-title">Moderación</div>
+      <div class="section">
+        <div class="section-title">Herramientas de moderación</div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar menú de moderación al hover</div><div class="sublabel">Timeout / ban / responder / copiar</div></div><label class="toggle"><input type="checkbox" id="s-mod-hover"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Marcar (no ocultar) mensajes baneados</div><div class="sublabel">Aparecen en gris en lugar de desaparecer</div></div><label class="toggle"><input type="checkbox" id="s-show-banned"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Botones de mod visibles en pantalla</div><div class="sublabel">Toggle rápido sin abrir configuración</div></div><label class="toggle"><input type="checkbox" id="s-mod-visible"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Botones de prueba</div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar panel de prueba</div></div><label class="toggle"><input type="checkbox" id="s-test-buttons"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="page" id="page-alertas">
+      <div class="page-title">Alertas y TTS</div>
+      <div class="section">
+        <div class="section-title">Eventos del dock</div>
+        <div class="row"><div class="row-label"><div class="label">Seguidos</div></div><label class="toggle"><input type="checkbox" id="s-show-follows"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Regalos / subs</div></div><label class="toggle"><input type="checkbox" id="s-show-gifts"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Likes de TikTok</div></div><label class="toggle"><input type="checkbox" id="s-show-likes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Sonidos</div>
+        <div class="row"><div class="row-label"><div class="label">Activar sonidos</div></div><label class="toggle"><input type="checkbox" id="s-sounds-enabled"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Nuevo seguidor</div></div><label class="toggle"><input type="checkbox" id="s-sound-follow"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Regalo / sub</div></div><label class="toggle"><input type="checkbox" id="s-sound-gift"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Mención</div></div><label class="toggle"><input type="checkbox" id="s-sound-mention"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Volumen</div></div>
+          <div class="slider-wrap" style="width:140px"><input type="range" id="s-volume" min="0" max="100" step="5" value="60" oninput="document.getElementById('vol-val').textContent=this.value"><span class="slider-val" id="vol-val">60</span></div>
+        </div>
+        <button class="btn btn-secondary" onclick="testSoundPreview('follow')" style="margin-top:4px;font-size:11px;padding:5px 10px">▶ Probar sonido</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+        <div class="section-title">Texto a Voz (TTS)</div>
+        <div class="row"><div class="row-label"><div class="label">Activar TTS</div></div><label class="toggle"><input type="checkbox" id="s-tts-enabled" onchange="updateTtsUI()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div id="tts-opts" style="display:flex;flex-direction:column;gap:8px;opacity:.3;pointer-events:none;transition:opacity .2s">
+          <div class="row"><div class="row-label"><div class="label" style="color:#aaa">TikTok</div></div><label class="toggle"><input type="checkbox" id="s-tts-TT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label" style="color:#ff6060">YouTube</div></div><label class="toggle"><input type="checkbox" id="s-tts-YT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label" style="color:#a87fff">Twitch</div></div><label class="toggle"><input type="checkbox" id="s-tts-TW"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label" style="color:#53fc18">Kick</div></div><label class="toggle"><input type="checkbox" id="s-tts-KK"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label">Solo leer mensaje</div><div class="sublabel">No pronunciar el nombre del usuario</div></div><label class="toggle"><input type="checkbox" id="s-tts-noname"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APARIENCIA -->
+    <div class="page" id="page-apariencia">
+      <div class="page-title">Apariencia</div>
+      <div class="section">
+        <div class="section-title">Fuente y densidad</div>
+        <div class="row"><div class="row-label"><div class="label">Tamaño de fuente</div></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-fontsize" min="10" max="20" step=".5" value="13.5" oninput="document.getElementById('font-size-val').textContent=this.value+'px';previewChange()"><span class="slider-val" id="font-size-val">13.5px</span></div>
+        </div>
+        <div class="row"><div class="row-label"><div class="label">Modo compacto</div><div class="sublabel">Reduce padding y altura de mensajes</div></div><label class="toggle"><input type="checkbox" id="s-compact" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Avatares</div>
+        <div class="shape-grid">
+          <div class="shape-card active" id="av-none" onclick="setAvatarShape('none')">
+            <div class="shape-preview" style="border-radius:0;background:#444"></div>
+            <div class="shape-label">Sin avatar</div>
+          </div>
+          <div class="shape-card" id="av-square" onclick="setAvatarShape('square')">
+            <div class="shape-preview" style="border-radius:4px"></div>
+            <div class="shape-label">Cuadrado</div>
+          </div>
+          <div class="shape-card" id="av-squircle" onclick="setAvatarShape('squircle')">
+            <div class="shape-preview" style="border-radius:40%"></div>
+            <div class="shape-label">Squircle</div>
+          </div>
+          <div class="shape-card" id="av-circle" onclick="setAvatarShape('circle')">
+            <div class="shape-preview" style="border-radius:50%"></div>
+            <div class="shape-label">Círculo</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Ventana</div>
+        <div class="row"><div class="row-label"><div class="label">Siempre visible (Always on Top)</div></div><label class="toggle"><input type="checkbox" id="s-always-top" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Fondo translúcido</div><div class="sublabel">Requiere Always on Top</div></div><label class="toggle"><input type="checkbox" id="s-translucent" onchange="updateTranslucent();previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row" id="opacity-row" style="opacity:.3;pointer-events:none"><div class="row-label"><div class="label">Opacidad de la ventana</div></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-opacity" min="20" max="100" step="5" value="90" oninput="document.getElementById('opacity-val').textContent=this.value+'%';previewChange()"><span class="slider-val" id="opacity-val">90%</span></div>
+        </div>
+        <div class="row"><div class="row-label"><div class="label">Posición del dock</div></div>
+          <select id="s-dock-pos"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
+        </div>
+        <div class="row"><div class="row-label"><div class="label">Altura del dock</div></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-dock-height" min="40" max="240" step="4" value="82" oninput="document.getElementById('dock-height-val').textContent=this.value+'px'"><span class="slider-val" id="dock-height-val">82px</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMAS -->
+    <div class="page" id="page-temas">
+      <div class="page-title">Temas</div>
+      <div class="hint" style="margin-bottom:8px;color:#555">Elige el tema visual de la aplicación. Más temas próximamente.</div>
+      <div class="theme-grid">
+        <div class="theme-card active" id="theme-dark" onclick="setTheme('dark')">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#111 50%,#18181b 100%)"></div>
+          <div class="theme-name">Dark</div>
+        </div>
+        <div class="theme-card" id="theme-midnight" onclick="setTheme('midnight')">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#08091a 50%,#0d1030 100%)"></div>
+          <div class="theme-name">Midnight</div>
+        </div>
+        <div class="theme-card" id="theme-forest" onclick="setTheme('forest')">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#0a120a 50%,#102010 100%)"></div>
+          <div class="theme-name">Forest</div>
+        </div>
+        <div class="theme-card" id="theme-sakura" onclick="setTheme('sakura')">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#1a0d12 50%,#201018 100%)"></div>
+          <div class="theme-name">Sakura</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVANZADO -->
+    <div class="page" id="page-avanzado">
+      <div class="page-title">Avanzado</div>
+      <div class="section">
+        <div class="section-title">Rendimiento</div>
+        <div class="row"><div class="row-label"><div class="label">Aceleración por GPU</div><div class="sublabel">Desactivar puede ayudar en sistemas con drivers problemáticos (requiere reinicio)</div></div><label class="toggle"><input type="checkbox" id="s-hw-accel" onchange="this.checked=!this.checked;alert('Reinicia la app para aplicar el cambio de aceleración GPU.')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Datos</div>
+        <div class="row"><div class="row-label"><div class="label">Restablecer configuración</div><div class="sublabel">Vuelve al setup inicial. No borra el historial.</div></div><button class="btn btn-danger" onclick="resetConfig()">Restablecer</button></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /body -->
+
+<div id="save-bar">
+  <span id="save-status" style="font-size:11px;color:#444;align-self:center;margin-right:auto"></span>
+  <button class="btn btn-secondary" onclick="window.electronAPI.closeSettings()">Cancelar</button>
+  <button class="btn btn-primary" onclick="guardar()">Guardar cambios</button>
+</div>
+
+<script>
+const SERVER = 'http://localhost:3000'
+let cfg = {}
+let selectedTheme = 'dark'
+let selectedAvatarShape = 'none'
+let blockedWords = [], highlights = []
+
+
+function filterSettings(q) {
+    const ql = q.toLowerCase().trim()
+    if (!ql) {
+        // Show all, reset
+        document.querySelectorAll('.sb-item').forEach(i => { i.style.display=''; i.style.background='' })
+        document.querySelectorAll('.row, .section').forEach(r => r.style.display='')
+        return
+    }
+    // Show/hide sidebar items
+    document.querySelectorAll('.sb-item').forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(ql) ? '' : 'none'
+    })
+    // Highlight matching rows across all pages
+    document.querySelectorAll('.row').forEach(row => {
+        const text = row.textContent.toLowerCase()
+        row.style.background = text.includes(ql) ? 'rgba(155,155,245,.08)' : ''
+        row.style.display = ''
+    })
+}
+
+// ── REAL-TIME PREVIEW ────────────────────────────────────────────────────────
+// Send partial config to main window for live preview without saving
+async function previewChange() {
+    const partial = {
+        theme:        selectedTheme,
+        compact:      document.getElementById('s-compact')?.checked,
+        avatarShape:  selectedAvatarShape,
+        fontSize:     parseFloat(document.getElementById('s-fontsize')?.value || '13.5'),
+        msgAnimation: document.getElementById('s-msg-anim')?.checked,
+        scrollInvert: document.getElementById('s-scroll-invert')?.checked,
+        alwaysOnTop:  document.getElementById('s-always-top')?.checked,
+        translucent:  document.getElementById('s-translucent')?.checked,
+        windowOpacity: parseInt(document.getElementById('s-opacity')?.value || '90'),
+        showTimestamps: document.getElementById('s-timestamps')?.checked,
+        linkPreviews:   document.getElementById('s-link-previews')?.checked,
+        msgAnimation:   document.getElementById('s-msg-anim')?.checked,
+        modHoverMenu:   document.getElementById('s-mod-hover')?.checked,
+    }
+    // Send to main window for live preview
+    try { await window.electronAPI.previewSettings(partial) } catch {}
+}
+
+// Tone generator for test sounds (same as index.html)
+function testSoundPreview(type) {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)()
+        const vol = (parseInt(document.getElementById('s-volume')?.value || '60') / 100) * 0.5
+        const play = (freq, start, dur) => {
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+            osc.connect(gain); gain.connect(ctx.destination)
+            osc.frequency.value = freq
+            gain.gain.setValueAtTime(vol, ctx.currentTime + start)
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
+            osc.start(ctx.currentTime + start)
+            osc.stop(ctx.currentTime + start + dur + 0.05)
+        }
+        if (type === 'follow')  { play(660, 0, 0.12); play(880, 0.13, 0.1) }
+        else if (type === 'gift') { play(523, 0, 0.1); play(659, 0.09, 0.1); play(784, 0.18, 0.1) }
+        else { play(440, 0, 0.08); play(554, 0.1, 0.12) }
+    } catch {}
+}
+
+
+async function init() {
+    cfg = (await window.electronAPI.getConfig()) || {}
+    loadForm()
+}
+
+function loadForm() {
+    set('s-tt', cfg.tiktokUser||'')
+    set('s-yt', cfg.youtubeChannelId||'')
+    set('s-tw', cfg.twitchUser||'')
+    set('s-kk', cfg.kickUser||'')
+    set('s-kk-chatroom', cfg.kickChatroomId||'')
+    document.getElementById('s-tw-token').value = cfg.twitchToken||''
+
+    // OAuth state
+    const btn = document.getElementById('s-tw-oauth-btn')
+    const lbl = document.getElementById('s-tw-oauth-label')
+    const st  = document.getElementById('s-tw-status')
+    if (cfg.twitchToken) {
+        lbl.textContent = '✓ Conectado como ' + (cfg.twitchUser || '?')
+        btn.className = 'btn btn-twitch connected'
+        st.textContent = 'Haz clic para reconectar o cambiar cuenta'
+        st.className = 'hint'
+        // Lock username field — it's managed by OAuth
+        const twField = document.getElementById('s-tw')
+        if(twField){
+            twField.disabled = true
+            twField.title = 'El usuario se gestiona automáticamente mediante OAuth'
+            twField.style.opacity = '0.5'
+        }
+    } else {
+        const twField = document.getElementById('s-tw')
+        if(twField){ twField.disabled = false; twField.style.opacity = ''; twField.title = '' }
+    }
+
+    set('s-streamer', cfg.streamerName||'')
+    chk('s-filter-subs', cfg.filterSubsOnly)
+    chk('s-filter-mods', cfg.filterModsOnly)
+    chk('s-hide-bots', cfg.hideBots)
+    chk('s-block-enabled', cfg.blockedWordsEnabled)
+    chk('s-scroll-pause', cfg.scrollPauseOnHover!==false)
+    chk('s-scroll-invert', cfg.scrollInvert===true)
+    chk('s-timestamps', cfg.showTimestamps!==false)
+    chk('s-link-previews', cfg.linkPreviews!==false)
+    chk('s-msg-anim', cfg.msgAnimation!==false)
+    chk('s-accessibility', cfg.accessibility===true)
+
+    chk('s-7tv-global', cfg.show7tvGlobal!==false)
+    chk('s-7tv-canal', cfg.show7tvCanal!==false)
+    chk('s-bttv-global', cfg.showBttvGlobal!==false)
+    chk('s-bttv-canal', cfg.showBttvCanal!==false)
+    chk('s-ffz-global', cfg.showFfzGlobal!==false)
+    chk('s-ffz-canal', cfg.showFfzCanal!==false)
+    chk('s-lazy-emotes', cfg.lazyEmotes!==false)
+
+    chk('s-mod-hover', cfg.modHoverMenu!==false)
+    chk('s-show-banned', cfg.showBannedMessages===true)
+    chk('s-mod-visible', cfg.modButtonsVisible===true)
+    chk('s-test-buttons', cfg.showTestButtons===true)
+
+    chk('s-show-follows', cfg.showFollows!==false)
+    chk('s-show-gifts', cfg.showGifts!==false)
+    chk('s-show-likes', cfg.showLikes!==false)
+    chk('s-sounds-enabled', cfg.soundsEnabled===true)
+    chk('s-sound-follow', cfg.soundFollow===true)
+    chk('s-sound-gift', cfg.soundGift===true)
+    chk('s-sound-mention', cfg.soundMention===true)
+    const vol = cfg.soundVolume||60
+    document.getElementById('s-volume').value = vol
+    document.getElementById('vol-val').textContent = vol
+    chk('s-tts-enabled', cfg.ttsEnabled===true)
+    chk('s-tts-TT', cfg.ttsTT===true)
+    chk('s-tts-YT', cfg.ttsYT===true)
+    chk('s-tts-TW', cfg.ttsTW===true)
+    chk('s-tts-KK', cfg.ttsKK===true)
+    chk('s-tts-noname', cfg.ttsNoName===true)
+    updateTtsUI()
+
+    const fs = cfg.fontSize||13.5
+    document.getElementById('s-fontsize').value = fs
+    document.getElementById('font-size-val').textContent = fs+'px'
+    chk('s-compact', cfg.compact===true)
+    chk('s-always-top', cfg.alwaysOnTop===true)
+    chk('s-translucent', cfg.translucent===true)
+    const op = cfg.windowOpacity||90
+    document.getElementById('s-opacity').value = op
+    document.getElementById('opacity-val').textContent = op+'%'
+    updateTranslucent()
+    document.getElementById('s-dock-pos').value = cfg.dockPosition||'top'
+    const dh = cfg.dockHeight||82
+    document.getElementById('s-dock-height').value = dh
+    document.getElementById('dock-height-val').textContent = dh+'px'
+
+    selectedTheme = cfg.theme||'dark'
+    document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
+    const tc = document.getElementById('theme-'+selectedTheme)
+    if(tc) tc.classList.add('active')
+
+    selectedAvatarShape = cfg.avatarShape||'none'
+    document.querySelectorAll('.shape-card').forEach(c=>c.classList.remove('active'))
+    const sc = document.getElementById('av-'+selectedAvatarShape)
+    if(sc) sc.classList.add('active')
+
+    chk('s-hw-accel', cfg.disableHWAccel!==true)
+
+    // Tags
+    blockedWords = cfg.blockedWords||[]
+    highlights = cfg.customHighlights||[]
+    renderTags('blocked-tags-wrap', blockedWords, false)
+    renderTags('highlight-tags-wrap', highlights, true)
+    makeTagsInput('blocked-tags-wrap', 'blocked-input', blockedWords, false)
+    makeTagsInput('highlight-tags-wrap', 'highlight-input', highlights, true)
+}
+
+function set(id, v) { const el=document.getElementById(id); if(el) el.value=v }
+function chk(id, v) { const el=document.getElementById(id); if(el) el.checked=!!v }
+
+function renderTags(wrapId, arr, isHighlight) {
+    const wrap = document.getElementById(wrapId)
+    wrap.querySelectorAll('.tag-chip').forEach(c=>c.remove())
+    arr.forEach(word => {
+        const chip = document.createElement('span')
+        chip.className = 'tag-chip' + (isHighlight?' hl':'')
+        chip.innerHTML = `${word} <button onclick="removeTag('${wrapId}','${word}',${isHighlight})">✕</button>`
+        wrap.insertBefore(chip, wrap.querySelector('input') || null)
+    })
+}
+
+function removeTag(wrapId, word, isHighlight) {
+    const arr = isHighlight ? highlights : blockedWords
+    const idx = arr.indexOf(word)
+    if(idx>=0) arr.splice(idx,1)
+    renderTags(wrapId, arr, isHighlight)
+}
+
+function makeTagsInput(wrapId, inputId) {
+    const input = document.getElementById(inputId)
+    if(!input) return
+    input.style.display = 'inline'
+    document.getElementById(wrapId).appendChild(input)
+    input.addEventListener('keydown', e => {
+        const isHighlight = wrapId.includes('highlight')
+        const arr = isHighlight ? highlights : blockedWords
+        if((e.key==='Enter'||e.key===',')&&input.value.trim()) {
+            e.preventDefault()
+            const w=input.value.replace(',','').trim()
+            if(w&&!arr.includes(w)) { arr.push(w); renderTags(wrapId,arr,isHighlight) }
+            input.value=''
+        }
+        if(e.key==='Backspace'&&!input.value&&arr.length) {
+            arr.pop(); renderTags(wrapId,arr,isHighlight)
+        }
+    })
+}
+
+function goTo(page, el) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'))
+    document.getElementById('page-'+page).classList.add('active')
+    el.classList.add('active')
+}
+
+function setTheme(t) {
+    selectedTheme = t
+    document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
+    document.getElementById('theme-'+t).classList.add('active')
+}
+
+function setAvatarShape(s) {
+    selectedAvatarShape = s
+    document.querySelectorAll('.shape-card').forEach(c=>c.classList.remove('active'))
+    document.getElementById('av-'+s).classList.add('active')
+}
+
+function updateTtsUI() {
+    const on = document.getElementById('s-tts-enabled').checked
+    const opts = document.getElementById('tts-opts')
+    opts.style.opacity = on ? '1' : '0.3'
+    opts.style.pointerEvents = on ? 'auto' : 'none'
+}
+
+function updateTranslucent() {
+    const on = document.getElementById('s-translucent').checked
+    const row = document.getElementById('opacity-row')
+    row.style.opacity = on ? '1' : '0.3'
+    row.style.pointerEvents = on ? 'auto' : 'none'
+}
+
+async function settingsLoginTwitch() {
+    const btn = document.getElementById('s-tw-oauth-btn')
+    const lbl = document.getElementById('s-tw-oauth-label')
+    const st  = document.getElementById('s-tw-status')
+    lbl.textContent = 'Esperando...'
+    btn.style.pointerEvents = 'none'
+    try {
+        const result = await window.electronAPI.loginTwitch()
+        if (result?.success && result.token) {
+            document.getElementById('s-tw-token').value = result.token
+            let login = ''
+            try {
+                const r = await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:result.token})})
+                const d = await r.json()
+                if(d.ok) { login=d.login; document.getElementById('s-tw').value=login }
+            } catch {}
+            lbl.textContent = '✓ Conectado como ' + (login || '?')
+            btn.className = 'btn btn-twitch connected'
+            st.textContent = 'Haz clic para reconectar o cambiar cuenta'
+            st.className = 'hint status-ok'
+            const f=document.getElementById('s-tw'); if(f){f.disabled=true;f.style.opacity='0.5'}
+        } else {
+            lbl.textContent = 'Conectar con Twitch'
+            btn.className = 'btn btn-twitch'
+            st.textContent = result?.error || 'Cancelado'
+            st.className = 'hint status-err'
+        }
+    } catch(e) {
+        lbl.textContent = 'Conectar con Twitch'
+        btn.className = 'btn btn-twitch'
+        st.textContent = 'Error: '+e.message
+        st.className = 'hint status-err'
+    }
+    btn.style.pointerEvents = ''
+}
+
+async function guardar() {
+    const statusEl = document.getElementById('save-status')
+    statusEl.textContent = 'Guardando...'
+    const newCfg = {
+        ...cfg,
+        tiktokUser:         document.getElementById('s-tt').value.replace('@','').trim(),
+        youtubeChannelId:   document.getElementById('s-yt').value.trim(),
+        twitchUser:         document.getElementById('s-tw').value.trim() || cfg.twitchUser || '',
+        kickUser:           document.getElementById('s-kk').value.trim(),
+        kickChatroomId:     document.getElementById('s-kk-chatroom').value.trim(),
+        twitchToken:        document.getElementById('s-tw-token').value.trim(),
+        streamerName:       document.getElementById('s-streamer').value.trim(),
+        filterSubsOnly:     document.getElementById('s-filter-subs').checked,
+        filterModsOnly:     document.getElementById('s-filter-mods').checked,
+        hideBots:           document.getElementById('s-hide-bots').checked,
+        blockedWordsEnabled:document.getElementById('s-block-enabled').checked,
+        blockedWords,
+        customHighlights:   highlights,
+        scrollPauseOnHover: document.getElementById('s-scroll-pause').checked,
+        scrollInvert:       document.getElementById('s-scroll-invert').checked,
+        showTimestamps:     document.getElementById('s-timestamps').checked,
+        linkPreviews:       document.getElementById('s-link-previews').checked,
+        msgAnimation:       document.getElementById('s-msg-anim').checked,
+        accessibility:      document.getElementById('s-accessibility').checked,
+        show7tvGlobal:      document.getElementById('s-7tv-global').checked,
+        show7tvCanal:       document.getElementById('s-7tv-canal').checked,
+        showBttvGlobal:     document.getElementById('s-bttv-global').checked,
+        showBttvCanal:      document.getElementById('s-bttv-canal').checked,
+        showFfzGlobal:      document.getElementById('s-ffz-global').checked,
+        showFfzCanal:       document.getElementById('s-ffz-canal').checked,
+        lazyEmotes:         document.getElementById('s-lazy-emotes').checked,
+        modHoverMenu:       document.getElementById('s-mod-hover').checked,
+        showBannedMessages: document.getElementById('s-show-banned').checked,
+        modButtonsVisible:  document.getElementById('s-mod-visible').checked,
+        showTestButtons:    document.getElementById('s-test-buttons').checked,
+        showFollows:        document.getElementById('s-show-follows').checked,
+        showGifts:          document.getElementById('s-show-gifts').checked,
+        showLikes:          document.getElementById('s-show-likes').checked,
+        soundsEnabled:      document.getElementById('s-sounds-enabled').checked,
+        soundFollow:        document.getElementById('s-sound-follow').checked,
+        soundGift:          document.getElementById('s-sound-gift').checked,
+        soundMention:       document.getElementById('s-sound-mention').checked,
+        soundVolume:        parseInt(document.getElementById('s-volume').value),
+        ttsEnabled:         document.getElementById('s-tts-enabled').checked,
+        ttsTT:              document.getElementById('s-tts-TT').checked,
+        ttsYT:              document.getElementById('s-tts-YT').checked,
+        ttsTW:              document.getElementById('s-tts-TW').checked,
+        ttsKK:              document.getElementById('s-tts-KK').checked,
+        ttsNoName:          document.getElementById('s-tts-noname').checked,
+        fontSize:           parseFloat(document.getElementById('s-fontsize').value),
+        compact:            document.getElementById('s-compact').checked,
+        alwaysOnTop:        document.getElementById('s-always-top').checked,
+        translucent:        document.getElementById('s-translucent').checked,
+        windowOpacity:      parseInt(document.getElementById('s-opacity').value),
+        dockPosition:       document.getElementById('s-dock-pos').value,
+        dockHeight:         parseInt(document.getElementById('s-dock-height').value),
+        theme:              selectedTheme,
+        avatarShape:        selectedAvatarShape,
+        disableHWAccel:     !document.getElementById('s-hw-accel').checked,
+    }
+    const r = await window.electronAPI.saveSettings(newCfg)
+    cfg = newCfg
+    statusEl.textContent = '✓ Guardado — reconectando plataformas...'
+    // Window closes automatically via main.js after 300ms
+}
+
+async function resetConfig() {
+    if(!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return
+    await window.electronAPI.resetConfig()
+}
+
+function openLink(url) {
+    window.electronAPI.openExternal(url)
+}
+
+init()
+</script>
+</body>
+</html>

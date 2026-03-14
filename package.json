@@ -1,0 +1,63 @@
+{
+  "name": "chattering",
+  "version": "3.1.0",
+  "description": "Multi-platform chat viewer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0",
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1",
+    "tiktok-live-connector": "^1.1.10",
+    "youtube-chat": "^2.0.2",
+    "tmi.js": "^1.8.5",
+    "pusher-js": "^8.3.0"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.chattering.app",
+    "productName": "Chattering",
+    "asar": false,
+    "files": [
+      "main.js",
+      "preload.js",
+      "node_modules/**/*",
+      "!node_modules/electron-builder/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "server.js",
+        "to": "server.js"
+      },
+      {
+        "from": "server",
+        "to": "server"
+      },
+      {
+        "from": "public",
+        "to": "public"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "assets/icon.ico",
+      "shortcutName": "Chattering",
+      "deleteAppDataOnUninstall": false
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

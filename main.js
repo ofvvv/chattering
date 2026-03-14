@@ -1,0 +1,417 @@
+const { app, BrowserWindow, ipcMain, screen, shell, safeStorage, nativeTheme } = require('electron')
+const path   = require('path')
+const fs     = require('fs')
+const http   = require('http')
+const { fork, exec } = require('child_process')
+
+// ─── LOG DE ERRORES ──────────────────────────────────────────────────────────
+const LOG_PATH = path.join(app.getPath('userData'), 'error.log')
+function writeLog(msg) {
+    const line = `[${new Date().toISOString()}] ${msg}\n`
+    try { fs.appendFileSync(LOG_PATH, line) } catch {}
+    console.log(msg)
+}
+process.on('uncaughtException',  e => writeLog(`[CRASH] ${e.message}\n${e.stack}`))
+process.on('unhandledRejection', e => writeLog(`[REJECT] ${e?.message || e}`))
+
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
+
+function loadConfig() {
+    try { return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')) }
+    catch { return null }
+}
+function saveConfig(cfg) {
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8')
+}
+
+// ─── VERSIÓN ─────────────────────────────────────────────────────────────────
+const APP_VERSION = app.getVersion() // v3.1
+const SEEN_VERSION_PATH = path.join(app.getPath('userData'), 'last_seen_version.txt')
+
+function getLastSeenVersion() {
+    try { return fs.readFileSync(SEEN_VERSION_PATH, 'utf8').trim() }
+    catch { return null }
+}
+function setLastSeenVersion(v) {
+    try { fs.writeFileSync(SEEN_VERSION_PATH, v, 'utf8') } catch {}
+}
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+let mainWindow   = null
+let serverProc   = null
+let pendingPopup = null
+
+// ─── PATHS según modo ────────────────────────────────────────────────────────
+function getServerPath() {
+    return app.isPackaged
+        ? path.join(process.resourcesPath, 'server.js')
+        : path.join(__dirname, 'server.js')
+}
+function getPublicPath() {
+    return app.isPackaged
+        ? path.join(process.resourcesPath, 'public')
+        : path.join(__dirname, 'public')
+}
+function getNodeModulesPath() {
+    return app.isPackaged
+        ? path.join(app.getAppPath(), 'node_modules')
+        : path.join(__dirname, 'node_modules')
+}
+
+// ─── KILL PORT ROBUSTO ───────────────────────────────────────────────────────
+function killPort(port) {
+    return new Promise(resolve => {
+        // Intenta PowerShell primero, luego netstat como fallback
+        const ps = `powershell -NoProfile -NonInteractive -Command "` +
+            `Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue ` +
+            `| Select-Object -ExpandProperty OwningProcess ` +
+            `| ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }"`
+
+        exec(ps, { timeout: 5000 }, (err) => {
+            if (err) {
+                // Fallback: CMD netstat
+                exec(
+                    `for /f "tokens=5" %a in ('netstat -ano ^| findstr :${port}') do taskkill /f /pid %a`,
+                    { timeout: 5000, shell: 'cmd.exe' },
+                    () => resolve()
+                )
+            } else {
+                resolve()
+            }
+        })
+    })
+}
+
+// ─── SERVER ──────────────────────────────────────────────────────────────────
+// Arranca el servidor y espera señal 'ready' antes de resolver
+// Si el servidor no responde en 10s, resuelve igual (timeout de seguridad)
+function startServer() {
+    return new Promise(async (resolve) => {
+        // 1. Matar proceso anterior
+        if (serverProc) {
+            try { serverProc.kill('SIGKILL') } catch {}
+            serverProc = null
+            await new Promise(r => setTimeout(r, 600))
+        }
+
+        // 2. Liberar el puerto
+        writeLog('[Main] Liberando puerto 3000...')
+        await killPort(3000)
+        await new Promise(r => setTimeout(r, 400))
+
+        const serverPath  = getServerPath()
+        const nodeModules = getNodeModulesPath()
+
+        writeLog(`[Main] Arrancando servidor: ${serverPath}`)
+        writeLog(`[Main] NODE_PATH: ${nodeModules}`)
+        writeLog(`[Main] CONFIG_PATH: ${CONFIG_PATH}`)
+        writeLog(`[Main] isPackaged: ${app.isPackaged}`)
+
+        // Verificar que server.js existe
+        if (!fs.existsSync(serverPath)) {
+            writeLog(`[Main] ERROR: server.js no encontrado en ${serverPath}`)
+            resolve()
+            return
+        }
+
+        // 3. Fork del servidor
+        serverProc = fork(serverPath, [], {
+            env: {
+                ...process.env,
+                CONFIG_PATH,
+                PORT: '3000',
+                NODE_PATH: nodeModules,
+                ELECTRON_RUN_AS_NODE: '1'
+            },
+            cwd: path.dirname(serverPath),
+            stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+        })
+
+        // Capturar stdout/stderr del servidor al log
+        serverProc.stdout?.on('data', d => writeLog(`[Server] ${d.toString().trim()}`))
+        serverProc.stderr?.on('data', d => writeLog(`[Server ERR] ${d.toString().trim()}`))
+        serverProc.on('error', e => writeLog(`[Server fork error] ${e.message}`))
+        serverProc.on('exit', (code, signal) => {
+            writeLog(`[Server exit] code=${code} signal=${signal}`)
+            serverProc = null
+        })
+
+        // 4. Esperar señal 'ready' del servidor (con timeout de 12s)
+        let resolved = false
+        const timeout = setTimeout(() => {
+            if (!resolved) {
+                resolved = true
+                writeLog('[Main] Timeout esperando servidor (12s) — cargando igual')
+                resolve()
+            }
+        }, 12000)
+
+        serverProc.on('message', msg => {
+            writeLog(`[Server msg] ${JSON.stringify(msg)}`)
+            if (msg?.type === 'ready' && !resolved) {
+                resolved = true
+                clearTimeout(timeout)
+                writeLog('[Main] Servidor listo ✓')
+                resolve()
+            }
+        })
+    })
+}
+
+// ─── VENTANA PRINCIPAL ───────────────────────────────────────────────────────
+function createMainWindow(isSetup) {
+    const cfg = loadConfig() || {}
+    const isTranslucent = cfg.translucent === true
+    mainWindow = new BrowserWindow({
+        width:           400,
+        height:          700,
+        minWidth:        320,
+        minHeight:       500,
+        frame:           false,
+        transparent:     isTranslucent,
+        backgroundColor: isTranslucent ? '#00000000' : '#111111',
+        alwaysOnTop:     cfg.alwaysOnTop === true,
+        opacity:         isTranslucent ? (cfg.windowOpacity||90)/100 : 1,
+        webPreferences: {
+            preload:          path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration:  false,
+            webSecurity:      false,
+            devTools:         !app.isPackaged
+        }
+    })
+
+    const file = path.join(getPublicPath(), isSetup ? 'setup.html' : 'index.html')
+    writeLog(`[Main] Cargando: ${file}`)
+    mainWindow.loadFile(file)
+
+    // Interceptar navegación — abrir cualquier URL externa en el navegador del sistema
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url)
+        return { action: 'deny' }
+    })
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+        if (!url.startsWith('file://')) {
+            event.preventDefault()
+            shell.openExternal(url)
+        }
+    })
+
+    // F12 solo en desarrollo
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+        // F5 = reload in dev and production
+        if (input.key === 'F5') {
+            event.preventDefault()
+            mainWindow.webContents.reload()
+            return
+        }
+        if (!app.isPackaged) {
+            if (input.key === 'F12' || (input.control && input.shift && input.key === 'I')) {
+                mainWindow.webContents.toggleDevTools()
+            }
+        }
+    })
+
+    mainWindow.on('closed', () => {
+        if (serverProc) { try { serverProc.kill() } catch {} }
+        app.quit()
+    })
+}
+
+// ─── POPUP DE USUARIO ────────────────────────────────────────────────────────
+const popupWindows = new Map()
+
+function openPopupWindow(userData) {
+    if (popupWindows.has(userData.userId)) {
+        try { popupWindows.get(userData.userId).close() } catch {}
+    }
+    pendingPopup = userData
+
+    const { x, y } = screen.getCursorScreenPoint()
+    const display   = screen.getDisplayNearestPoint({ x, y })
+    const { bounds } = display
+    const W = 260, H = 400
+    let px = x + 12, py = y + 12
+    if (px + W > bounds.x + bounds.width)  px = x - W - 12
+    if (py + H > bounds.y + bounds.height) py = y - H - 12
+
+    const popup = new BrowserWindow({
+        x: px, y: py, width: W, height: H,
+        frame: false, backgroundColor: '#18181b',
+        alwaysOnTop: true, resizable: false, skipTaskbar: true,
+        webPreferences: {
+            preload:          path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration:  false,
+            webSecurity:      false,
+            devTools:         false
+        }
+    })
+
+    popup.loadFile(path.join(getPublicPath(), 'popup.html'))
+    // Note: removed blur-to-close — causes issues with always-on-top mode
+    // User closes popup with X button or Escape key
+    popup.on('closed', () => popupWindows.delete(userData.userId))
+    popupWindows.set(userData.userId, popup)
+}
+
+// ─── APP LIFECYCLE ───────────────────────────────────────────────────────────
+// ─── HARDWARE ACCELERATION ──────────────────────────────────────────────────
+const cfg0 = (() => { try { return JSON.parse(require('fs').readFileSync(require('path').join(app.getPath('userData'), 'config.json'), 'utf8')) } catch { return {} } })()
+if (cfg0.disableHWAccel) app.disableHardwareAcceleration()
+
+app.whenReady().then(async () => {
+    writeLog(`[Main] Chattering v${APP_VERSION} arrancando`)
+    writeLog(`[Main] userData: ${app.getPath('userData')}`)
+
+    const config = loadConfig()
+    writeLog(`[Main] Config: ${config ? 'encontrada' : 'primera vez (setup)'}`)
+
+    if (config) {
+        // Arrancar servidor primero, LUEGO cargar la ventana con index.html
+        createMainWindow(false)
+        // Mostrar loading mientras el servidor arranca
+        mainWindow.webContents.on('did-finish-load', async () => {
+            // La página ya cargó, ahora arrancamos el servidor
+        })
+        await startServer()
+        // Recargar para que socket.io conecte con el servidor ya activo
+        mainWindow.loadFile(path.join(getPublicPath(), 'index.html'))
+    } else {
+        createMainWindow(true)
+    }
+})
+
+app.on('window-all-closed', () => {
+    if (serverProc) { try { serverProc.kill() } catch {} }
+    if (process.platform !== 'darwin') app.quit()
+})
+
+// ─── IPC ─────────────────────────────────────────────────────────────────────
+ipcMain.on('win-minimize', () => mainWindow?.minimize())
+ipcMain.handle('open-external',    (_e, url)  => { shell.openExternal(url); return true })
+ipcMain.handle('set-always-on-top',(_e, flag) => { mainWindow?.setAlwaysOnTop(!!flag, flag ? 'floating' : 'normal'); if(flag) mainWindow?.setMovable(true); return true })
+ipcMain.on('win-maximize', () => {
+    if (!mainWindow) return
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+})
+ipcMain.on('win-close', () => mainWindow?.close())
+
+ipcMain.handle('get-config',  () => loadConfig())
+ipcMain.handle('get-version', () => APP_VERSION)
+ipcMain.handle('get-last-seen-version', () => getLastSeenVersion())
+ipcMain.handle('set-last-seen-version', (_e, v) => { setLastSeenVersion(v); return true })
+
+ipcMain.handle('save-config', async (_e, cfg) => {
+    saveConfig(cfg)
+    // Apply always-on-top immediately from saved config
+    if (mainWindow) mainWindow.setAlwaysOnTop(cfg.alwaysOnTop === true, cfg.alwaysOnTop ? 'floating' : 'normal'); if(cfg.alwaysOnTop) mainWindow.setMovable(true)
+    await startServer()
+    mainWindow?.loadFile(path.join(getPublicPath(), 'index.html'))
+    return true
+})
+
+ipcMain.on('setup-complete', async () => {
+    await startServer()
+    mainWindow?.loadFile(path.join(getPublicPath(), 'index.html'))
+})
+
+
+// ─── SETTINGS WINDOW ────────────────────────────────────────────────────────
+let settingsWindow = null
+
+function openSettingsWindow() {
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+        settingsWindow.focus()
+        return
+    }
+    settingsWindow = new BrowserWindow({
+        width: 720, height: 540,
+        minWidth: 600, minHeight: 440,
+        frame: false,
+        backgroundColor: '#18181b',
+        parent: mainWindow,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration: false,
+            webSecurity: false,
+            devTools: !app.isPackaged
+        }
+    })
+    settingsWindow.loadFile(path.join(getPublicPath(), 'settings.html'))
+    settingsWindow.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' } })
+    settingsWindow.on('closed', () => { settingsWindow = null })
+}
+
+ipcMain.handle('open-settings', () => { openSettingsWindow(); return true })
+ipcMain.handle('close-settings', () => { settingsWindow?.close(); return true })
+
+ipcMain.handle('save-settings', async (_e, cfg) => {
+    saveConfig(cfg)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        // Apply always-on-top immediately
+        mainWindow.setAlwaysOnTop(cfg.alwaysOnTop === true, cfg.alwaysOnTop ? 'floating' : 'normal'); if(cfg.alwaysOnTop) mainWindow.setMovable(true)
+        // Apply opacity if translucent
+        if (cfg.translucent) mainWindow.setOpacity((cfg.windowOpacity||90)/100)
+        else mainWindow.setOpacity(1)
+        // Notify frontend to update visual settings live (no reload)
+        mainWindow.webContents.send('settings-saved', cfg)
+    }
+    // Tell the server to reload config and reconnect platforms
+    if (serverProc) {
+        try {
+            const http = require('http')
+            const req = http.request({ hostname:'localhost', port:3000, path:'/api/reconnect', method:'POST', headers:{'Content-Type':'application/json'} }, () => {})
+            req.on('error', () => {}) // ignore if server not ready
+            req.write('{}')
+            req.end()
+        } catch {}
+    }
+    // Close settings window after save
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+        setTimeout(() => { try { settingsWindow.close() } catch {} }, 300)
+    }
+    return true
+})
+
+ipcMain.handle('preview-settings', (_e, partial) => {
+    // Send partial config to main window for live preview (no server restart)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('settings-saved', { ...((() => { try { return JSON.parse(require('fs').readFileSync(require('path').join(app.getPath('userData'), 'config.json'), 'utf8')) } catch { return {} } })()), ...partial })
+    }
+    return true
+})
+
+ipcMain.handle('open-popup',     (_e, userData) => { openPopupWindow(userData); return true })
+ipcMain.handle('get-popup-data', () => pendingPopup)
+
+ipcMain.handle('reset-config', () => {
+    try { fs.unlinkSync(CONFIG_PATH) } catch {}
+    if (serverProc) { try { serverProc.kill() } catch {}; serverProc = null }
+    mainWindow?.loadFile(path.join(getPublicPath(), 'setup.html'))
+    return true
+})
+
+// ─── TWITCH OAUTH — usa Express en puerto 3000 como callback ─────────────────
+// Ventaja: sin servidor extra, sin conflictos de puerto, solo 1 URL en Twitch console
+// Configura en dev.twitch.tv → tu app → OAuth Redirect URLs: http://localhost:3000/oauth/callback
+const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
+const REDIRECT_URI     = 'http://localhost:3000/oauth/callback'
+const OAUTH_SCOPES     = 'chat:read chat:edit channel:moderate moderator:manage:banned_users moderator:read:chat_settings'
+
+// Pending promise resolver — set by login-twitch, resolved by /oauth/callback in Express
+let _oauthResolve = null
+
+// Express registers this route when it gets the token from the browser redirect
+// main.js can't register Express routes directly, so we IPC it via the server process.
+// Instead we just open the browser and poll /api/twitch/auth-status from the renderer.
+ipcMain.handle('login-twitch', async () => {
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(OAUTH_SCOPES)}&force_verify=true`
+    shell.openExternal(authUrl)
+    writeLog('[OAuth] Abriendo Twitch en navegador: ' + authUrl.slice(0, 80) + '...')
+
+    // Return immediately — renderer polls /api/twitch/auth-status
+    return { success: true, polling: true }
+})

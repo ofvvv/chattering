@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Chattering — Configuración inicial</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #111111; color: #dadada;
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh; display: flex; flex-direction: column;
+            overflow: hidden; user-select: none;
+        }
+
+        #titlebar {
+            height: 36px; background: #09090b;
+            border-bottom: 1px solid #222;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 0 12px; flex-shrink: 0;
+            -webkit-app-region: drag;
+        }
+        #titlebar-title { font-size: 12px; font-weight: 700; color: #555; letter-spacing: 2px; text-transform: uppercase; }
+        #titlebar-controls { display: flex; gap: 6px; -webkit-app-region: no-drag; }
+        .win-btn {
+            width: 28px; height: 22px; border: none;
+            background: transparent; color: #555;
+            font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; transition: all 0.15s;
+        }
+        .win-btn:hover { background: #222; color: #ddd; }
+        #btn-close:hover { background: #c42b1c; color: #fff; }
+
+        /* Zona scrollable */
+        #content {
+            flex: 1; overflow-y: auto;
+            display: flex; flex-direction: column;
+            align-items: center;
+            padding: 28px 24px 32px;
+            gap: 20px;
+        }
+        #content::-webkit-scrollbar { width: 3px; }
+        #content::-webkit-scrollbar-thumb { background: #2e2e35; }
+
+        .logo { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+        .logo span { color: #9b9bf5; }
+        .subtitle { font-size: 12.5px; color: #555; text-align: center; line-height: 1.6; max-width: 320px; }
+
+        .section { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 7px; }
+        .section-title {
+            font-size: 10px; font-weight: 800; color: #555;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .badge-coming { font-size: 8px; background: #2a2a30; color: #555; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; }
+
+        .plat-row { display: flex; align-items: flex-start; gap: 8px; width: 100%; }
+        .plat-icon {
+            width: 28px; height: 28px; flex-shrink: 0; margin-top: 1px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800; color: #fff; border-radius: 4px;
+        }
+        .pi-TT { background: #000; border: 1px solid #00f2fe; }
+        .pi-YT { background: #ff0000; }
+        .pi-TW { background: #9147ff; }
+        .pi-KK { background: #53fc18; color: #000; }
+
+        .input-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .input-field {
+            background: #1a1a1e; border: 1px solid #2e2e35; color: #dadada;
+            padding: 8px 10px; font-size: 13px; font-family: inherit;
+            border-radius: 4px; outline: none; transition: border 0.15s; width: 100%;
+        }
+        .input-field:focus { border-color: #9b9bf5; }
+        .input-field:disabled { opacity: 0.35; cursor: not-allowed; }
+        .input-field::placeholder { color: #2e2e35; }
+        .input-field.error { border-color: #ff4444; }
+
+        .input-hint {
+            font-size: 10px; color: #444; line-height: 1.5;
+        }
+        .input-hint a {
+            color: #7b7bdc; text-decoration: none; cursor: pointer;
+        }
+        .input-hint a:hover { text-decoration: underline; color: #9b9bf5; }
+
+        .divider { width: 100%; max-width: 320px; height: 1px; background: #1e1e24; }
+
+        .btn-twitch-oauth {
+            width: 100%; background: #9147ff; color: #fff; border: none;
+            padding: 9px 12px; font-size: 13px; font-weight: 700; border-radius: 4px;
+            cursor: pointer; font-family: inherit; display: flex; align-items: center;
+            gap: 8px; justify-content: center; transition: background 0.15s;
+        }
+        .btn-twitch-oauth:hover { background: #7c2ffc; }
+        .btn-twitch-oauth.connected { background: #1a4a1a; border: 1px solid #53fc18; color: #53fc18; }
+        .btn-start {
+            width: 100%; max-width: 320px;
+            background: #9b9bf5; color: #fff;
+            border: none; padding: 12px;
+            font-size: 14px; font-weight: 700;
+            border-radius: 4px; cursor: pointer;
+            transition: background 0.15s; font-family: inherit;
+        }
+        .btn-start:hover { background: #7b7bdc; }
+
+        .skip { font-size: 11px; color: #333; cursor: pointer; transition: color 0.15s; }
+        .skip:hover { color: #666; }
+
+        .note { font-size: 11px; color: #2e2e35; max-width: 320px; text-align: center; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div id="titlebar">
+        <div id="titlebar-title">Chattering</div>
+        <div id="titlebar-controls">
+            <button class="win-btn" onclick="window.electronAPI.minimize()">─</button>
+            <button class="win-btn" id="btn-close" onclick="window.electronAPI.close()">✕</button>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="logo">Chatter<span>ing</span></div>
+        <div class="subtitle">Ingresa tus usuarios de cada plataforma. Puedes dejar en blanco las que no uses y configurarlas después.</div>
+
+        <!-- TikTok -->
+        <div class="section">
+            <div class="section-title"><span>⬛</span> TikTok</div>
+            <div class="plat-row">
+                <div class="plat-icon pi-TT">TT</div>
+                <div class="input-wrap">
+                    <input class="input-field" id="tt-user" placeholder="usuario o @usuario" type="text">
+                    <div class="input-hint">
+                        Tu nombre de usuario de TikTok. Con o sin @ funciona igual.<br>
+                        Encuéntralo en <a onclick="openLink('https://www.tiktok.com/profile')">tiktok.com → tu perfil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="section">
+            <div class="section-title"><span>🔴</span> YouTube</div>
+            <div class="plat-row">
+                <div class="plat-icon pi-YT">YT</div>
+                <div class="input-wrap">
+                    <input class="input-field" id="yt-channel" placeholder="Channel ID (UCxxx...)" type="text">
+                    <div class="input-hint">
+                        El Channel ID empieza con <b>UC</b>.<br>
+                        Encuéntralo en <a onclick="openLink('https://www.youtube.com/account_advanced')">youtube.com/account_advanced</a> → "ID de canal de YouTube"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Twitch -->
+        <div class="section">
+            <div class="section-title"><span style="color:#9147ff">▌</span> Twitch</div>
+            <div class="plat-row">
+                <div class="plat-icon pi-TW">TW</div>
+                <div class="input-wrap">
+                    <button class="btn-twitch-oauth" onclick="loginTwitch()" id="tw-oauth-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 28" fill="currentColor" style="flex-shrink:0"><path d="M2.149 0L.537 4.119V24.33h6.437V28h3.481l3.704-3.67h5.575l7.11-7.148V0H2.15zm19.302 16.44L17.39 20.56h-6.807l-3.706 3.67V20.56H2.15V2.229h19.3v14.21zM17.39 8.18v7.149H15.18V8.18h2.209zm-5.945 0v7.149H9.237V8.18h2.208z"/></svg>
+                        Conectar con Twitch
+                    </button>
+                    <div id="tw-auth-status" style="font-size:10.5px;color:#444;min-height:14px;display:flex;align-items:center;gap:6px"></div>
+                    <div style="font-size:10px;color:#2e2e35;margin-top:4px">O introduce solo tu usuario (solo lectura, sin moderación):</div>
+                    <input class="input-field" id="tw-user" placeholder="usuario (opcional si te conectas arriba)" type="text" style="margin-top:4px;font-size:12px">
+                </div>
+            </div>
+        </div>
+
+        <!-- Kick -->
+        <div class="section">
+            <div class="section-title"><span>🟩</span> Kick <span class="badge-coming">Próximamente</span></div>
+            <div class="plat-row">
+                <div class="plat-icon pi-KK">KK</div>
+                <div class="input-wrap">
+                    <input class="input-field" id="kk-user" placeholder="no disponible aún" type="text" disabled>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-start" onclick="guardarYContinuar()">Empezar →</button>
+        <div class="skip" onclick="saltar()">Saltar y configurar después desde ⚙</div>
+        <div class="note">Todo se puede cambiar en cualquier momento desde el ícono de configuración ⚙ en la ventana principal.</div>
+    </div>
+
+    <script>
+        function openLink(url) {
+            // Abrir en navegador externo via shell de Electron
+            // Usamos un truco: crear un enlace y clickearlo no funciona en Electron file://
+            // En su lugar enviamos al proceso principal via IPC si estuviera disponible,
+            // o simplemente abrimos con window.open que Electron redirige al navegador
+            window.open(url, '_blank')
+        }
+
+        function limpiar(s) {
+            return (s || '').replace('@', '').trim()
+        }
+
+        let savedToken = '', savedLogin = ''
+
+        async function loginTwitch() {
+            const btn = document.getElementById('tw-oauth-btn')
+            const status = document.getElementById('tw-auth-status')
+            btn.disabled = true
+            status.innerHTML = '⏳ Abriendo tu navegador...'
+            status.style.color = '#888'
+            try {
+                // Opens browser, returns immediately
+                await window.electronAPI.loginTwitch()
+                status.innerHTML = '⏳ Esperando que completes la autorización en el navegador...'
+                let done = false
+                const poll = setInterval(async () => {
+                    if (done) return
+                    try {
+                        const r = await fetch('http://localhost:3000/api/twitch/auth-status')
+                        const d = await r.json()
+                        if (d.ok && d.login) {
+                            done = true; clearInterval(poll)
+                            savedToken = d.token || ''
+                            savedLogin = d.login
+                            document.getElementById('tw-user').value = d.login
+                            btn.className = 'btn-twitch-oauth connected'
+                            btn.innerHTML = '✓ Conectado como ' + d.login
+                            status.innerHTML = ''
+                        }
+                    } catch {}
+                }, 1500)
+                setTimeout(() => {
+                    if (!done) { clearInterval(poll); status.innerHTML = 'Tiempo agotado. Escribe el usuario manualmente.'; status.style.color = '#555' }
+                }, 120000)
+            } catch(e) {
+                status.innerHTML = 'Error: ' + e.message
+                status.style.color = '#ff6060'
+            }
+            btn.disabled = false
+        }
+
+        async function guardarYContinuar() {
+            const twitchUser = savedLogin || limpiar(document.getElementById('tw-user').value)
+            const config = {
+                tiktokUser:       limpiar(document.getElementById('tt-user').value),
+                youtubeChannelId: document.getElementById('yt-channel').value.trim(),
+                twitchUser,
+                kickUser:         '',
+                twitchToken:      savedToken || '',
+                fontSize:         13.5,
+                showTimestamps:   true,
+                showFollows:      true,
+                showGifts:        true,
+                showLikes:        true,
+                showTestButtons:  false,
+                streamerName:     twitchUser || limpiar(document.getElementById('tt-user').value)
+            }
+            await window.electronAPI.saveConfig(config)
+            window.electronAPI.setupComplete()
+        }
+
+        async function saltar() {
+            const config = {
+                tiktokUser: '', youtubeChannelId: '', twitchUser: '', kickUser: '',
+                twitchToken: '', fontSize: 13.5, showTimestamps: true, showFollows: true,
+                showGifts: true, showLikes: true, showTestButtons: false, streamerName: ''
+            }
+            await window.electronAPI.saveConfig(config)
+            window.electronAPI.setupComplete()
+        }
+    </script>
+</body>
+</html>
