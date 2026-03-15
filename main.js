@@ -64,7 +64,7 @@ function getStreamerChangelog(version) {
             'Actualizaciones automáticas desde GitHub'
         ]
     }
-    return notes[version] || notes['3.2.0'] || ['Mejoras y correcciones.']
+    return notes[version] || notes['3.2.1'] || ['Mejoras y correcciones.']
 }
 
 // ─── ESTADO ──────────────────────────────────────────────────────────────────
