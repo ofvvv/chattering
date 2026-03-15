@@ -10,163 +10,148 @@
         <div id="titlebar-title">Chattering</div>
         <div id="titlebar-controls">
             <button class="win-btn" onclick="window.electronAPI.minimize()">─</button>
-            <button class="win-btn" id="btn-close" onclick="window.electronAPI.close()">✕</button>
+            <button class="win-btn" onclick="window.electronAPI.close()">✕</button>
         </div>
     </div>
 
-    <div id="content">
+    <div id="content" style="padding: 30px;">
         <div class="logo">Chatter<span>ing</span></div>
-        <div class="subtitle">Ingresa tus usuarios de cada plataforma. Puedes dejar en blanco las que no uses y configurarlas después.</div>
+        <div class="subtitle" style="margin-bottom: 25px;">Conecta tus plataformas favoritas con un solo clic. Detectaremos tu usuario automáticamente.</div>
 
-        <!-- TikTok -->
-        <div class="section">
-            <div class="section-title"><span>⬛</span> TikTok</div>
-            <div class="plat-row">
-                <div class="plat-icon pi-TT">TT</div>
-                <div class="input-wrap">
-                    <div style="position:relative">
-                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none;user-select:none">@</span>
-                        <input class="input-field" id="tt-user" placeholder="usuario" type="text" style="padding-left:22px">
-                    </div>
-                    <div class="input-hint">
-                        Tu nombre de usuario de TikTok, por ejemplo: <b>@khaby.lame</b><br>
-                        Encuéntralo en <a onclick="openLink('https://www.tiktok.com/profile')">tiktok.com → tu perfil</a>
-                    </div>
-                </div>
+       <!-- TIKTOK -->
+        <div class="section" style="margin-bottom: 20px;">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg> TikTok
+            </div>
+            <div style="position:relative; margin-bottom: 8px;">
+                <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none">@</span>
+                <input class="input-field" id="setup-tt" placeholder="Se detectará automáticamente" type="text" style="padding-left:22px; width: 100%;" readonly>
+            </div>
+            <button class="btn-twitch-oauth" id="btn-tt-login" onclick="loginTiktokSeamlessSetup()" style="background: #111111; border: 1px solid #333; color: white;">
+                <span id="tt-btn-label">🔗 Vincular cuenta de TikTok</span>
+            </button>
+        </div>
+
+        <!-- YOUTUBE -->
+        <div class="section" style="margin-bottom: 20px;">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 4px;"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg> YouTube
+            </div>
+            <div style="position:relative">
+                <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none">@</span>
+                <input class="input-field" id="yt-channel" placeholder="Tu handle (ej: lofi_girl)" type="text" style="padding-left:22px; width: 100%;">
             </div>
         </div>
 
-        <!-- YouTube -->
-        <div class="section">
-            <div class="section-title"><span>🔴</span> YouTube</div>
-            <div class="plat-row">
-                <div class="plat-icon pi-YT">YT</div>
-                <div class="input-wrap">
-                    <div style="position:relative">
-                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none;user-select:none">@</span>
-                        <input class="input-field" id="yt-channel" placeholder="usuario" type="text" style="padding-left:22px">
-                    </div>
-                    <div class="input-hint">
-                        Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b><br>
-                        Encuéntralo en tu perfil de YouTube
-                    </div>
-                </div>
+        <!-- TWITCH -->
+        <div class="section" style="margin-bottom: 30px;">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#9146FF" style="vertical-align: middle; margin-right: 4px;"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg> Twitch
             </div>
+            <input type="hidden" id="tw-user">
+            <input type="hidden" id="tw-token">
+            <button class="btn-twitch-oauth" onclick="loginTwitchSetup()" id="tw-oauth-btn">
+                Conectar con Twitch
+            </button>
         </div>
 
-        <!-- Twitch -->
-        <div class="section">
-            <div class="section-title"><span style="color:#9147ff">▌</span> Twitch</div>
-            <div class="plat-row">
-                <div class="plat-icon pi-TW">TW</div>
-                <div class="input-wrap">
-                    <button class="btn-twitch-oauth" onclick="loginTwitch()" id="tw-oauth-btn">
-                        <svg width="14" height="14" viewBox="0 0 24 28" fill="currentColor" style="flex-shrink:0"><path d="M2.149 0L.537 4.119V24.33h6.437V28h3.481l3.704-3.67h5.575l7.11-7.148V0H2.15zm19.302 16.44L17.39 20.56h-6.807l-3.706 3.67V20.56H2.15V2.229h19.3v14.21zM17.39 8.18v7.149H15.18V8.18h2.209zm-5.945 0v7.149H9.237V8.18h2.208z"/></svg>
-                        Conectar con Twitch
-                    </button>
-                    <div id="tw-auth-status" style="font-size:10.5px;color:#444;min-height:14px;display:flex;align-items:center;gap:6px"></div>
-                    <div style="font-size:10px;color:#2e2e35;margin-top:4px">O introduce solo tu usuario (solo lectura, sin moderación):</div>
-                    <input class="input-field" id="tw-user" placeholder="usuario (opcional si te conectas arriba)" type="text" style="margin-top:4px;font-size:12px">
-                </div>
-            </div>
-        </div>
-
-        <!-- Kick -->
-        <div class="section">
-            <div class="section-title"><span>🟩</span> Kick <span class="badge-coming">Próximamente</span></div>
-            <div class="plat-row">
-                <div class="plat-icon pi-KK">KK</div>
-                <div class="input-wrap">
-                    <input class="input-field" id="kk-user" placeholder="no disponible aún" type="text" disabled>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn-start" onclick="guardarYContinuar()">Empezar →</button>
-        <div class="skip" onclick="saltar()">Saltar y configurar después desde ⚙</div>
-        <div class="note">Todo se puede cambiar en cualquier momento desde el ícono de configuración ⚙ en la ventana principal.</div>
+        <button class="btn-start" onclick="guardarYContinuar()" id="btn-start">Guardar y Empezar →</button>
+        <div class="skip" onclick="guardarYContinuar(true)">Saltar y configurar después</div>
     </div>
 
     <script>
-        function openLink(url) {
-            // Abrir en navegador externo via shell de Electron
-            // Usamos un truco: crear un enlace y clickearlo no funciona en Electron file://
-            // En su lugar enviamos al proceso principal via IPC si estuviera disponible,
-            // o simplemente abrimos con window.open que Electron redirige al navegador
-            window.open(url, '_blank')
-        }
+        let tempTiktokSessionId = null;
 
-        function limpiar(s) {
-            return (s || '').replace('@', '').trim()
-        }
-
-        let savedToken = '', savedLogin = ''
-
-        async function loginTwitch() {
-            const btn = document.getElementById('tw-oauth-btn')
-            const status = document.getElementById('tw-auth-status')
-            btn.disabled = true
-            status.innerHTML = '⏳ Abriendo tu navegador...'
-            status.style.color = '#888'
+        async function loginTiktokSeamlessSetup() {
+            const btn = document.getElementById('btn-tt-login');
+            const lbl = document.getElementById('tt-btn-label');
+            const ttInput = document.getElementById('setup-tt');
+            
+            btn.disabled = true;
+            lbl.textContent = 'Abriendo ventana...';
+            
             try {
-                // Opens browser, returns immediately
-                await window.electronAPI.loginTwitch()
-                status.innerHTML = '⏳ Esperando que completes la autorización en el navegador...'
-                let done = false
+                const res = await window.electronAPI.loginTiktok();
+                if (res.success && res.sessionId) {
+                    tempTiktokSessionId = res.sessionId; // Guardar en memoria
+                    const username = res.username;
+                    
+                    if (username) {
+                        ttInput.value = username;
+                        lbl.textContent = '✓ TikTok: @' + username;
+                        btn.style.background = '#1a4a1a';
+                        btn.style.borderColor = '#53fc18';
+                        btn.style.color = '#53fc18';
+                    } else {
+                        lbl.textContent = '⚠️ Sesión lista. Escribe tu usuario arriba.';
+                        btn.style.borderColor = '#ffcc00';
+                        ttInput.removeAttribute('readonly');
+                        ttInput.focus();
+                    }
+                } else { 
+                    lbl.textContent = '🔗 Vincular cuenta de TikTok'; 
+                    alert("Error al vincular: " + (res.error || "Ventana cerrada"));
+                }
+            } catch (e) { 
+                lbl.textContent = '🔗 Vincular cuenta de TikTok'; 
+                alert("Error interno: " + e.message);
+            }
+            btn.disabled = false;
+        }
+
+        async function loginTwitchSetup() {
+            const btn = document.getElementById('tw-oauth-btn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Autoriza en el navegador...';
+            try {
+                await window.electronAPI.loginTwitch();
+                let done = false;
                 const poll = setInterval(async () => {
-                    if (done) return
+                    if (done) return;
                     try {
-                        const r = await fetch('http://localhost:3000/api/twitch/auth-status')
-                        const d = await r.json()
+                        const r = await fetch('http://localhost:3000/api/twitch/auth-status');
+                        const d = await r.json();
                         if (d.ok && d.login) {
-                            done = true; clearInterval(poll)
-                            savedToken = d.token || ''
-                            savedLogin = d.login
-                            document.getElementById('tw-user').value = d.login
-                            btn.className = 'btn-twitch-oauth connected'
-                            btn.innerHTML = '✓ Conectado como ' + d.login
-                            status.innerHTML = ''
+                            done = true; clearInterval(poll);
+                            document.getElementById('tw-token').value = d.token || '';
+                            document.getElementById('tw-user').value = d.login;
+                            btn.className = 'btn-twitch-oauth connected';
+                            btn.innerHTML = '✓ Twitch: ' + d.login;
                         }
-                    } catch {}
-                }, 1500)
-                setTimeout(() => {
-                    if (!done) { clearInterval(poll); status.innerHTML = 'Tiempo agotado. Escribe el usuario manualmente.'; status.style.color = '#555' }
-                }, 120000)
+                    } catch (err) {
+                        console.warn("Esperando al servidor local...", err.message);
+                    }
+                }, 1500);
             } catch(e) {
-                status.innerHTML = 'Error: ' + e.message
-                status.style.color = '#ff6060'
+                console.error("Error Twitch:", e);
+                alert("Error al abrir Twitch: " + e.message);
+                btn.innerHTML = 'Conectar con Twitch';
             }
-            btn.disabled = false
+            btn.disabled = false;
         }
 
-        async function guardarYContinuar() {
-            const twitchUser = savedLogin || limpiar(document.getElementById('tw-user').value)
-            const config = {
-                tiktokUser:       limpiar(document.getElementById('tt-user').value),
-                youtubeChannelId: document.getElementById('yt-channel').value.trim(),
-                twitchUser,
-                kickUser:         '',
-                twitchToken:      savedToken || '',
-                fontSize:         13.5,
-                showTimestamps:   true,
-                showFollows:      true,
-                showGifts:        true,
-                showLikes:        true,
-                showTestButtons:  false,
-                streamerName:     twitchUser || limpiar(document.getElementById('tt-user').value)
-            }
-            await window.electronAPI.saveConfig(config)
-            window.electronAPI.setupComplete()
-        }
+        async function guardarYContinuar(skip = false) {
+            const btn = document.getElementById('btn-start');
+            btn.textContent = 'Iniciando...';
+            btn.disabled = true;
 
-        async function saltar() {
+            const ttUser = document.getElementById('setup-tt').value.trim();
+            const twUser = document.getElementById('tw-user').value.trim();
+            const currentCfg = await window.electronAPI.getConfig() || {};
+            
             const config = {
-                tiktokUser: '', youtubeChannelId: '', twitchUser: '', kickUser: '',
-                twitchToken: '', fontSize: 13.5, showTimestamps: true, showFollows: true,
-                showGifts: true, showLikes: true, showTestButtons: false, streamerName: ''
-            }
-            await window.electronAPI.saveConfig(config)
-            window.electronAPI.setupComplete()
+                ...currentCfg,
+                tiktokSessionId:  tempTiktokSessionId || currentCfg.tiktokSessionId,
+                tiktokUser:       skip ? '' : ttUser,
+                youtubeChannelId: skip ? '' : document.getElementById('yt-channel').value.trim().replace('@', ''),
+                twitchUser:       skip ? '' : twUser,
+                twitchToken:      skip ? '' : document.getElementById('tw-token').value.trim(),
+                streamerName:     twUser || ttUser || '',
+                fontSize: 13.5, showTimestamps: true, showFollows: true, showGifts: true, showLikes: true
+            };
+            
+            await window.electronAPI.saveConfig(config);
+            window.electronAPI.setupComplete(); 
         }
     </script>
 </body>

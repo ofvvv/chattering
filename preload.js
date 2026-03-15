@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openExternal:       (url)  => ipcRenderer.invoke('open-external', url),
     setAlwaysOnTop:     (flag) => ipcRenderer.invoke('set-always-on-top', flag),
     loginTwitch:        ()     => ipcRenderer.invoke('login-twitch'),
+    loginTiktok:        ()     => ipcRenderer.invoke('login-tiktok'),
     previewSettings:    (p)    => ipcRenderer.invoke('preview-settings', p),
     openSettings:       ()     => ipcRenderer.invoke('open-settings'),
     closeSettings:      ()     => ipcRenderer.invoke('close-settings'),

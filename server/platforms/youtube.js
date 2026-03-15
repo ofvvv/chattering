@@ -31,9 +31,9 @@ async function connect(username) {
     // Get live video ID from handle
     const videoId = await getLiveVideoId(handle)
     if (!videoId) {
-        console.error('[YouTube] No hay stream activo para @' + handle)
+        console.log(`[YouTube] @${handle} está offline. Reintentando en silencio...`)
         if (updatePlatformState) updatePlatformState('YT', 'disconnected')
-        reconnectTimer = setTimeout(() => connect(username), 30000)
+        reconnectTimer = setTimeout(() => connect(username), 60000)
         return
     }
     
@@ -43,16 +43,36 @@ async function connect(username) {
     chatRef = chat
 
     chat.on('chat', item => {
-        const text = item.message?.map(m => m.text||m.emojiText||'').join('') || ''
+        let text = ''
+        const ytEmotes = []
+        
+        // Extraer texto y emotes nativos de YouTube sin destruirlos
+        if (item.message) {
+            item.message.forEach((m, i) => {
+                if (m.text) {
+                    text += m.text
+                } else if (m.url) {
+                    const ph = `__YT_EMOTE_${i}__`
+                    text += ph
+                    ytEmotes.push({ placeholder: ph, url: m.url, name: m.alt || m.emojiText || 'emote' })
+                }
+            })
+        }
+        
         if (!text) return
         updateStatus('YT', true)
         if (updatePlatformState) updatePlatformState('YT', 'connected')
+        
         const avatar = item.author?.thumbnail?.url || null
         const isFirst = procesarUsuario(item.author.channelId, item.author.name, 'YT')
-        emitMsg({ plat:'YT', type:'msg', user:item.author.name, userId:item.author.channelId,
-                  avatar, text, isFirst,
-                  badges:{mod:item.author.isChatModerator||item.author.isChatOwner, sub:item.author.isChatSponsor},
-                  badgeUrls:[] })
+        
+        emitMsg({ 
+            plat:'YT', type:'msg', user:item.author.name, userId:item.author.channelId,
+            avatar, text, isFirst,
+            badges:{mod:item.author.isChatModerator||item.author.isChatOwner, sub:item.author.isChatSponsor},
+            badgeUrls:[],
+            ytEmotes: ytEmotes // Enviamos los emotes al frontend
+        })
     })
     
     chat.on('error', e => {
@@ -75,15 +95,15 @@ async function connect(username) {
         console.log('[YouTube] Stream terminado')
         updateStatus('YT', false)
         if (updatePlatformState) updatePlatformState('YT', 'disconnected')
-        reconnectTimer = setTimeout(() => connect(username), 30000)
+        reconnectTimer = setTimeout(() => connect(username), 60000)
     })
 
     chat.start()
         .then(ok => {
             if (!ok) {
-                console.error('[YouTube] No hay stream activo')
+                console.log(`[YouTube] @${handle} está offline. Reintentando en silencio...`)
                 if (updatePlatformState) updatePlatformState('YT', 'disconnected')
-                reconnectTimer = setTimeout(() => connect(username), 30000)
+                reconnectTimer = setTimeout(() => connect(username), 60000)
             } else {
                 if (updatePlatformState) updatePlatformState('YT', 'connected')
             }
@@ -112,7 +132,6 @@ async function getLiveVideoId(handle) {
                 let data = ''
                 res.on('data', chunk => { data += chunk })
                 res.on('end', () => {
-                    // Extract video ID from page
                     const match = data.match(/"videoId":"([^"]+)"/)
                     if (match && match[1]) {
                         resolve(match[1])

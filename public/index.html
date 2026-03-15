@@ -48,7 +48,6 @@
   <button class="fchip fc-plat" id="fc-TT" onclick="toggleFilter('TT')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/></svg> TT</button>
   <button class="fchip fc-plat" id="fc-YT" onclick="toggleFilter('YT')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/></svg> YT</button>
   <button class="fchip fc-plat" id="fc-TW" onclick="toggleFilter('TW')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/></svg> TW</button>
-  <button class="fchip fc-plat" id="fc-KK" onclick="toggleFilter('KK')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#53FC18"/><path d="M4 3.5h2.8V8L11 3.5h3.6L9.8 9l4.8 5.5H11l-4.2-5v5H4V3.5z" fill="#000"/></svg> KK</button>
   <button class="fchip" id="fc-clear" onclick="clearFilters()" style="color:#333;margin-left:auto">✕</button>
 </div>
 
@@ -188,9 +187,6 @@
     <div class="plat-status-icon" data-plat="TW" title="Twitch">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg>
     </div>
-    <div class="plat-status-icon" data-plat="KK" title="Kick">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 109 9 9 9 0 00-9-9zm3.9 12.7l-3.1-4.2 2.8-3.1h-2.2l-2.2 2.6V7.6H9.1v7.8h1.6v-3.1l.6-.7 2.2 3.8z"/></svg>
-    </div>
   </div>
   <div id="status-text" style="margin-left:auto">NOT LIVE</div>
 </div>
@@ -206,7 +202,7 @@ const TC=['#FF0000','#0000FF','#00FF00','#B22222','#FF7F50','#9ACD32','#FF4500',
 const KNOWN_BOTS=['nightbot','streamelements','fossabot','moobot','wizebot','botrix','streamlabs','sery_bot','stay_hydrated_bot']
 
 const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return TC[Math.abs(h)%TC.length]}
-const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>',KK:'<rect width="18" height="18" rx="3" fill="#53FC18"/><path d="M4 3.5h2.8V8L11 3.5h3.6L9.8 9l4.8 5.5H11l-4.2-5v5H4V3.5z" fill="#000"/>'};return icons[spl]||icons.TT}
+const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>'};return icons[spl]||icons.TT}
 const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]))
 const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank')
 const nextBg=even=>{msgLineCounter++;return msgLineCounter%2===0?'linea-bg-even':'linea-bg-odd'}
@@ -291,8 +287,7 @@ function chipAllowsMsg(d) {
     if(activeFilters.has('mods') && !d.badges?.mod) return false
     if(activeFilters.has('bots') && KNOWN_BOTS.includes((d.user||'').toLowerCase())) return false
     if(activeFilters.has('first') && !d.isFirst) return false
-    // Platform filters: if any platform filter is active, message must match one of them
-    const platFilters=['TT','YT','TW','KK'].filter(p=>activeFilters.has(p))
+    const platFilters=['TT','YT','TW'].filter(p=>activeFilters.has(p))
     if(platFilters.length && !platFilters.includes(d.plat)) return false
     return true
 }
@@ -325,94 +320,120 @@ function setDockHeight(h) {
 
 // ── EMOTES ────────────────────────────────────────────────────────────────────
 async function cargarEmotes(config) {
-    const statusEl=document.getElementById('emote-status')
-    if(statusEl) statusEl.textContent='Cargando emotes...'
-    let twitchId=null
-    if(config.twitchUser){
-        try{const r=await fetch(`https://decapi.me/twitch/id/${config.twitchUser}`);const id=(await r.text()).trim();if(id&&!isNaN(id))twitchId=id}catch{}
-    }
-    const tasks=[]
-    if(config.show7tvGlobal!==false) tasks.push(fetch('https://7tv.io/v3/emote-sets/global').then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})}).catch(()=>{}))
-    if(config.show7tvCanal!==false&&twitchId) tasks.push(fetch(`https://7tv.io/v3/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(u=>{const sid=u?.emote_set?.id;if(!sid)return;return fetch(`https://7tv.io/v3/emote-sets/${sid}`).then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})})}).catch(()=>{}))
-    if(config.showBttvGlobal!==false) tasks.push(fetch('https://api.betterttv.net/3/cached/emotes/global').then(r=>r.json()).then(d=>{d?.forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}))
-    if(config.showBttvCanal!==false&&twitchId) tasks.push(fetch(`https://api.betterttv.net/3/cached/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;[...(d.channelEmotes||[]),...(d.sharedEmotes||[])].forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}))
-    if(config.showFfzGlobal!==false) tasks.push(fetch('https://api.frankerfacez.com/v1/set/global').then(r=>r.json()).then(d=>{Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}))
-    if(config.showFfzCanal!==false&&config.twitchUser) tasks.push(fetch(`https://api.frankerfacez.com/v1/room/${config.twitchUser.toLowerCase()}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}))
-    await Promise.allSettled(tasks)
-    const total=Object.keys(emoteMap).length
-    if(statusEl) statusEl.textContent=total>0?`✓ ${total} emotes cargados`:twitchId?'⚠ Sin emotes':'⚠ Configura tu Twitch para emotes de canal'
-}
+    const statusEl = document.getElementById('emote-status');
+    if (statusEl) statusEl.textContent = 'Cargando emotes...';
+    let twitchId = null;
 
-function parseEmotes(text, twitchEmotes) {
-    // First, handle Twitch native emotes if provided
-    if (twitchEmotes && Object.keys(twitchEmotes).length > 0) {
-        // twitchEmotes format: { "emoteId": ["0-4", "12-16"], ... }
-        // Build array of replacements: [{start, end, id, name}, ...]
-        const replacements = []
-        for (const [emoteId, positions] of Object.entries(twitchEmotes)) {
-            for (const pos of positions) {
-                const [start, end] = pos.split('-').map(Number)
-                const name = text.substring(start, end + 1)
-                replacements.push({ start, end, id: emoteId, name })
+    if (config.twitchUser) {
+        try {
+            if (config.twitchToken) {
+                const cleanToken = config.twitchToken.replace('oauth:', ''); 
+                const r = await fetch(`https://api.twitch.tv/helix/users?login=${config.twitchUser}`, {
+                    headers: { 
+                        'Client-ID': 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt', 
+                        'Authorization': `Bearer ${cleanToken}` 
+                    }
+                });
+                const d = await r.json();
+                if (d.data && d.data.length > 0) twitchId = d.data[0].id;
+            } else {
+                const r = await fetch(`https://decapi.me/twitch/id/${config.twitchUser}`);
+                const id = (await r.text()).trim();
+                if (id && !isNaN(id) && !id.includes('User not found')) twitchId = id;
             }
-        }
-        // Sort by start position (descending) to replace from end to start
-        replacements.sort((a, b) => b.start - a.start)
-        
-        // Replace emotes with placeholders first, then escape text, then replace placeholders with img tags
-        const placeholders = []
-        let result = text
-        for (let i = 0; i < replacements.length; i++) {
-            const { start, end, id, name } = replacements[i]
-            const placeholder = `__EMOTE_${i}__`
-            placeholders.push({
-                placeholder,
-                url: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0`,
-                name
-            })
-            result = result.substring(0, start) + placeholder + result.substring(end + 1)
-        }
-        
-        // Escape the text
-        result = esc(result)
-        
-        // Replace placeholders with img tags
-        for (const { placeholder, url, name } of placeholders) {
-            const img = `<img src="${url}" class="emote" alt="${esc(name)}" data-emote="${esc(name)}" data-url="${url}" data-platform="Twitch" title="${esc(name)}">`
-            result = result.replace(placeholder, img)
-        }
-        
-        // Now process 7TV/BTTV/FFZ emotes on the remaining text
-        const parts = result.split(/(<img[^>]+>)/)
-        return parts.map(part => {
-            if (part.startsWith('<img')) return part
-            return part.split(' ').map(w => {
-                const e = emoteMap[w]
-                if (!e) return linkifyWord(w)
-                return `<img src="${esc(e.url)}" class="emote${e.zw?' zw':''}" alt="${esc(w)}" data-emote="${esc(w)}" data-url="${esc(e.url)}" data-platform="${esc(e.platform||'')}" title="${esc(w)}">`
-            }).join(' ')
-        }).join('')
+        } catch (e) { console.warn('[Emotes] Error obteniendo ID', e); }
     }
+
+    const tasks =[];
     
-    // No Twitch emotes, just process 7TV/BTTV/FFZ
-    return esc(text).split(' ').map(w => {
-        const e = emoteMap[w]
-        if (!e) return linkifyWord(w)
-        return `<img src="${esc(e.url)}" class="emote${e.zw?' zw':''}" alt="${esc(w)}" data-emote="${esc(w)}" data-url="${esc(e.url)}" data-platform="${esc(e.platform||'')}" title="${esc(w)}">`
-    }).join(' ')
+    if (config.show7tvGlobal !== false) tasks.push(fetch('https://7tv.io/v3/emote-sets/global').then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})}).catch(()=>{}));
+    if (config.show7tvCanal !== false && twitchId) tasks.push(fetch(`https://7tv.io/v3/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(u=>{const sid=u?.emote_set?.id;if(!sid)return;return fetch(`https://7tv.io/v3/emote-sets/${sid}`).then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})})}).catch(()=>{}));
+    
+    if (config.showBttvGlobal !== false) tasks.push(fetch('https://api.betterttv.net/3/cached/emotes/global').then(r=>r.json()).then(d=>{d?.forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
+    if (config.showBttvCanal !== false && twitchId) tasks.push(fetch(`https://api.betterttv.net/3/cached/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;[...(d.channelEmotes||[]),...(d.sharedEmotes||[])].forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
+    
+    if (config.showFfzGlobal !== false) tasks.push(fetch('https://api.frankerfacez.com/v1/set/global').then(r=>r.json()).then(d=>{Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
+    if (config.showFfzCanal !== false && config.twitchUser) tasks.push(fetch(`https://api.frankerfacez.com/v1/room/${config.twitchUser.toLowerCase()}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
+
+    await Promise.allSettled(tasks);
+    const total = Object.keys(emoteMap).length;
+    console.log(`[Emotes] Cargados ${total} emotes custom.`);
+    if (statusEl) statusEl.textContent = total > 0 ? `✓ ${total} emotes cargados` : (twitchId ? '⚠ Sin emotes en el canal' : '⚠ Configura Twitch primero');
 }
 
 function linkifyWord(w) {
     if(/^https?:\/\//i.test(w)) {
-        const eu=esc(w)
-        return `<a class="chat-link" href="#" data-href="${eu}" onclick="return false">${eu}</a>`
+        const eu = esc(w);
+        return `<a class="chat-link" href="#" data-href="${eu}" onclick="return false">${eu}</a>`;
     }
-    // Detectar dominios sin protocolo: twitch.tv, youtube.com/... etc.
     if(/^[\w-]+\.(tv|com|net|org|gg|io|app|live|co)([/?#]\S*)?$/i.test(w)) {
-        const eu=esc(w), full=esc('https://'+w)
-        return `<a class="chat-link" href="#" data-href="${full}" onclick="return false">${eu}</a>`
+        const eu = esc(w);
+        const full = esc('https://'+w);
+        return `<a class="chat-link" href="#" data-href="${full}" onclick="return false">${eu}</a>`;
     }
-    return w
+    return esc(w); 
+}
+
+function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
+    if (!text) return '';
+
+    let result = text;
+    const placeholders = [];
+
+    // 1. Emotes Nativos (YouTube)
+    if (plat === 'YT' && ytEmotes && ytEmotes.length > 0) {
+        ytEmotes.forEach(e => {
+            placeholders.push({ placeholder: e.placeholder, url: e.url, name: e.name, plat: 'YouTube' });
+        });
+    }
+
+    // 2. Emotes Nativos (Twitch)
+    if (plat === 'TW' && twitchEmotes && Object.keys(twitchEmotes).length > 0) {
+        const replacements = [];
+        for (const [emoteId, positions] of Object.entries(twitchEmotes)) {
+            for (const pos of positions) {
+                const[start, end] = pos.split('-').map(Number);
+                const name = text.substring(start, end + 1);
+                replacements.push({ start, end, id: emoteId, name });
+            }
+        }
+        replacements.sort((a, b) => b.start - a.start);
+        
+        for (let i = 0; i < replacements.length; i++) {
+            const { start, end, id, name } = replacements[i];
+            const placeholder = `__TW_EMOTE_${i}__`;
+            placeholders.push({ placeholder, url: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0`, name, plat: 'Twitch' });
+            result = result.substring(0, start) + placeholder + result.substring(end + 1);
+        }
+    }
+
+    // 3. Procesar palabras para 7TV/BTTV/FFZ (Solo Twitch)
+    let words = result.split(' ');
+
+    words = words.map(w => {
+        const ph = placeholders.find(p => p.placeholder === w);
+        if (ph) return `<img src="${ph.url}" class="emote" alt="${esc(ph.name)}" title="${esc(ph.name)}" data-platform="${ph.plat}">`;
+
+        // Si no es de Twitch, no aplicamos 7TV/BTTV/FFZ
+        if (plat !== 'TW') return linkifyWord(w);
+
+        const e = emoteMap[w];
+        if (e) return `<img src="${esc(e.url)}" class="emote${e.zw?' zw':''}" alt="${esc(w)}" title="${esc(w)}" data-platform="${esc(e.platform||'')}">`;
+
+        return linkifyWord(w);
+    });
+
+    let finalHtml = words.join(' ');
+    placeholders.forEach(ph => {
+        if (finalHtml.includes(ph.placeholder)) {
+            finalHtml = finalHtml.replace(
+                new RegExp(ph.placeholder, 'g'), 
+                `<img src="${ph.url}" class="emote" alt="${esc(ph.name)}" title="${esc(ph.name)}" data-platform="${ph.plat}">`
+            );
+        }
+    });
+
+    return finalHtml;
 }
 
 // ── EMOTE TOOLTIP + CONTEXT MENU ─────────────────────────────────────────────
@@ -491,7 +512,6 @@ function showPreview(d,el){
     lpDesc.textContent=d.description||''
     if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>{lpImg.style.display='none'}}else{lpImg.style.display='none'}
     try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
-    // Render offscreen first to get real height, then position
     lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
     requestAnimationFrame(()=>{
         const r=el.getBoundingClientRect(),h=lpDiv.offsetHeight||120
@@ -563,7 +583,6 @@ function runSearch(query) {
     clearSearchHighlights()
     if(!query.trim()){document.getElementById('search-count').textContent='';return}
     const q=query.trim().toLowerCase()
-    // Parsear filtros: from:user, is:sub, is:mod
     let userFilter=null, typeFilter=null, text=q
     const fromM=q.match(/from:(\S+)/)
     if(fromM){userFilter=fromM[1];text=text.replace(fromM[0],'').trim()}
@@ -611,7 +630,6 @@ document.addEventListener('keydown',e=>{
     if(e.key===','&&!inInput){e.preventDefault();window.electronAPI.openSettings();return}
 
     if(e.key==='Escape'){
-        // settings is now external window, no overlay to close
         if(searchActive){closeSearch();return}
         if(emoteCtx.classList.contains('open')){closeEmoteCtx();return}
         if(document.getElementById('filter-bar')?.classList.contains('open')){document.getElementById('filter-bar').classList.remove('open');return}
@@ -623,13 +641,11 @@ document.addEventListener('keydown',e=>{
 })
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
-// Settings window sends settings-saved with updated config
 window.electronAPI.on('settings-saved', newCfg => {
     cfg = newCfg
     aplicarConfig()
     syncFilterChips()
     showToast('✓ Configuración guardada')
-    // Reload emotes if emote settings changed
     if(newCfg.show7tvGlobal!==undefined) cargarEmotes(newCfg)
 })
 async function resetConfig(){
@@ -643,37 +659,23 @@ function aplicarConfig(){
     setDockPosition(cfg.dockPosition||'top')
     setDockHeight(cfg.dockHeight||82)
 
-
-    // Compact mode
     document.body.classList.toggle('compact', cfg.compact===true)
-
-    // Avatar shape
     document.body.classList.remove('av-none','av-square','av-squircle','av-circle')
     document.body.classList.add('av-'+(cfg.avatarShape||'none'))
-
-    // Accessibility
     document.body.classList.toggle('accessibility', cfg.accessibility===true)
-
-    // Message animation
     document.body.classList.toggle('no-anim', cfg.msgAnimation===false)
-
-    // Scroll invert
     if(chat) chat.classList.toggle('scroll-invert', cfg.scrollInvert===true)
-
-    // Translucent bg
     document.body.classList.toggle('translucent', cfg.translucent===true)
     if(cfg.translucent) {
         const op = (cfg.windowOpacity||90)/100
         document.body.style.setProperty('--translucent-opacity', op)
     }
 
-    // Always on top (send to main)
     window.electronAPI?.setAlwaysOnTop(cfg.alwaysOnTop===true)
 
-    // Chat input: show always, disable when no token
     const bar=document.getElementById('chat-input-bar')
     if(bar){
-        const hasAny=!!(cfg.twitchToken||cfg.tiktokUser||cfg.youtubeChannelId||cfg.kickUser)
+        const hasAny=!!(cfg.twitchToken||cfg.tiktokUser||cfg.youtubeChannelId)
         bar.classList.toggle('disabled', !hasAny)
         const field=document.getElementById('chat-input-field')
         if(field) field.placeholder=cfg.twitchToken?'Escribe un mensaje... (:emote /cmd)':'Conecta una plataforma en ⚙ para escribir'
@@ -688,7 +690,6 @@ const dockLikeRow=document.getElementById('dock-like-row')
 let dockAutoScrollTimer = null
 let dockUserInteracted = false
 
-// Auto-scroll dock to bottom after 10s of no user interaction
 function scheduleDockAutoScroll() {
     if (dockAutoScrollTimer) clearTimeout(dockAutoScrollTimer)
     dockAutoScrollTimer = setTimeout(() => {
@@ -699,7 +700,6 @@ function scheduleDockAutoScroll() {
     }, 10000)
 }
 
-// Track user interaction with dock
 dockScroll.addEventListener('scroll', () => {
     dockUserInteracted = true
     scheduleDockAutoScroll()
@@ -727,93 +727,101 @@ function addToDock(type,user,actionText,giftImgUrl,noAnim=false){
     const dockEvents=dockInner.querySelectorAll('.dock-event')
     for(let i=0;i<dockEvents.length-MAX_DOCK;i++)dockEvents[i].remove()
     if(wasAtBottom)dockScroll.scrollTop=dockScroll.scrollHeight
-    // Schedule auto-scroll after 10s
     scheduleDockAutoScroll()
 }
-const MAX_DOCK_LIKE_KEYS=80
 function updateLikeRow(user,uid,count){
     if(cfg.showLikes===false)return
-    
-    // Agregar likes al dock como eventos normales
     const empty=document.getElementById('dock-empty');if(empty)empty.remove()
     const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
-    
-    // Buscar si ya existe un evento de like para este usuario
     let existingLike = null
     const likeEvents = dockInner.querySelectorAll('.dock-event-like')
     likeEvents.forEach(ev => {
         if(ev.dataset.userId === uid) existingLike = ev
     })
-    
     if(existingLike) {
-        // Actualizar contador existente
         const currentCount = parseInt(existingLike.dataset.count || '0')
         const newCount = currentCount + count
         existingLike.dataset.count = newCount
         existingLike.querySelector('.dock-action').textContent = ` ${newCount} ❤`
-        // Mover al final
         dockInner.appendChild(existingLike)
     } else {
-        // Crear nuevo evento de like
         const row=document.createElement('div')
         row.className='dock-event dock-event-like'
         row.dataset.userId = uid
         row.dataset.count = count
-        
         const icon=document.createElement('div')
         icon.className='dock-event-icon dock-icon-like'
         icon.textContent='❤'
-        
         const body=document.createElement('div')
         body.className='dock-event-body'
-        
         const uSpan=document.createElement('span')
         uSpan.className='dock-user dock-like-color'
         uSpan.textContent=user
-        
         const aSpan=document.createElement('span')
         aSpan.className='dock-action'
         aSpan.textContent=` ${count} ❤`
-        
         body.appendChild(uSpan)
         body.appendChild(aSpan)
         row.appendChild(icon)
         row.appendChild(body)
-        
-        // Agregar al final del dock
         dockInner.appendChild(row)
     }
-    
-    // Mantener límite de eventos
     while(dockInner.children.length>MAX_DOCK){
         const first=dockInner.firstElementChild
         if(first&&first.id!=='dock-empty')first.remove()
     }
-    
     if(wasAtBottom||!dockUserInteracted){dockScroll.scrollTop=dockScroll.scrollHeight;dockUserInteracted=false}
     scheduleDockAutoScroll()
 }
 
 // ── CHAT ──────────────────────────────────────────────────────────────────────
-const chatWrap=document.getElementById('chat-wrap')
-const chatDiv=document.getElementById('chat')
-const pausedBadge=document.getElementById('scroll-paused')
-let scrollFrozen=false
-let scrollPaused=false
+const chatDiv = document.getElementById('chat');
+const pausedBadge = document.getElementById('scroll-paused');
 
-const isAtBottom=()=>chatWrap.scrollHeight-chatWrap.scrollTop-chatWrap.clientHeight<60
-chatWrap.addEventListener('scroll',()=>{scrollFrozen=!isAtBottom();pausedBadge.classList.toggle('visible',scrollFrozen)},{passive:true})
-pausedBadge.addEventListener('click',()=>{scrollFrozen=false;scrollPaused=false;chatWrap.scrollTop=chatWrap.scrollHeight;pausedBadge.classList.remove('visible')})
-let scrollScheduled = false
-function maybeScroll(){
-    if (scrollScheduled) return
-    scrollScheduled = true
-    requestAnimationFrame(() => {
-        scrollScheduled = false
-        if(!scrollFrozen && !scrollPaused){
-            chatWrap.scrollTop=chatWrap.scrollHeight
-        }
-    })
+let scrollFrozen = false;
+let scrollPaused = false;
+
+const isAtBottom = () => chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight < 60;
+
+function updatePauseBadge() {
+    if (scrollFrozen || scrollPaused) {
+        pausedBadge.classList.add('visible');
+    } else {
+        pausedBadge.classList.remove('visible');
+    }
+}
+
+chatDiv.addEventListener('scroll', () => {
+    scrollFrozen = !isAtBottom();
+    updatePauseBadge();
+}, { passive: true });
+
+pausedBadge.addEventListener('click', () => {
+    scrollFrozen = false;
+    scrollPaused = false;
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    updatePauseBadge();
+});
+
+chatDiv.addEventListener('mouseenter', () => {
+    if (cfg.scrollPauseOnHover !== false) {
+        scrollPaused = true;
+        updatePauseBadge();
+    }
+});
+
+chatDiv.addEventListener('mouseleave', () => {
+    scrollPaused = false;
+    updatePauseBadge();
+    maybeScroll();
+});
+
+function maybeScroll() {
+    if (!scrollFrozen && !scrollPaused) {
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    } else if (scrollFrozen || scrollPaused) {
+        updatePauseBadge();
+    }
 }
 
 function shouldShowMsg(d) {
@@ -848,18 +856,16 @@ function crearMsgChat(d,animate=false){
     else if(isCustom) div.className=`linea custom-highlight ${bg}`
     else div.className=`linea ${bg}`
     if(animate) div.classList.add('linea-new')
-    // Data para search
     div.dataset.sub=d.badges?.sub?'true':'false'
     div.dataset.mod=d.badges?.mod?'true':'false'
     const now=new Date(),time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
     const su=esc(d.user),sid=esc(d.userId),sav=esc(d.avatar??''),spl=esc(d.plat),color=getColor(d.user)
-    const url=d.plat==='TT'?`https://www.tiktok.com/@${su}`:d.plat==='TW'?`https://www.twitch.tv/${su.toLowerCase()}`:d.plat==='KK'?`https://kick.com/${su.toLowerCase()}`:`https://www.youtube.com/channel/${sid}`
+    const url=d.plat==='TT'?`https://www.tiktok.com/@${su}`:d.plat==='TW'?`https://www.twitch.tv/${su.toLowerCase()}`:`https://www.youtube.com/channel/${sid}`
     let html=''
     if(cfg.showTimestamps!==false)html+=`<span class="timestamp">${time}</span>`
     html+=`<span class="plat-icon bg-${spl}" title="${spl}"><svg viewBox="0 0 18 18">${platIconSvg(spl)}</svg></span>`
     html+=`<span class="profile-link" data-user="${su}" data-userid="${sid}" data-color="${esc(color)}" data-avatar="${sav}" data-plat="${spl}" data-url="${esc(url)}">`
     if(d.avatar)html+=`<img src="${sav}" class="avatar" alt="">`
-    // Badges reales (Twitch) o emoji fallback
     if(d.badgeUrls?.length){
         d.badgeUrls.forEach(b=>{html+=`<img src="${esc(b.url)}" class="badge-img" title="${esc(b.name)}" alt="${esc(b.name)}">`})
     } else {
@@ -867,11 +873,10 @@ function crearMsgChat(d,animate=false){
         if(d.badges?.sub) html+=`<span class="badge-icon" title="Sub">⭐</span>`
     }
     html+=`<span class="user" style="color:${color}">${su}</span></span>`
-    html+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text, d.twitchEmotes)}</span>`
+    html+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text, d.twitchEmotes, d.plat, d.ytEmotes)}</span>`
     div.setAttribute('data-uid', d.userId||'')
     div.setAttribute('data-user', d.user||'')
     div.innerHTML=html
-    // Mod hover menu (only for Twitch when enabled)
     if(d.plat==='TW' && cfg.modHoverMenu!==false) {
         const menu=document.createElement('div')
         menu.className='mod-hover-menu'
@@ -891,14 +896,12 @@ function crearEventoChat(d){
     const bg=nextBg(false)
     const div=document.createElement('div')
 
-    // Follow (old linea-event style)
     if(d.type==='follow'){
         div.className=`linea-event linea-event-follow ${bg}`
         const s=document.createElement('span');s.className='linea-event-text'
         s.textContent=`👤 ${d.user} te empezó a seguir`;div.appendChild(s)
         return div
     }
-    // Gift (TikTok/KK gifts)
     if(d.type==='gift'&&d.plat!=='TW'){
         div.className=`linea-event linea-event-gift ${bg}`
         if(d.giftImg){const img=document.createElement('img');img.src=d.giftImg;img.className='gift-chat-img';img.alt='';img.onerror=()=>img.remove();div.appendChild(img)}
@@ -907,7 +910,6 @@ function crearEventoChat(d){
         div.appendChild(s);return div
     }
 
-    // ── Twitch special events ──────────────────────────────────────────────
     const mkLabel=(cls,txt)=>{const l=document.createElement('span');l.className=`ev-label ${cls}`;l.textContent=txt;return l}
     const su=esc(d.user),color=getColor(d.user)
     const userSpan=`<span style="color:${color};font-weight:700">${su}</span>`
@@ -960,18 +962,15 @@ function appendMsg(d,animate=true){
 }
 function appendEvento(d){const el=crearEventoChat(d);if(!el)return;chatDiv.appendChild(el);while(chatDiv.childElementCount>MAX_CHAT_NODES){chatDiv.firstChild.remove();searchResults=searchResults.filter(n=>chatDiv.contains(n));if(searchIndex>=searchResults.length)searchIndex=Math.max(0,searchResults.length-1)}maybeScroll()}
 
-// Un solo listener delegado en #chat (no uno por mensaje) para evitar fugas
 chatDiv.addEventListener('click', async e => {
     const link = e.target.closest('.profile-link')
     if (!link) return
     e.stopPropagation()
     const url = link.dataset.url
-    // Ctrl+click or middle-click = open in browser
     if (e.ctrlKey || e.button === 1) {
         if (url) window.electronAPI.openExternal(url)
         return
     }
-    // Normal click = open usercard popup
     try {
         await window.electronAPI.openPopup({
             user:    link.dataset.user,
@@ -984,7 +983,6 @@ chatDiv.addEventListener('click', async e => {
     } catch {}
 })
 
-// ── SOCKET (handlers registered once here; no per-message listeners = no leak) ───
 const socket=io(SERVER,{reconnectionDelay:2000,reconnectionAttempts:20})
 socket.on('connect',()=>console.log('[Socket] Conectado'))
 socket.on('connect_error',e=>console.warn('[Socket] Error:',e.message))
@@ -1002,14 +1000,12 @@ socket.on('dock_history',events=>{
 socket.on('likes_init',()=>{})
 socket.on('msg',d=>appendMsg(d,true))
 socket.on('status',isLive=>{
-    const live=isLive.TT||isLive.YT||isLive.TW||isLive.KK
+    const live=isLive.TT||isLive.YT||isLive.TW
     const s=document.getElementById('status-text')
     s.textContent=live?'LIVE':'NOT LIVE';s.classList.toggle('text-live',live)
     
-    // Update bottom-dock platform icons
     document.querySelectorAll('.plat-status-icon').forEach(icon => {
         const plat = icon.dataset.plat
-        // Twitch: iluminar si está conectado (incluso si no está en vivo)
         if(plat === 'TW') {
             icon.classList.toggle('active', !!cfg.twitchUser)
         } else {
@@ -1019,7 +1015,6 @@ socket.on('status',isLive=>{
     if(live) pollViewerCount()
 })
 socket.on('platform_states', states => {
-    // Initial state for all platforms
     Object.keys(states).forEach(plat => {
         updatePlatformIcon(plat, states[plat])
     })
@@ -1038,7 +1033,7 @@ function updatePlatformIcon(plat, state) {
         error: 'Error de conexión',
         disconnected: 'Desconectado'
     }
-    const platNames = { TT: 'TikTok', YT: 'YouTube', TW: 'Twitch', KK: 'Kick' }
+    const platNames = { TT: 'TikTok', YT: 'YouTube', TW: 'Twitch' }
     icon.title = `${platNames[plat]}: ${titles[state] || state}`
 }
 socket.on('evento',d=>{
@@ -1081,13 +1076,12 @@ function te(tipo){
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
 let ttsQueue=[], ttsBusy=false
-let ttsVoiceIdx=0   // cycles through available voices per message
-let ttsVoiceList=[] // populated on first use / voiceschanged
+let ttsVoiceIdx=0   
+let ttsVoiceList=[] 
 
 function getTTSVoices(){
     if(ttsVoiceList.length) return ttsVoiceList
     const all=speechSynthesis.getVoices()
-    // Prefer Spanish voices, then English, then anything
     const es=all.filter(v=>v.lang.startsWith('es'))
     const en=all.filter(v=>v.lang.startsWith('en'))
     ttsVoiceList = es.length >= 2 ? es : es.length === 1 ? [...es,...en] : en.length ? en : all
@@ -1116,17 +1110,12 @@ function flushTTS(){
 
     const voices=getTTSVoices()
     if(voices.length>0){
-        // Cycle through voices with each message
         utt.voice=voices[ttsVoiceIdx % voices.length]
         ttsVoiceIdx++
-
-        // Slight pitch/rate variation per voice to make them sound distinct
-        // If there's only 1 voice, vary pitch/rate to simulate different speakers
         const variation=ttsVoiceIdx%4
         utt.rate  = [1.0, 1.08, 0.95, 1.05][variation]
         utt.pitch = [1.0, 1.15, 0.88, 1.08][variation]
     } else {
-        // Fallback: vary pitch/rate even without multiple voices
         const v=ttsVoiceIdx++%4
         utt.rate  = [1.0, 1.08, 0.95, 1.05][v]
         utt.pitch = [1.0, 1.15, 0.88, 1.08][v]
@@ -1138,14 +1127,12 @@ function flushTTS(){
 }
 
 // ── CHAT INPUT ────────────────────────────────────────────────────────────────
-
-// ── CHAT HISTORY (↑↓ navega mensajes enviados) ────────────────────────────────
 const sentHistory = []
 let histIdx = -1
 
 function pushSentHistory(text) {
     if (!text) return
-    if (sentHistory[0] === text) return  // no duplicates
+    if (sentHistory[0] === text) return  
     sentHistory.unshift(text)
     if (sentHistory.length > 50) sentHistory.pop()
     histIdx = -1
@@ -1157,7 +1144,6 @@ async function sendChatMsg(){
     const text=(input.value||'').trim()
     if(!text) return
 
-    // Handle Twitch slash commands locally via TMI
     if(text.startsWith('/') && plat==='TW'){
         const parts=text.split(' ')
         const cmd=parts[0].toLowerCase()
@@ -1169,7 +1155,6 @@ async function sendChatMsg(){
             '/subscribers','/subscribersoff','/slow','/slowoff','/me','/w','/host','/unhost']
 
         if(tmiCommands.includes(cmd)){
-            // Route through server which uses tmi.js say() — TMI handles /commands natively
             input.value=''
             try{
                 const r=await fetch(`${SERVER}/api/send-message`,{
@@ -1185,7 +1170,6 @@ async function sendChatMsg(){
     }
 
     if(replyTo){
-        // Prepend reply prefix
         const fullText=`@${replyTo.user} ${text}`
         input.value=''
         cancelReply()
@@ -1204,23 +1188,7 @@ async function sendChatMsg(){
         if(!d.ok) showToast(`⚠ ${d.error||'Error al enviar'}`)
     }catch(e){ showToast('⚠ Sin conexión al servidor') }
 }
-// ── VALIDATE TWITCH TOKEN ─────────────────────────────────────────────────────
-async function validateTwitchToken(){
-    // Token validation moved to settings.html
-    return
-    const token=null
-    const statusEl=null
-    if(!token){statusEl.textContent='⚠ Introduce un token primero';statusEl.style.color='#ff6060';return}
-    statusEl.textContent='Verificando...';statusEl.style.color='#666'
-    try{
-        const r=await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})})
-        const d=await r.json()
-        if(d.ok){statusEl.textContent=`✓ ${d.login} — válido`;statusEl.style.color='#53fc18'}
-        else{statusEl.textContent='✗ Token inválido';statusEl.style.color='#ff6060'}
-    }catch{statusEl.textContent='⚠ Error de conexión';statusEl.style.color='#ff6060'}
-}
 
-// ── LINKS: ABRIR EN NAVEGADOR DEL SISTEMA ───────────────────────────────────
 document.addEventListener('click',e=>{
     const link=e.target.closest('a.chat-link')
     if(!link)return
@@ -1229,7 +1197,6 @@ document.addEventListener('click',e=>{
     if(url) window.electronAPI.openExternal(url)
 })
 
-// ── SKELETON ─────────────────────────────────────────────────────────────────
 function showSkeleton(){
     document.getElementById('skeleton-overlay').classList.add('visible')
 }
@@ -1237,7 +1204,6 @@ function hideSkeleton(){
     document.getElementById('skeleton-overlay').classList.remove('visible')
 }
 
-// ── TWITCH OAUTH IN SETTINGS ─────────────────────────────────────────────────
 async function settingsLoginTwitch(){
     const btn=document.getElementById('s-tw-oauth-btn')
     const lbl=document.getElementById('s-tw-oauth-label')
@@ -1248,7 +1214,6 @@ async function settingsLoginTwitch(){
     try{
         const result=await window.electronAPI.loginTwitch()
         if(result?.success && result.token){
-            // Validate to get login name
             let login=''
             try{
                 const r=await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:result.token})})
@@ -1275,12 +1240,6 @@ async function settingsLoginTwitch(){
     btn.style.pointerEvents=''
 }
 
-// ── TTS UI UPDATE ────────────────────────────────────────────────────────────
-function updateTtsUI(){
-    // TTS UI is in settings.html; index.html reads from cfg
-}
-
-// ── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
 const TWITCH_COMMANDS=[
     {name:'/ban',desc:'Banear usuario: /ban [usuario] [razón]'},
     {name:'/timeout',desc:'Silenciar: /timeout [usuario] [segundos]'},
@@ -1314,7 +1273,6 @@ function buildAC(q){
     const ql=q.toLowerCase()
     let results=[]
     if(q.startsWith('/')){
-        // Command autocomplete
         results=TWITCH_COMMANDS.filter(c=>c.name.startsWith(ql)).slice(0,8)
         results.forEach((c,i)=>{
             const d=document.createElement('div')
@@ -1324,7 +1282,6 @@ function buildAC(q){
             acDiv.appendChild(d);acItems.push(d)
         })
     } else {
-        // Emote autocomplete
         results=Object.entries(emoteMap).filter(([n])=>n.toLowerCase().startsWith(ql)).slice(0,10)
         results.forEach(([name,e],i)=>{
             const d=document.createElement('div')
@@ -1332,7 +1289,6 @@ function buildAC(q){
             d.innerHTML=`<img src="${esc(e.url)}" alt=""><span class="ac-name">${esc(name)}</span><span class="ac-plat">${esc(e.platform||'')}</span>`
             d.addEventListener('mousedown',ev=>{
                 ev.preventDefault()
-                // Replace the :word trigger with the emote name
                 const val=chatField.value
                 const colon=val.lastIndexOf(':')
                 chatField.value=(colon>=0?val.slice(0,colon):val)+name+' '
@@ -1346,7 +1302,7 @@ function buildAC(q){
 }
 
 function acNavigate(dir){
-    if(!acItems.length)return true // let normal key handling proceed
+    if(!acItems.length)return true 
     acItems.forEach(i=>i.classList.remove('selected'))
     acIndex=((acIndex+dir)+acItems.length)%acItems.length
     acItems[acIndex].classList.add('selected')
@@ -1359,7 +1315,6 @@ chatField?.addEventListener('input',()=>{
     if(val.startsWith('/')){
         buildAC(val)
     } else {
-        // Trigger on : before a word (at least 2 chars)
         const m=val.match(/:([a-zA-Z0-9_]{2,})$/)
         if(m) buildAC(m[1])
         else closeAC()
@@ -1377,14 +1332,12 @@ chatField?.addEventListener('keydown',e=>{
     if(e.key==='ArrowDown'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(1)}
     if(e.key==='ArrowUp'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(-1)}
     if(e.key==='Escape'){closeAC()}
-    // Arrow up/down for sent message history (only when no autocomplete open)
     if(!acDiv.classList.contains('open')){
         if(e.key==='ArrowUp'){
             e.preventDefault()
             if(sentHistory.length===0) return
             histIdx = Math.min(histIdx+1, sentHistory.length-1)
             chatField.value = sentHistory[histIdx] || ''
-            // Move cursor to end
             setTimeout(()=>chatField.setSelectionRange(chatField.value.length,chatField.value.length),0)
         }
         if(e.key==='ArrowDown'){
@@ -1399,9 +1352,7 @@ document.addEventListener('click',e=>{
     if(!e.target.closest('#chat-input-bar'))closeAC()
 })
 
-
-// ── REPLY SYSTEM ─────────────────────────────────────────────────────────────
-let replyTo = null // { user, text, msgId }
+let replyTo = null 
 
 function startReply(user, text, msgId) {
     replyTo = { user, text, msgId }
@@ -1416,7 +1367,6 @@ function cancelReply() {
     document.getElementById('reply-bar').classList.remove('open')
 }
 
-// ── EMOTE PICKER ─────────────────────────────────────────────────────────────
 let epOpen = false
 
 function buildEmotePicker() {
@@ -1457,17 +1407,6 @@ document.addEventListener('click', e => {
     if(!e.target.closest('#emote-picker') && !e.target.closest('#emote-picker-btn') && epOpen) toggleEmotePicker()
 })
 
-// ── SCROLL PAUSE ON HOVER ─────────────────────────────────────────────────────
-const chatWrap = document.getElementById('chat-wrap')
-chatWrap?.addEventListener('mouseenter', () => {
-    if(cfg.scrollPauseOnHover!==false) scrollPaused = true
-})
-chatWrap?.addEventListener('mouseleave', () => {
-    scrollPaused = false
-    maybeScroll()
-})
-
-// ── VIEWER COUNT POLLING ──────────────────────────────────────────────────────
 let viewerPollInterval = null
 
 async function pollViewerCount() {
@@ -1490,7 +1429,6 @@ function startViewerPoll() {
     viewerPollInterval = setInterval(pollViewerCount, 120000)
 }
 
-// ── LAZY EMOTE ANIMATION (IntersectionObserver) ───────────────────────────────
 let emoteObserver = null
 
 function setupEmoteObserver() {
@@ -1502,7 +1440,6 @@ function setupEmoteObserver() {
             if(entry.isIntersecting) {
                 if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src }
             } else {
-                // For animated webp/gif, pause by replacing src temporarily
                 if(img.classList.contains('emote-animated') && img.src) {
                     img.dataset.lazysrc = img.src
                 }
@@ -1511,10 +1448,8 @@ function setupEmoteObserver() {
     }, { rootMargin:'200px' })
 }
 
-// ── MOD ACTIONS ───────────────────────────────────────────────────────────────
 async function modAction(userId, username, action, duration=300) {
     if(!cfg.twitchToken){ showToast('⚠ Necesitas autenticarte con Twitch'); return }
-    // Use TMI /command via send-message — most reliable, no scope issues
     let tmiCmd = ''
     if(action === 'ban')     tmiCmd = `/ban ${username}`
     if(action === 'timeout') tmiCmd = `/timeout ${username} ${duration}`
@@ -1533,7 +1468,6 @@ async function modAction(userId, username, action, duration=300) {
         const d = await r.json()
         if(d.ok){
             showToast(`✓ ${action} → ${username}`)
-            // Hide/mark messages
             const els = document.querySelectorAll(`.linea[data-uid="${CSS.escape(userId)}"]`)
             if(action==='ban'||action==='timeout'){
                 if(cfg.showBannedMessages) els.forEach(el=>el.classList.add('banned-msg'))
@@ -1545,7 +1479,6 @@ async function modAction(userId, username, action, duration=300) {
     } catch(e) { showToast('⚠ Sin conexión') }
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
 async function init(){
     showSkeleton()
     try {
@@ -1556,7 +1489,6 @@ async function init(){
         await checkChangelog()
         startViewerPoll()
     } finally {
-        // Always hide skeleton, even if something threw
         hideSkeleton()
     }
     socket.on('twitch_auth',d=>{
@@ -1568,7 +1500,6 @@ async function init(){
 }
 init()
 
-// Load panel functions
 const script = document.createElement('script')
 script.src = 'panel-functions.js'
 document.head.appendChild(script)

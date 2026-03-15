@@ -10,8 +10,15 @@ if (app.isPackaged) {
     try { autoUpdater = require('electron-updater').autoUpdater } catch (e) { console.warn('[Updater] No disponible:', e?.message) }
 }
 
-// ─── LOG DE ERRORES ──────────────────────────────────────────────────────────
+// ─── LOG DE ERRORES Y LIMPIEZA ───────────────────────────────────────────────
 const LOG_PATH = path.join(app.getPath('userData'), 'error.log')
+try {
+    // Si el log pesa más de 5MB, lo vaciamos para que no te llene el disco
+    if (fs.existsSync(LOG_PATH) && fs.statSync(LOG_PATH).size > 5 * 1024 * 1024) {
+        fs.writeFileSync(LOG_PATH, '')
+    }
+} catch {}
+
 function writeLog(msg) {
     const line = `[${new Date().toISOString()}] ${msg}\n`
     try { fs.appendFileSync(LOG_PATH, line) } catch {}
@@ -19,6 +26,7 @@ function writeLog(msg) {
 }
 process.on('uncaughtException',  e => writeLog(`[CRASH] ${e.message}\n${e.stack}`))
 process.on('unhandledRejection', e => writeLog(`[REJECT] ${e?.message || e}`))
+
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
@@ -31,6 +39,56 @@ function saveConfig(cfg) {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8')
 }
 
+// ─── TIKTOK SEAMLESS LOGIN (Automático) ──────────────────────────────────────
+ipcMain.handle('login-tiktok', async () => {
+    return new Promise((resolve) => {
+        const ttWin = new BrowserWindow({
+            width: 450, height: 700, title: "Iniciar sesión en TikTok",
+            autoHideMenuBar: true, webPreferences: { partition: 'persist:tiktok', contextIsolation: true }
+        });
+        ttWin.loadURL('https://www.tiktok.com/login');
+        
+        const checkCookie = setInterval(async () => {
+            if (ttWin.isDestroyed()) {
+                clearInterval(checkCookie);
+                resolve({ success: false, error: 'Ventana cerrada por el usuario' });
+                return;
+            }
+            try {
+                const cookies = await ttWin.webContents.session.cookies.get({ url: 'https://www.tiktok.com' });
+                const sessionCookie = cookies.find(c => c.name === 'sessionid');
+                
+                if (sessionCookie && sessionCookie.value) {
+                    clearInterval(checkCookie);
+                    // Magia: Extraer tu @usuario de TikTok automáticamente
+                    try {
+                        const username = await ttWin.webContents.executeJavaScript(`
+                            new Promise((resolve) => {
+                                fetch('https://www.tiktok.com/passport/web/account/info/?aid=1459')
+                                .then(r => r.json())
+                                .then(d => {
+                                    if (d && d.data && d.data.unique_id) resolve(d.data.unique_id);
+                                    else throw new Error('No unique_id');
+                                })
+                                .catch(() => {
+                                    try {
+                                        const match = document.body.innerHTML.match(/"uniqueId":"([^"]+)"/);
+                                        resolve(match ? match[1] : null);
+                                    } catch(e) { resolve(null); }
+                                });
+                            });
+                        `);
+                        ttWin.close();
+                        resolve({ success: true, sessionId: sessionCookie.value, username: username });
+                    } catch (e) {
+                        ttWin.close();
+                        resolve({ success: true, sessionId: sessionCookie.value, username: null });
+                    }
+                }
+            } catch (e) {}
+        }, 2000);
+    });
+});
 // ─── VERSIÓN ─────────────────────────────────────────────────────────────────
 const APP_VERSION = app.getVersion() // v3.1
 const SEEN_VERSION_PATH = path.join(app.getPath('userData'), 'last_seen_version.txt')
@@ -46,23 +104,13 @@ function setLastSeenVersion(v) {
 // Changelog para streamers (mostrado tras actualización). Actualizar en cada release.
 function getStreamerChangelog(version) {
     const notes = {
-        '3.2.0': [
-            'Optimización de rendimiento: uso de RAM reducido a 250MB',
-            'Optimización de CPU: consumo reducido al 5-10%',
-            'Protección contra memory leaks automática',
-            'Logo de YouTube corregido',
-            'Mejoras de estabilidad general'
+        '3.2.1': [
+            'Fix de mejora en el sistema, rendimiento y estabilidad general.',
+            'Nuevo sistema de vinculación de TikTok y Twitch.',
+            'Corrección en fuga de memoria, límites y optimizaciones a CPU y RAM.',
+            'Mejoras en la interfaz de configuración y setup.'
         ],
-        '3.1.0': [
-            'Configuración en ventana independiente',
-            'Sistema de temas (Dark, Midnight, Forest, Sakura, Claro, Gris Claro)',
-            'Modo compacto y formas de avatar',
-            'Fondo translúcido',
-            'Menú de moderación al pasar el cursor (timeout, ban, responder)',
-            'Respuestas en Twitch y selector de emotes',
-            'Scroll pausado e invertido',
-            'Actualizaciones automáticas desde GitHub'
-        ]
+        // ... versiones anteriores
     }
     return notes[version] || notes['3.2.1'] || ['Mejoras y correcciones.']
 }
@@ -300,19 +348,18 @@ app.whenReady().then(async () => {
     const config = loadConfig()
     writeLog(`[Main] Config: ${config ? 'encontrada' : 'primera vez (setup)'}`)
 
+    // Arrancamos el servidor SIEMPRE para que el Login de Twitch funcione en el Setup
+    await startServer()
+
     if (config) {
-        // Arrancar servidor primero, LUEGO cargar la ventana con index.html
-        await startServer()
         createMainWindow(false)
         mainWindow.loadFile(path.join(getPublicPath(), 'index.html'))
     } else {
         createMainWindow(true)
     }
     
-    // Iniciar monitor de recursos para prevenir memory leaks
     resourceMonitor = new ResourceMonitor(mainWindow, serverProc)
     resourceMonitor.start()
-    
     setupAutoUpdater(config)
 })
 
@@ -420,9 +467,20 @@ ipcMain.handle('preview-settings', (_e, partial) => {
 ipcMain.handle('open-popup',     (_e, userData) => { openPopupWindow(userData); return true })
 ipcMain.handle('get-popup-data', () => pendingPopup)
 
-ipcMain.handle('reset-config', () => {
+ipcMain.handle('reset-config', async () => {
     try { fs.unlinkSync(CONFIG_PATH) } catch {}
+    
+    // Limpiar las cookies de TikTok para que pida login de nuevo
+    try { 
+        const { session } = require('electron');
+        await session.fromPartition('persist:tiktok').clearStorageData();
+    } catch (e) { writeLog('[Reset] Error borrando cookies de TT: ' + e.message); }
+    
     if (serverProc) { try { serverProc.kill() } catch {}; serverProc = null }
+    
+    // SOLUCIÓN: Volver a arrancar el servidor para que Twitch OAuth funcione en el Setup
+    await startServer()
+    
     mainWindow?.loadFile(path.join(getPublicPath(), 'setup.html'))
     return true
 })

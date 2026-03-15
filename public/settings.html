@@ -62,30 +62,51 @@
     <!-- CUENTAS -->
     <div class="page active" id="page-cuentas">
       <div class="page-title">Cuentas</div>
-      <div id="connection-status" class="hint" style="background:rgba(155,155,245,.08);border-radius:4px;padding:8px 10px;display:none"></div>
+      
+      <!-- TIKTOK -->
       <div class="section">
-        <div class="section-title">TikTok</div>
-        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px;position:relative"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span><input type="text" id="s-tt" placeholder="usuario" style="padding-left:18px"></div></div>
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg> TikTok
+        </div>
+        <div class="row">
+          <div class="row-label"><div class="label">Usuario</div></div>
+          <div style="width:180px;position:relative">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
+            <input type="text" id="s-tt" placeholder="Autodetectado" style="padding-left:18px" readonly title="El usuario se obtiene automáticamente al vincular">
+          </div>
+        </div>
+        <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
+          <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
+        </button>
+        <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
       </div>
+
+      <!-- YOUTUBE -->
       <div class="section">
-        <div class="section-title">YouTube</div>
-        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px;position:relative"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span><input type="text" id="s-yt" placeholder="usuario" style="padding-left:18px"></div></div>
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 4px;"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg> YouTube
+        </div>
+        <div class="row">
+          <div class="row-label"><div class="label">Usuario</div></div>
+          <div style="width:180px;position:relative">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
+            <input type="text" id="s-yt" placeholder="usuario" style="padding-left:18px">
+          </div>
+        </div>
         <div class="hint">Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b></div>
       </div>
+
+      <!-- TWITCH -->
       <div class="section">
-        <div class="section-title">Twitch</div>
-        <div class="row"><div class="row-label"><div class="label">Usuario</div><div class="sublabel">Solo lectura si no hay token</div></div><div style="width:180px"><input type="text" id="s-tw" placeholder="usuario"></div></div>
-        <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 0L1 4.1v16.4h5.5V24h3l3.2-3.5h4.7l6.1-6.1V0H4.3zm15.2 13.8l-3.7 3.7h-5.8L6.8 20v-2.5H2V2h17.5v11.8zM15.8 7v6.2h-2V7h2zm-5.2 0v6.2H8.6V7h2z"/></svg>
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#9146FF" style="vertical-align: middle; margin-right: 4px;"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg> Twitch
+        </div>
+        <input type="hidden" id="s-tw">
+        <input type="hidden" id="s-tw-token">
+        <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()" style="width:100%">
           <span id="s-tw-oauth-label">Conectar con Twitch</span>
         </button>
-        <div id="s-tw-status" class="hint"></div>
-        <input type="hidden" id="s-tw-token">
-      </div>
-      <div class="section">
-        <div class="section-title">Kick <span class="badge-coming" style="margin-left:4px">Próximamente</span></div>
-        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px"><input type="text" id="s-kk" placeholder="usuario de Kick"></div></div>
-        <div class="row"><div class="row-label"><div class="label">Chatroom ID</div><div class="sublabel">Opcional — si no conecta automáticamente</div></div><div style="width:180px"><input type="text" id="s-kk-chatroom" placeholder="ID numérico"></div></div>
+        <div id="s-tw-status" class="hint">Conecta para leer chat y moderar.</div>
       </div>
     </div>
 
@@ -186,7 +207,6 @@
           <div class="row"><div class="row-label"><div class="label" style="color:#aaa">TikTok</div></div><label class="toggle"><input type="checkbox" id="s-tts-TT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label" style="color:#ff6060">YouTube</div></div><label class="toggle"><input type="checkbox" id="s-tts-YT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label" style="color:#a87fff">Twitch</div></div><label class="toggle"><input type="checkbox" id="s-tts-TW"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="row"><div class="row-label"><div class="label" style="color:#53fc18">Kick</div></div><label class="toggle"><input type="checkbox" id="s-tts-KK"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label">Solo leer mensaje</div><div class="sublabel">No pronunciar el nombre del usuario</div></div><label class="toggle"><input type="checkbox" id="s-tts-noname"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label">No leer emojis</div><div class="sublabel">Omite emojis al leer mensajes</div></div><label class="toggle"><input type="checkbox" id="s-tts-no-emoji" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         </div>
@@ -196,6 +216,48 @@
     <!-- APARIENCIA -->
     <div class="page" id="page-apariencia">
       <div class="page-title">Apariencia</div>
+      <div class="section">
+        <div class="section-title">Temas</div>
+        <div class="shape-grid" style="margin-bottom: 10px;">
+          <div class="shape-card" id="theme-dark" onclick="setTheme('dark')">
+            <div class="shape-preview" style="background:#18181b; border:1px solid #2e2e35; border-radius:4px;"></div>
+            <div class="shape-label">Dark</div>
+          </div>
+          <div class="shape-card" id="theme-midnight" onclick="setTheme('midnight')">
+            <div class="shape-preview" style="background:#0a0a14; border:1px solid #1a1a2e; border-radius:4px;"></div>
+            <div class="shape-label">Midnight</div>
+          </div>
+          <div class="shape-card" id="theme-forest" onclick="setTheme('forest')">
+            <div class="shape-preview" style="background:#0f1a15; border:1px solid #1a2e24; border-radius:4px;"></div>
+            <div class="shape-label">Forest</div>
+          </div>
+          <div class="shape-card" id="theme-sakura" onclick="setTheme('sakura')">
+            <div class="shape-preview" style="background:#1a0f15; border:1px solid #2e1a24; border-radius:4px;"></div>
+            <div class="shape-label">Sakura</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Forma del Avatar</div>
+        <div class="shape-grid">
+          <div class="shape-card" id="av-none" onclick="setAvatarShape('none')">
+            <div class="shape-preview" style="background:transparent; border:1px dashed #555;"></div>
+            <div class="shape-label">Oculto</div>
+          </div>
+          <div class="shape-card" id="av-square" onclick="setAvatarShape('square')">
+            <div class="shape-preview" style="border-radius:2px;"></div>
+            <div class="shape-label">Cuadrado</div>
+          </div>
+          <div class="shape-card" id="av-squircle" onclick="setAvatarShape('squircle')">
+            <div class="shape-preview" style="border-radius:30%;"></div>
+            <div class="shape-label">Squircle</div>
+          </div>
+          <div class="shape-card" id="av-circle" onclick="setAvatarShape('circle')">
+            <div class="shape-preview" style="border-radius:50%;"></div>
+            <div class="shape-label">Círculo</div>
+          </div>
+        </div>
+      </div>
       <div class="section">
         <div class="section-title">Fuente y densidad</div>
         <div class="row"><div class="row-label"><div class="label">Tamaño de fuente</div></div>
@@ -248,8 +310,8 @@
   </div><!-- /content -->
 </div><!-- /body -->
 
-<div id="save-bar">
-  <span id="save-status" style="font-size:11px;color:#444;align-self:center;margin-right:auto"></span>
+<div id="save-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 10px;">
+  <span id="save-status" style="margin-right: auto; font-size: 11px; color: #888;"></span>
   <button class="btn btn-secondary" onclick="window.electronAPI.closeSettings()">Cancelar</button>
   <button class="btn btn-primary" onclick="guardar()">Guardar cambios</button>
 </div>
@@ -258,22 +320,19 @@
 const SERVER = 'http://localhost:3000'
 let cfg = {}
 let selectedTheme = 'dark'
+let selectedAvatarShape = 'none'
 let blockedWords = [], highlights = []
-
 
 function filterSettings(q) {
     const ql = q.toLowerCase().trim()
     if (!ql) {
-        // Show all, reset
         document.querySelectorAll('.sb-item').forEach(i => { i.style.display=''; i.style.background='' })
         document.querySelectorAll('.row, .section').forEach(r => r.style.display='')
         return
     }
-    // Show/hide sidebar items
     document.querySelectorAll('.sb-item').forEach(item => {
         item.style.display = item.textContent.toLowerCase().includes(ql) ? '' : 'none'
     })
-    // Highlight matching rows across all pages
     document.querySelectorAll('.row').forEach(row => {
         const text = row.textContent.toLowerCase()
         row.style.background = text.includes(ql) ? 'rgba(155,155,245,.08)' : ''
@@ -281,8 +340,6 @@ function filterSettings(q) {
     })
 }
 
-// ── REAL-TIME PREVIEW ────────────────────────────────────────────────────────
-// Send partial config to main window for live preview without saving
 async function previewChange() {
     const partial = {
         compact:      document.getElementById('s-compact')?.checked,
@@ -294,14 +351,13 @@ async function previewChange() {
         windowOpacity: parseInt(document.getElementById('s-opacity')?.value || '90'),
         showTimestamps: document.getElementById('s-timestamps')?.checked,
         linkPreviews:   document.getElementById('s-link-previews')?.checked,
-        msgAnimation:   document.getElementById('s-msg-anim')?.checked,
         modHoverMenu:   document.getElementById('s-mod-hover')?.checked,
+        theme:          selectedTheme,
+        avatarShape:    selectedAvatarShape
     }
-    // Send to main window for live preview
     try { await window.electronAPI.previewSettings(partial) } catch {}
 }
 
-// Tone generator for test sounds (same as index.html)
 function testSoundPreview(type) {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)()
@@ -322,7 +378,6 @@ function testSoundPreview(type) {
     } catch {}
 }
 
-
 async function init() {
     cfg = (await window.electronAPI.getConfig()) || {}
     loadForm()
@@ -332,11 +387,25 @@ function loadForm() {
     set('s-tt', cfg.tiktokUser||'')
     set('s-yt', cfg.youtubeChannelId||'')
     set('s-tw', cfg.twitchUser||'')
-    set('s-kk', cfg.kickUser||'')
-    set('s-kk-chatroom', cfg.kickChatroomId||'')
+
+    const ttBtn = document.getElementById('btn-tt-login')
+    const ttLbl = document.getElementById('tt-btn-label')
+    const ttSt  = document.getElementById('tt-status-msg')
+    if (cfg.tiktokSessionId && cfg.tiktokUser) {
+        ttLbl.textContent = '✓ Conectado como @' + cfg.tiktokUser
+        ttBtn.style.background = '#1a4a1a'
+        ttBtn.style.borderColor = '#53fc18'
+        ttBtn.style.color = '#53fc18'
+        ttSt.textContent = 'Haz clic para reconectar o cambiar cuenta'
+        ttSt.className = 'hint status-ok'
+    } else if (cfg.tiktokUser) {
+        ttLbl.textContent = 'Actualizar conexión a @' + cfg.tiktokUser
+        ttSt.textContent = 'Tu conexión a TikTok es antigua. Por favor revincula.'
+        ttSt.style.color = '#ffaa00'
+    }
+
     document.getElementById('s-tw-token').value = cfg.twitchToken||''
 
-    // OAuth state
     const btn = document.getElementById('s-tw-oauth-btn')
     const lbl = document.getElementById('s-tw-oauth-label')
     const st  = document.getElementById('s-tw-status')
@@ -345,7 +414,6 @@ function loadForm() {
         btn.className = 'btn btn-twitch connected'
         st.textContent = 'Haz clic para reconectar o cambiar cuenta'
         st.className = 'hint'
-        // Lock username field — it's managed by OAuth
         const twField = document.getElementById('s-tw')
         if(twField){
             twField.disabled = true
@@ -396,7 +464,6 @@ function loadForm() {
     chk('s-tts-TT', cfg.ttsTT===true)
     chk('s-tts-YT', cfg.ttsYT===true)
     chk('s-tts-TW', cfg.ttsTW===true)
-    chk('s-tts-KK', cfg.ttsKK===true)
     chk('s-tts-noname', cfg.ttsNoName===true)
     chk('s-tts-no-emoji', cfg.ttsNoEmoji!==false)
     updateTtsUI()
@@ -417,21 +484,16 @@ function loadForm() {
     document.getElementById('dock-height-val').textContent = dh+'px'
 
     selectedTheme = cfg.theme||'dark'
-    document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
-    const tc = document.getElementById('theme-'+selectedTheme)
-    if(tc) tc.classList.add('active')
+    setTheme(selectedTheme)
     
-    // Aplicar tema al elemento html
-    document.documentElement.classList.remove('theme-midnight','theme-forest','theme-sakura','theme-light','theme-lightgray')
-    if(selectedTheme && selectedTheme !== 'dark') document.documentElement.classList.add('theme-'+selectedTheme)
+    selectedAvatarShape = cfg.avatarShape||'none'
+    setAvatarShape(selectedAvatarShape)
     
     chk('s-hw-accel', cfg.disableHWAccel!==true)
     chk('s-auto-update', cfg.autoUpdateDisabled!==true)
 
-    // Versión (Acerca de)
     window.electronAPI.getVersion().then(v => { const el=document.getElementById('app-version'); if(el) el.textContent='v'+v }).catch(()=>{})
 
-    // Tags
     blockedWords = cfg.blockedWords||[]
     highlights = cfg.customHighlights||[]
     renderTags('blocked-tags-wrap', blockedWords, false)
@@ -490,14 +552,17 @@ function goTo(page, el) {
 
 function setTheme(t) {
     selectedTheme = t
-    document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
+    document.querySelectorAll('.shape-card[id^="theme-"]').forEach(c=>c.classList.remove('active'))
     const el = document.getElementById('theme-'+t)
     if(el) el.classList.add('active')
-    
-    // Aplicar tema al elemento html
-    document.documentElement.classList.remove('theme-midnight','theme-forest','theme-sakura','theme-light','theme-lightgray')
-    if(t && t !== 'dark') document.documentElement.classList.add('theme-'+t)
-    
+    previewChange()
+}
+
+function setAvatarShape(s) {
+    selectedAvatarShape = s
+    document.querySelectorAll('.shape-card[id^="av-"]').forEach(c=>c.classList.remove('active'))
+    const el = document.getElementById('av-'+s)
+    if(el) el.classList.add('active')
     previewChange()
 }
 
@@ -515,64 +580,6 @@ function updateTranslucent() {
     row.style.pointerEvents = on ? 'auto' : 'none'
 }
 
-async function settingsLoginTwitch() {
-    const btn = document.getElementById('s-tw-oauth-btn')
-    const lbl = document.getElementById('s-tw-oauth-label')
-    const st  = document.getElementById('s-tw-status')
-    lbl.textContent = 'Esperando...'
-    btn.style.pointerEvents = 'none'
-    try {
-        const result = await window.electronAPI.loginTwitch()
-        if (result?.polling) {
-            // Poll for token from server
-            let attempts = 0
-            const maxAttempts = 60 // 60 seconds
-            const pollInterval = setInterval(async () => {
-                attempts++
-                try {
-                    const r = await fetch(`${SERVER}/api/twitch/auth-status`)
-                    const d = await r.json()
-                    if (d.token) {
-                        clearInterval(pollInterval)
-                        document.getElementById('s-tw-token').value = d.token
-                        let login = ''
-                        try {
-                            const vr = await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:d.token})})
-                            const vd = await vr.json()
-                            if(vd.ok) { login=vd.login; document.getElementById('s-tw').value=login }
-                        } catch {}
-                        lbl.textContent = '✓ Conectado como ' + (login || '?')
-                        btn.className = 'btn btn-twitch connected'
-                        st.textContent = 'Haz clic para reconectar o cambiar cuenta'
-                        st.className = 'hint status-ok'
-                        const f=document.getElementById('s-tw'); if(f){f.disabled=true;f.style.opacity='0.5'}
-                        btn.style.pointerEvents = ''
-                    } else if (attempts >= maxAttempts) {
-                        clearInterval(pollInterval)
-                        lbl.textContent = 'Conectar con Twitch'
-                        btn.className = 'btn btn-twitch'
-                        st.textContent = 'Tiempo agotado - intenta de nuevo'
-                        st.className = 'hint status-err'
-                        btn.style.pointerEvents = ''
-                    }
-                } catch {}
-            }, 1000)
-        } else {
-            lbl.textContent = 'Conectar con Twitch'
-            btn.className = 'btn btn-twitch'
-            st.textContent = 'Error al iniciar OAuth'
-            st.className = 'hint status-err'
-            btn.style.pointerEvents = ''
-        }
-    } catch(e) {
-        lbl.textContent = 'Conectar con Twitch'
-        btn.className = 'btn btn-twitch'
-        st.textContent = 'Error: '+e.message
-        st.className = 'hint status-err'
-        btn.style.pointerEvents = ''
-    }
-}
-
 async function guardar() {
     const statusEl = document.getElementById('save-status')
     statusEl.textContent = 'Guardando...'
@@ -581,8 +588,6 @@ async function guardar() {
         tiktokUser:         document.getElementById('s-tt').value.replace('@','').trim(),
         youtubeChannelId:   document.getElementById('s-yt').value.trim(),
         twitchUser:         document.getElementById('s-tw').value.trim() || cfg.twitchUser || '',
-        kickUser:           document.getElementById('s-kk').value.trim(),
-        kickChatroomId:     document.getElementById('s-kk-chatroom').value.trim(),
         twitchToken:        document.getElementById('s-tw-token').value.trim(),
         streamerName:       document.getElementById('s-streamer').value.trim(),
         filterSubsOnly:     document.getElementById('s-filter-subs').checked,
@@ -620,7 +625,6 @@ async function guardar() {
         ttsTT:              document.getElementById('s-tts-TT').checked,
         ttsYT:              document.getElementById('s-tts-YT').checked,
         ttsTW:              document.getElementById('s-tts-TW').checked,
-        ttsKK:              document.getElementById('s-tts-KK').checked,
         ttsNoName:          document.getElementById('s-tts-noname').checked,
         ttsNoEmoji:         document.getElementById('s-tts-no-emoji').checked,
         fontSize:           parseFloat(document.getElementById('s-fontsize').value),
@@ -631,13 +635,13 @@ async function guardar() {
         dockPosition:       document.getElementById('s-dock-pos').value,
         dockHeight:         parseInt(document.getElementById('s-dock-height').value),
         theme:              selectedTheme,
+        avatarShape:        selectedAvatarShape,
         disableHWAccel:     !document.getElementById('s-hw-accel').checked,
         autoUpdateDisabled: !document.getElementById('s-auto-update')?.checked,
     }
     const r = await window.electronAPI.saveSettings(newCfg)
     cfg = newCfg
     statusEl.textContent = '✓ Guardado — reconectando plataformas...'
-    // Window closes automatically via main.js after 300ms
 }
 
 async function resetConfig() {
@@ -651,6 +655,69 @@ function openLink(url) {
 }
 
 init()
+
+async function loginTiktokSeamless() {
+    const btn = document.getElementById('btn-tt-login');
+    const status = document.getElementById('tt-status-msg');
+    const ttInput = document.getElementById('s-tt');
+
+    btn.disabled = true;
+    status.textContent = "Abriendo ventana segura...";
+    
+    try {
+        const res = await window.electronAPI.loginTiktok();
+        if (res.success && res.sessionId) {
+            cfg.tiktokSessionId = res.sessionId; // Guardar en memoria para que guardar() lo tome
+            const user = res.username;
+            
+            if(user) {
+                cfg.tiktokUser = user;
+                ttInput.value = user;
+                await window.electronAPI.saveSettings(cfg); 
+                
+                btn.style.background = '#1a4a1a';
+                btn.style.color = '#53fc18';
+                document.getElementById('tt-btn-label').textContent = '✓ TikTok Vinculado';
+                status.textContent = 'Sesión guardada correctamente.';
+                status.style.color = '#53fc18';
+            } else {
+                status.textContent = "⚠️ Sesión capturada. Por favor, escribe tu usuario en la caja de arriba y guarda los cambios.";
+                status.style.color = "#ffcc00";
+                ttInput.removeAttribute('readonly');
+                ttInput.focus();
+            }
+        } else {
+            status.textContent = "Error: " + (res.error || "Desconocido");
+            status.style.color = "#ff6060";
+        }
+    } catch (e) {
+        status.textContent = "Error interno: " + e.message;
+        status.style.color = "#ff6060";
+    }
+    btn.disabled = false;
+}
+
+async function settingsLoginTwitch() {
+    const btn = document.getElementById('s-tw-oauth-btn');
+    const lbl = document.getElementById('s-tw-oauth-label');
+    lbl.textContent = 'Esperando conexión...';
+    try {
+        const result = await window.electronAPI.loginTwitch();
+        if (result?.polling) {
+            const poll = setInterval(async () => {
+                const r = await fetch(`${SERVER}/api/twitch/auth-status`);
+                const d = await r.json();
+                if (d.token) {
+                    clearInterval(poll);
+                    document.getElementById('s-tw-token').value = d.token;
+                    document.getElementById('s-tw').value = d.login;
+                    lbl.textContent = '✓ Conectado: ' + d.login;
+                    btn.classList.add('connected');
+                }
+            }, 1000);
+        }
+    } catch (e) { console.error(e); }
+}
 </script>
 </body>
 </html>

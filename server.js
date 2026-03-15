@@ -20,7 +20,6 @@ const badges   = require('./server/badges')
 const twitch   = require('./server/platforms/twitch')
 const tiktok   = require('./server/platforms/tiktok')
 const youtube  = require('./server/platforms/youtube')
-const kick     = require('./server/platforms/kick')
 const { fetchJson, postJson, fetchRaw } = require('./server/fetch')
 
 const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
@@ -29,16 +28,24 @@ const app    = express()
 const server = http.createServer(app)
 const io     = new Server(server, { cors:{ origin:'*' } })
 app.use(express.json())
+
+// --- INICIO DEL CÓDIGO NUEVO (Permisos CORS) ---
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
+// --- FIN DEL CÓDIGO NUEVO ---
+
 app.use(express.static(path.join(__dirname, 'public')))
 
-const isLive = { TT:false, YT:false, TW:false, KK:false }
-const platStatus = { TT:'disconnected', YT:'disconnected', TW:'disconnected', KK:'disconnected' }
+const isLive = { TT:false, YT:false, TW:false }
+const platStatus = { TT:'disconnected', YT:'disconnected', TW:'disconnected' }
 function updateStatus(plat, status) {
     if (isLive[plat] === status) return
     isLive[plat] = status; io.emit('status', isLive)
 }
 function updatePlatformState(plat, state) {
-    // state: 'loading', 'connected', 'error', 'disconnected'
     if (platStatus[plat] === state) return
     platStatus[plat] = state
     io.emit('platform_state', { plat, state })
@@ -54,7 +61,7 @@ function emitEvento(d) {
 
 const platDeps = () => ({ emitMsg, emitEvento, updateStatus, updatePlatformState, procesarUsuario:storage.procesarUsuario, addLikes:storage.addLikes, config })
 
-twitch.init(platDeps()); tiktok.init(platDeps()); youtube.init(platDeps()); kick.init(platDeps())
+twitch.init(platDeps()); tiktok.init(platDeps()); youtube.init(platDeps());
 
 io.on('connection', socket => {
     socket.emit('history',      storage.getHistory())
@@ -72,9 +79,8 @@ function reconnectAll() {
     lastConfig = { ...config }
     
     const deps = platDeps()
-    twitch.init(deps); tiktok.init(deps); youtube.init(deps); kick.init(deps)
+    twitch.init(deps); tiktok.init(deps); youtube.init(deps);
     
-    // Only disconnect/reconnect if credentials changed
     if (oldConfig.tiktokUser !== config.tiktokUser) {
         tiktok.disconnect()
         setTimeout(() => tiktok.connect(config.tiktokUser), 800)
@@ -87,15 +93,8 @@ function reconnectAll() {
         twitch.disconnect()
         setTimeout(() => twitch.connect(config.twitchUser), 800)
     }
-    if (oldConfig.kickUser !== config.kickUser || oldConfig.kickChatroomId !== config.kickChatroomId) {
-        kick.disconnect()
-        setTimeout(() => kick.connect(config.kickUser, config.kickChatroomId), 800)
-    }
 }
 
-// ─── OAUTH CALLBACK ROUTE (receives Twitch redirect) ─────────────────────────
-// Twitch redirects browser to http://localhost:3000/oauth/callback#access_token=xxx
-// The page reads the hash fragment (JS-only, not sent to server) and POSTs it to us
 app.get('/oauth/callback', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
     res.end(`<!DOCTYPE html>
@@ -145,10 +144,8 @@ app.post('/api/send-message', async (req, res) => {
     if (!text) return res.json({ ok:false, error:'no text' })
     try {
         if (platform === 'TW' || !platform) {
-            // Use twitchUser from config, fallback to the channel we're connected to
             const channel = config.twitchUser || twitch.getClient()?.channels?.[0]?.replace('#','')
             if (!channel) return res.json({ ok:false, error:'Canal de Twitch no configurado' })
-            // TMI.js say() handles /commands natively (e.g., /timeout, /ban, /mod)
             const msg = (!isCommand && replyTo) ? `@${replyTo} ${text}` : text
             await twitch.say(channel, msg)
             return res.json({ ok:true })
@@ -256,7 +253,6 @@ storage.initDB(path.dirname(CONFIG_PATH)).then(async () => {
     tiktok.connect(config.tiktokUser)
     youtube.connect(config.youtubeChannelId)
     twitch.connect(config.twitchUser)
-    kick.connect(config.kickUser, config.kickChatroomId)
     server.listen(PORT, () => {
         console.log(`[Server] http://localhost:${PORT}`)
         if (process.send) process.send({ type:'ready', port:PORT })

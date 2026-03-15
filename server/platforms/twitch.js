@@ -157,7 +157,9 @@ function emit_ban_event(username, duration) {
 async function say(channel, text) {
     if (!clientRef) throw new Error('No conectado a Twitch')
     if (!config.twitchToken) throw new Error('Token requerido para enviar mensajes')
-    return clientRef.say(channel.toLowerCase(), text)
+    // tmi.js exige que el canal empiece con # para enviar mensajes
+    const targetChannel = channel.startsWith('#') ? channel.toLowerCase() : `#${channel.toLowerCase()}`
+    return clientRef.say(targetChannel, text)
 }
 
 function getChannelId() { return channelId }
