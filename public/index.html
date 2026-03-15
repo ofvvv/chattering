@@ -795,30 +795,23 @@ function updateLikeRow(user,uid,count){
 }
 
 // ── CHAT ──────────────────────────────────────────────────────────────────────
+const chatWrap=document.getElementById('chat-wrap')
 const chatDiv=document.getElementById('chat')
 const pausedBadge=document.getElementById('scroll-paused')
 let scrollFrozen=false
 let scrollPaused=false
 
-const isAtBottom=()=>chatDiv.scrollHeight-chatDiv.scrollTop-chatDiv.clientHeight<60
-chatDiv.addEventListener('scroll',()=>{scrollFrozen=!isAtBottom();pausedBadge.classList.toggle('visible',scrollFrozen)},{passive:true})
-pausedBadge.addEventListener('click',()=>{scrollFrozen=false;chatDiv.scrollTop=chatDiv.scrollHeight;pausedBadge.classList.remove('visible')})
+const isAtBottom=()=>chatWrap.scrollHeight-chatWrap.scrollTop-chatWrap.clientHeight<60
+chatWrap.addEventListener('scroll',()=>{scrollFrozen=!isAtBottom();pausedBadge.classList.toggle('visible',scrollFrozen)},{passive:true})
+pausedBadge.addEventListener('click',()=>{scrollFrozen=false;scrollPaused=false;chatWrap.scrollTop=chatWrap.scrollHeight;pausedBadge.classList.remove('visible')})
 let scrollScheduled = false
 function maybeScroll(){
     if (scrollScheduled) return
     scrollScheduled = true
     requestAnimationFrame(() => {
         scrollScheduled = false
-        const chat=document.getElementById('chat')
-        const wrap=document.getElementById('chat-wrap')
-        const isAtBottom=wrap.scrollTop+wrap.clientHeight>=wrap.scrollHeight-10
-        if(isAtBottom||!scrollPaused){
-            wrap.scrollTop=wrap.scrollHeight
-            scrollPaused=false
-            document.getElementById('scroll-paused').classList.remove('visible')
-        } else {
-            scrollPaused=true
-            document.getElementById('scroll-paused').classList.add('visible')
+        if(!scrollFrozen && !scrollPaused){
+            chatWrap.scrollTop=chatWrap.scrollHeight
         }
     })
 }
@@ -1465,7 +1458,6 @@ document.addEventListener('click', e => {
 })
 
 // ── SCROLL PAUSE ON HOVER ─────────────────────────────────────────────────────
-// chatWrap for scroll pause
 const chatWrap = document.getElementById('chat-wrap')
 chatWrap?.addEventListener('mouseenter', () => {
     if(cfg.scrollPauseOnHover!==false) scrollPaused = true
