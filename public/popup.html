@@ -115,7 +115,7 @@
         <button class="uc-btn uc-btn-mod" onclick="alert('Ban no implementado aún.')">🔨 Ban</button>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script>
         let profileUrl = ''
 
@@ -142,21 +142,30 @@
                 data.plat === 'YT' ? '🔴 YouTube' :
                 data.plat === 'TW' ? '💜 Twitch' : data.plat
 
-            // Botón perfil
+            // Botón perfil: abrir en el navegador del sistema, no dentro de Electron
             document.getElementById('btn-profile').onclick = () => {
-                if (profileUrl) window.open(profileUrl, '_blank')
+                if (profileUrl) window.electronAPI?.openExternal(profileUrl)
             }
 
-            // Historial via Socket.IO
+            // Historial via Socket.IO (script debe cargar desde URL absoluta porque popup es file://)
+            const c = document.getElementById('uc-history')
+            function setHistState(html) {
+                c.innerHTML = html
+            }
             try {
-                const socket = io('http://localhost:3000')
+                const socket = io('http://localhost:3000', { reconnection: false })
+                socket.on('connect_error', () => {
+                    setHistState('<i style="color:#555;font-size:11px">Sin conexión al servidor</i>')
+                })
                 socket.emit('req_user_hist', data.userId)
                 socket.on('res_user_hist', res => {
                     if (res.uid !== data.userId) return
-                    const c = document.getElementById('uc-history')
                     c.innerHTML = ''
-                    const total = res.h.prev.length + res.h.curr.length
-                    if (!total) { c.innerHTML = '<i style="color:#333;font-size:11px">Sin mensajes registrados</i>'; return }
+                    const total = (res.h && res.h.prev && res.h.curr) ? (res.h.prev.length + res.h.curr.length) : 0
+                    if (!total) {
+                        setHistState('<i style="color:#333;font-size:11px">Sin mensajes registrados</i>')
+                        return
+                    }
 
                     document.getElementById('uc-count').textContent = `${total} mensaje${total !== 1 ? 's' : ''}`
 
@@ -177,7 +186,16 @@
                     addSec(res.h.curr, '— Actual —',   false)
                     c.scrollTop = c.scrollHeight
                 })
-            } catch(e) { console.error('Socket error:', e) }
+                // Si no llega respuesta en 5 s, salir de "Cargando..."
+                setTimeout(() => {
+                    if (c.innerHTML === '<i style="color:#333;font-size:11px">Cargando...</i>') {
+                        setHistState('<i style="color:#555;font-size:11px">Sin mensajes registrados</i>')
+                    }
+                }, 5000)
+            } catch (e) {
+                console.error('Socket error:', e)
+                setHistState('<i style="color:#555;font-size:11px">Error al cargar historial</i>')
+            }
         }
 
         init()

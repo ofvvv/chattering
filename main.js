@@ -4,6 +4,11 @@ const fs     = require('fs')
 const http   = require('http')
 const { fork, exec } = require('child_process')
 
+let autoUpdater = null
+if (app.isPackaged) {
+    try { autoUpdater = require('electron-updater').autoUpdater } catch (e) { console.warn('[Updater] No disponible:', e?.message) }
+}
+
 // ─── LOG DE ERRORES ──────────────────────────────────────────────────────────
 const LOG_PATH = path.join(app.getPath('userData'), 'error.log')
 function writeLog(msg) {
@@ -35,6 +40,23 @@ function getLastSeenVersion() {
 }
 function setLastSeenVersion(v) {
     try { fs.writeFileSync(SEEN_VERSION_PATH, v, 'utf8') } catch {}
+}
+
+// Changelog para streamers (mostrado tras actualización). Actualizar en cada release.
+function getStreamerChangelog(version) {
+    const notes = {
+        '3.1.0': [
+            'Configuración en ventana independiente',
+            'Sistema de temas (Dark, Midnight, Forest, Sakura, Claro, Gris Claro)',
+            'Modo compacto y formas de avatar',
+            'Fondo translúcido',
+            'Menú de moderación al pasar el cursor (timeout, ban, responder)',
+            'Respuestas en Twitch y selector de emotes',
+            'Scroll pausado e invertido',
+            'Actualizaciones automáticas desde GitHub'
+        ]
+    }
+    return notes[version] || notes['3.1.0'] || ['Mejoras y correcciones.']
 }
 
 // ─── ESTADO ──────────────────────────────────────────────────────────────────
@@ -281,6 +303,7 @@ app.whenReady().then(async () => {
     } else {
         createMainWindow(true)
     }
+    setupAutoUpdater(config)
 })
 
 app.on('window-all-closed', () => {
@@ -391,6 +414,52 @@ ipcMain.handle('reset-config', () => {
     try { fs.unlinkSync(CONFIG_PATH) } catch {}
     if (serverProc) { try { serverProc.kill() } catch {}; serverProc = null }
     mainWindow?.loadFile(path.join(getPublicPath(), 'setup.html'))
+    return true
+})
+
+// ─── AUTO-UPDATER (solo en build empaquetado) ─────────────────────────────────
+let updateChangelogWindow = null
+
+function showUpdateChangelogWindow(version, notes) {
+    if (updateChangelogWindow && !updateChangelogWindow.isDestroyed()) return
+    updateChangelogWindow = new BrowserWindow({
+        width: 420,
+        height: 380,
+        resizable: false,
+        frame: false,
+        backgroundColor: '#18181b',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration: false
+        }
+    })
+    updateChangelogWindow.loadFile(path.join(getPublicPath(), 'update-changelog.html'))
+    updateChangelogWindow.webContents.on('did-finish-load', () => {
+        updateChangelogWindow?.webContents?.send('update-info', { version, notes })
+    })
+    updateChangelogWindow.on('closed', () => { updateChangelogWindow = null })
+}
+
+function setupAutoUpdater(config) {
+    if (!autoUpdater) return
+    if (config && config.autoUpdateDisabled === true) {
+        writeLog('[Updater] Desactivado por el usuario')
+        return
+    }
+    autoUpdater.on('update-available', () => { writeLog('[Updater] Actualización disponible, descargando...') })
+    autoUpdater.on('update-not-available', () => { writeLog('[Updater] Ya estás al día') })
+    autoUpdater.on('update-downloaded', (event, info) => {
+        writeLog('[Updater] Descarga completada: v' + (info?.version || '?'))
+        const notes = getStreamerChangelog(info?.version)
+        showUpdateChangelogWindow(info?.version || app.getVersion(), notes)
+    })
+    autoUpdater.on('error', (e) => { writeLog('[Updater] Error: ' + (e?.message || e)) })
+    autoUpdater.checkForUpdates().catch(() => {})
+}
+
+ipcMain.handle('quit-and-install', () => {
+    if (autoUpdater) autoUpdater.quitAndInstall(false, true)
     return true
 })
 

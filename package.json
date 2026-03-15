@@ -8,6 +8,7 @@
     "build:win": "electron-builder --win"
   },
   "dependencies": {
+    "electron-updater": "^6.3.9",
     "sql.js": "^1.12.0",
     "express": "^4.18.2",
     "socket.io": "^4.6.1",
@@ -23,6 +24,11 @@
   "build": {
     "appId": "com.chattering.app",
     "productName": "Chattering",
+    "publish": {
+      "provider": "github",
+      "owner": "ofvvv",
+      "repo": "chattering"
+    },
     "asar": false,
     "files": [
       "main.js",
@@ -49,9 +55,9 @@
       "icon": "assets/icon.ico"
     },
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
+      "allowToChangeInstallationDirectory": true,
       "installerIcon": "assets/icon.ico",
       "shortcutName": "Chattering",
       "deleteAppDataOnUninstall": false

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Actualización instalada — Chattering</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #18181b; color: #dadada;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px; max-width: 380px;
+        }
+        h2 { font-size: 15px; margin-bottom: 8px; color: #fff; }
+        .version { font-size: 11px; color: #9b9bf5; font-weight: 700; margin-bottom: 14px; }
+        ul { font-size: 12px; color: #aaa; line-height: 1.6; padding-left: 18px; margin-bottom: 18px; }
+        ul li { margin-bottom: 4px; }
+        .btn { width: 100%; padding: 10px; background: #9b9bf5; color: #fff; border: none; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn:hover { background: #7b7bdc; }
+    </style>
+</head>
+<body>
+    <h2>Actualización instalada</h2>
+    <div class="version" id="version"></div>
+    <p style="font-size:11px;color:#666;margin-bottom:8px;">Cambios relevantes para el streamer:</p>
+    <ul id="notes"></ul>
+    <button class="btn" id="btn-restart">Reiniciar ahora</button>
+    <script>
+        window.electronAPI?.on?.('update-info', (data) => {
+            if (data.version) document.getElementById('version').textContent = 'Chattering v' + data.version
+            const ul = document.getElementById('notes')
+            if (Array.isArray(data.notes) && data.notes.length) {
+                data.notes.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li) })
+            } else {
+                ul.innerHTML = '<li>Mejoras y correcciones.</li>'
+            }
+        })
+        document.getElementById('btn-restart').onclick = () => {
+            document.getElementById('btn-restart').disabled = true
+            document.getElementById('btn-restart').textContent = 'Reiniciando...'
+            window.electronAPI?.quitAndInstall?.()
+        }
+    </script>
+</body>
+</html>

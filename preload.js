@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVersion:         () => ipcRenderer.invoke('get-version'),
     getLastSeenVersion: () => ipcRenderer.invoke('get-last-seen-version'),
     setLastSeenVersion: (v) => ipcRenderer.invoke('set-last-seen-version', v),
+    quitAndInstall:     () => ipcRenderer.invoke('quit-and-install'),
     openExternal:       (url)  => ipcRenderer.invoke('open-external', url),
     setAlwaysOnTop:     (flag) => ipcRenderer.invoke('set-always-on-top', flag),
     loginTwitch:        ()     => ipcRenderer.invoke('login-twitch'),
@@ -21,7 +22,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openSettings:       ()     => ipcRenderer.invoke('open-settings'),
     closeSettings:      ()     => ipcRenderer.invoke('close-settings'),
     on: (ch, cb) => {
-        const allowed = ['popup-data', 'config-updated', 'settings-saved']
+        const allowed = ['popup-data', 'config-updated', 'settings-saved', 'update-info']
         if (allowed.includes(ch)) ipcRenderer.on(ch, (_e, ...a) => cb(...a))
     }
 })

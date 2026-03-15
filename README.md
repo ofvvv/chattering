@@ -61,7 +61,7 @@ Stored in `%AppData%\Chattering\config.json`:
 
 ## Contributing
 
-This project is being prepared for open-source release. See CONTRIBUTING.md (coming soon).
+We welcome contributions. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines. For technical details (architecture, platforms, APIs), see the **[docs/](docs/README.md)** folder.
 
 ## License
 
