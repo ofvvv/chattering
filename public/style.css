@@ -3,8 +3,8 @@
    Ventanas: .win-main (index), .win-settings (settings), .win-setup (setup)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── GLOBAL (variables de tema, aplicadas en todas las ventanas) ── */
-:root {
+/* Variables CSS globales */
+html, body {
   --bg: #111111;
   --bg2: #18181b;
   --bg3: #09090b;
@@ -16,12 +16,6 @@
   --accent: #9b9bf5;
   --accent2: #7b7bdc;
 }
-/* Temas (ventana principal los aplica en body) */
-body.theme-midnight { --bg: #0a0b1a; --bg2: #0e1030; --bg3: #06071a; --border: #161830; --border2: #252545; --accent: #6a6af5; }
-body.theme-forest   { --bg: #080f08; --bg2: #0d160d; --bg3: #050905; --border: #141e14; --border2: #253025; --accent: #4ec94e; --accent2: #3aaa3a; }
-body.theme-sakura   { --bg: #110810; --bg2: #1a0e18; --bg3: #0a060a; --border: #1e1020; --border2: #2e1a30; --accent: #d06aba; --accent2: #b055a0; }
-body.theme-light    { --bg: #f5f5f5; --bg2: #ffffff; --bg3: #e8e8e8; --border: #d0d0d0; --border2: #b0b0b0; --text: #1a1a1a; --text2: #444; --text3: #666; --accent: #5a5ac9; --accent2: #4a4ab8; }
-body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: #b8b8be; --border2: #a0a0a8; --text: #1e1e22; --text2: #444; --text3: #555; --accent: #6a6ad5; --accent2: #5a5ac5; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -40,7 +34,6 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
   display: flex;
   flex-direction: column;
   height: 100vh;
-  user-select: none;
   position: relative;
 }
 .win-main #titlebar {
@@ -180,9 +173,11 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
 .win-main #main-layout.dock-bottom #dock-resize-handle { bottom: auto; top: -4px; }
 .win-main #dock-resize-handle::after { content: ''; display: block; width: 32px; height: 2px; background: #2e2e35; border-radius: 1px; transition: background 0.2s; }
 .win-main #dock-resize-handle:hover::after { background: #9b9bf5; }
-.win-main #dock-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; scroll-behavior: smooth; }
-.win-main #dock-scroll::-webkit-scrollbar { width: 2px; }
-.win-main #dock-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 1px; }
+.win-main #dock-scroll { flex: 1; min-height: 0; overflow-y: scroll; display: flex; flex-direction: column; scroll-behavior: smooth; }
+.win-main #dock-scroll::-webkit-scrollbar { width: 6px; }
+.win-main #dock-scroll::-webkit-scrollbar-track { background: #0a0a0a; }
+.win-main #dock-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.win-main #dock-scroll::-webkit-scrollbar-thumb:hover { background: #444; }
 .win-main #dock-inner { display: flex; flex-direction: column; gap: 2px; padding: 4px 8px 2px; }
 .win-main #dock-like-row { flex-shrink: 0; border-top: 1px solid #1e1e24; background: rgba(255,43,84,0.04); padding: 0 8px; display: none; align-items: center; gap: 7px; height: 26px; }
 .win-main #dock-like-row.visible { display: flex; }
@@ -276,9 +271,141 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
 .win-main #search-close:hover { color: #ddd; }
 
 @keyframes fadeSlide { from { opacity: 0; transform: translateX(-3px); } to { opacity: 1; transform: translateX(0); } }
-.win-main #chat-wrap { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+
+/* ── CHAT WRAP ────────────────────────────────────────────────────────────── */
+.win-main #chat-wrap { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; min-height: 0; }
+.win-main #scroll-paused { display: none; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); background: rgba(18,18,22,0.93); color: #999; font-size: 10px; font-family: 'Consolas', monospace; padding: 3px 12px; border: 1px solid #2e2e35; border-radius: 3px; z-index: 20; cursor: pointer; user-select: none; white-space: nowrap; letter-spacing: 1px; }
+.win-main #scroll-paused.visible { display: block; }
+.win-main #scroll-paused:hover { background: rgba(35,35,45,0.97); color: #fff; }
+
+/* ── MULTIPLE PANELS SYSTEM ────────────────────────────────────────────── */
+.win-main #panels-container { 
+  flex: 1; 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+  gap: 1px; 
+  background: var(--border); 
+  overflow: hidden; 
+  min-height: 0; 
+}
+.win-main .chat-panel { 
+  display: flex; 
+  flex-direction: column; 
+  background: var(--bg); 
+  overflow: hidden; 
+  position: relative;
+}
+.win-main .panel-header { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 4px 8px; 
+  background: var(--bg2); 
+  border-bottom: 1px solid var(--border); 
+  flex-shrink: 0;
+}
+.win-main .panel-title { 
+  font-size: 11px; 
+  font-weight: 600; 
+  color: var(--text2); 
+  user-select: none;
+}
+.win-main .panel-controls { 
+  display: flex; 
+  gap: 4px; 
+  align-items: center;
+}
+.win-main .panel-btn { 
+  background: transparent; 
+  border: none; 
+  color: var(--text2); 
+  cursor: pointer; 
+  padding: 2px 4px; 
+  border-radius: 2px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+.win-main .panel-btn:hover { 
+  background: var(--bg3); 
+  color: var(--text);
+}
+.win-main .panel-filters { 
+  display: none; 
+  flex-wrap: wrap; 
+  gap: 4px; 
+  padding: 4px 8px; 
+  background: var(--bg3); 
+  border-bottom: 1px solid var(--border); 
+  align-items: center;
+}
+.win-main .panel-filters.open { 
+  display: flex;
+}
+.win-main .pfchip { 
+  background: transparent; 
+  border: 1px solid var(--border2); 
+  color: var(--text2); 
+  padding: 2px 8px; 
+  border-radius: 3px; 
+  font-size: 10px; 
+  cursor: pointer; 
+  transition: all 0.15s;
+}
+.win-main .pfchip:hover { 
+  background: var(--bg2); 
+  border-color: var(--accent);
+}
+.win-main .pfchip.active { 
+  background: var(--accent); 
+  color: #000; 
+  border-color: var(--accent);
+}
+.win-main .panel-chat-wrap { 
+  flex: 1; 
+  position: relative; 
+  display: flex; 
+  flex-direction: column; 
+  overflow: hidden; 
+  min-height: 0;
+}
+.win-main .panel-chat { 
+  flex: 1; 
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column;
+}
+.win-main #panel-controls { 
+  padding: 3px 8px; 
+  background: transparent; 
+  border-top: 1px solid var(--border); 
+  display: flex; 
+  justify-content: center;
+}
+.win-main #add-panel-btn { 
+  background: transparent; 
+  border: 1px solid transparent; 
+  color: var(--text3); 
+  padding: 2px 8px; 
+  border-radius: 3px; 
+  font-size: 10px; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+  transition: all 0.15s;
+  opacity: 0.5;
+}
+.win-main #add-panel-btn:hover { 
+  background: var(--bg2); 
+  color: var(--text); 
+  border-color: var(--border2);
+  opacity: 1;
+}
+
+/* Legacy #chat support for backward compatibility */
 .win-main #chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-.win-main .linea { padding: 3px 8px; border-left: 3px solid transparent; line-height: 24px; overflow-wrap: break-word; word-break: normal; }
+.win-main .linea { padding: 3px 8px; border-left: 3px solid transparent; line-height: 24px; overflow-wrap: break-word; word-break: normal; user-select: text; cursor: text; }
 .win-main .linea-bg-even { background: #111111; }
 .win-main .linea-bg-odd { background: #18181b; }
 .win-main .linea-new { animation: fadeSlide 0.15s ease-out; }
@@ -309,9 +436,9 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
 .win-main ::-webkit-scrollbar { width: 4px; }
 .win-main ::-webkit-scrollbar-thumb { background: #2e2e35; }
 .win-main .offline-mode { opacity: 0.6; filter: grayscale(85%); transition: all 0.5s; }
-.win-main #scroll-paused { display: none; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); background: rgba(18,18,22,0.93); color: #999; font-size: 10px; font-family: 'Consolas', monospace; padding: 3px 12px; border: 1px solid #2e2e35; z-index: 20; cursor: pointer; user-select: none; white-space: nowrap; letter-spacing: 1px; }
-.win-main #scroll-paused.visible { display: block; }
-.win-main #scroll-paused:hover { background: rgba(35,35,45,0.97); color: #fff; }
+.win-main .scroll-paused { display: none; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); background: rgba(18,18,22,0.93); color: #999; font-size: 10px; font-family: 'Consolas', monospace; padding: 3px 12px; border: 1px solid #2e2e35; border-radius: 3px; z-index: 20; cursor: pointer; user-select: none; white-space: nowrap; letter-spacing: 1px; }
+.win-main .scroll-paused.visible { display: block; }
+.win-main .scroll-paused:hover { background: rgba(35,35,45,0.97); color: #fff; }
 
 .win-main #autocomplete-popup { position: fixed; z-index: 9500; background: #18181b; border: 1px solid #2e2e35; border-radius: 4px; max-height: 160px; overflow-y: auto; min-width: 180px; box-shadow: 0 4px 16px rgba(0,0,0,0.7); display: none; }
 .win-main #autocomplete-popup.open { display: block; }
@@ -341,10 +468,22 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
 .win-main .ctx-sep { height: 1px; background: #1e1e24; margin: 2px 0; }
 .win-main .ctx-name { font-size: 10px; color: #555; padding: 6px 14px 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-.win-main #bottom-dock { background: #09090b; border-top: 2px solid #1a1a1e; height: 24px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; flex-shrink: 0; font-family: 'Consolas', monospace; font-size: 10px; z-index: 10; }
-.win-main #status-text { color: #555; font-weight: bold; letter-spacing: 2px; transition: color 0.4s; }
+.win-main #bottom-dock { background: #09090b; border-top: 2px solid #1a1a1e; height: 24px; display: flex; align-items: center; padding: 0 10px; flex-shrink: 0; font-family: 'Consolas', monospace; font-size: 10px; z-index: 10; gap: 8px; }
+.win-main #platform-icons { display: flex; gap: 6px; align-items: center; }
+.win-main .plat-status-icon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; opacity: 0.25; transition: opacity 0.3s, transform 0.2s; cursor: default; position: relative; }
+.win-main .plat-status-icon svg { width: 100%; height: 100%; }
+.win-main .plat-status-icon.active { opacity: 1; }
+.win-main .plat-status-icon.active[data-plat="TT"] svg { fill: #fff; }
+.win-main .plat-status-icon.active[data-plat="YT"] svg { fill: #ff0000; }
+.win-main .plat-status-icon.active[data-plat="TW"] svg { fill: #9147ff; }
+.win-main .plat-status-icon.active[data-plat="KK"] svg { fill: #53fc18; }
+.win-main .plat-status-icon.state-loading { opacity: 0.5; animation: pulse 1.5s ease-in-out infinite; }
+.win-main .plat-status-icon.state-error { opacity: 0.4; }
+.win-main .plat-status-icon.state-error::after { content: '!'; position: absolute; bottom: -2px; right: -2px; font-size: 8px; color: #ff6060; font-weight: bold; background: #0e0e10; border-radius: 50%; width: 8px; height: 8px; display: flex; align-items: center; justify-content: center; }
+.win-main .plat-status-icon.state-connected { opacity: 1; }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+.win-main #status-text { color: #555; font-weight: bold; letter-spacing: 2px; transition: color 0.4s; margin-left: auto; }
 .win-main .text-live { color: #00f2fe !important; text-shadow: 0 0 8px rgba(0,242,254,0.4); }
-.win-main #msg-counter { color: #333; }
 
 .win-main #test-panel { position: fixed; bottom: 30px; right: 6px; z-index: 9999; display: none; flex-direction: column; gap: 3px; background: rgba(0,0,0,0.65); padding: 6px; border: 1px solid #2e2e35; border-radius: 4px; }
 .win-main #test-panel.visible { display: flex; }
@@ -453,13 +592,6 @@ body.theme-lightgray { --bg: #e5e5e7; --bg2: #d8d8dc; --bg3: #cacace; --border: 
 .win-settings .slider-wrap { display: flex; align-items: center; gap: 10px; }
 .win-settings input[type=range] { flex: 1; height: 4px; accent-color: #9b9bf5; cursor: pointer; }
 .win-settings .slider-val { font-size: 10.5px; color: #666; font-family: 'Consolas', monospace; min-width: 30px; text-align: right; }
-.win-settings .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.win-settings .theme-card { border: 2px solid #2a2a32; border-radius: 6px; padding: 10px 8px; cursor: pointer; text-align: center; transition: all 0.2s; background: #1a1a1e; }
-.win-settings .theme-card:hover { border-color: #555; }
-.win-settings .theme-card.active { border-color: #9b9bf5; background: rgba(155,155,245,0.1); }
-.win-settings .theme-swatch { width: 100%; height: 26px; border-radius: 4px; margin-bottom: 6px; }
-.win-settings .theme-name { font-size: 10px; font-weight: 700; color: #888; }
-.win-settings .theme-card.active .theme-name { color: #9b9bf5; }
 .win-settings .shape-grid { display: flex; gap: 8px; }
 .win-settings .shape-card { flex: 1; border: 2px solid #2a2a32; border-radius: 6px; padding: 10px; cursor: pointer; text-align: center; transition: all 0.2s; background: #1a1a1e; }
 .win-settings .shape-card:hover { border-color: #555; }

@@ -45,10 +45,6 @@
       <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>
       Apariencia
     </div>
-    <div class="sb-item" onclick="goTo('temas',this)">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 3h4v4H3zm6 0h4v4h-4zM3 9h4v4H3zm6 0h4v4h-4z"/></svg>
-      Temas
-    </div>
     <div class="sb-section">Sistema</div>
     <div class="sb-item" onclick="goTo('acerca',this)">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
@@ -69,12 +65,12 @@
       <div id="connection-status" class="hint" style="background:rgba(155,155,245,.08);border-radius:4px;padding:8px 10px;display:none"></div>
       <div class="section">
         <div class="section-title">TikTok</div>
-        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px"><input type="text" id="s-tt" placeholder="@usuario o usuario"></div></div>
+        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px;position:relative"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span><input type="text" id="s-tt" placeholder="usuario" style="padding-left:18px"></div></div>
       </div>
       <div class="section">
         <div class="section-title">YouTube</div>
-        <div class="row"><div class="row-label"><div class="label">Channel ID</div></div><div style="width:180px"><input type="text" id="s-yt" placeholder="UCxxx..."></div></div>
-        <div class="hint">Empieza con <b>UC</b>. <a onclick="openLink('https://www.youtube.com/account_advanced')">Encontrar →</a></div>
+        <div class="row"><div class="row-label"><div class="label">Usuario</div></div><div style="width:180px;position:relative"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span><input type="text" id="s-yt" placeholder="usuario" style="padding-left:18px"></div></div>
+        <div class="hint">Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b></div>
       </div>
       <div class="section">
         <div class="section-title">Twitch</div>
@@ -192,6 +188,7 @@
           <div class="row"><div class="row-label"><div class="label" style="color:#a87fff">Twitch</div></div><label class="toggle"><input type="checkbox" id="s-tts-TW"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label" style="color:#53fc18">Kick</div></div><label class="toggle"><input type="checkbox" id="s-tts-KK"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label">Solo leer mensaje</div><div class="sublabel">No pronunciar el nombre del usuario</div></div><label class="toggle"><input type="checkbox" id="s-tts-noname"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label">No leer emojis</div><div class="sublabel">Omite emojis al leer mensajes</div></div><label class="toggle"><input type="checkbox" id="s-tts-no-emoji" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         </div>
       </div>
     </div>
@@ -207,27 +204,6 @@
         <div class="row"><div class="row-label"><div class="label">Modo compacto</div><div class="sublabel">Reduce padding y altura de mensajes</div></div><label class="toggle"><input type="checkbox" id="s-compact" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
       <div class="section">
-        <div class="section-title">Avatares</div>
-        <div class="shape-grid">
-          <div class="shape-card active" id="av-none" onclick="setAvatarShape('none')">
-            <div class="shape-preview" style="border-radius:0;background:#444"></div>
-            <div class="shape-label">Sin avatar</div>
-          </div>
-          <div class="shape-card" id="av-square" onclick="setAvatarShape('square')">
-            <div class="shape-preview" style="border-radius:4px"></div>
-            <div class="shape-label">Cuadrado</div>
-          </div>
-          <div class="shape-card" id="av-squircle" onclick="setAvatarShape('squircle')">
-            <div class="shape-preview" style="border-radius:40%"></div>
-            <div class="shape-label">Squircle</div>
-          </div>
-          <div class="shape-card" id="av-circle" onclick="setAvatarShape('circle')">
-            <div class="shape-preview" style="border-radius:50%"></div>
-            <div class="shape-label">Círculo</div>
-          </div>
-        </div>
-      </div>
-      <div class="section">
         <div class="section-title">Ventana</div>
         <div class="row"><div class="row-label"><div class="label">Siempre visible (Always on Top)</div></div><label class="toggle"><input type="checkbox" id="s-always-top" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Fondo translúcido</div><div class="sublabel">Requiere Always on Top</div></div><label class="toggle"><input type="checkbox" id="s-translucent" onchange="updateTranslucent();previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -239,38 +215,6 @@
         </div>
         <div class="row"><div class="row-label"><div class="label">Altura del dock</div></div>
           <div class="slider-wrap" style="width:150px"><input type="range" id="s-dock-height" min="40" max="240" step="4" value="82" oninput="document.getElementById('dock-height-val').textContent=this.value+'px'"><span class="slider-val" id="dock-height-val">82px</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TEMAS -->
-    <div class="page" id="page-temas">
-      <div class="page-title">Temas</div>
-      <div class="hint" style="margin-bottom:8px;color:#555">Elige el tema visual de la aplicación. Más temas próximamente.</div>
-      <div class="theme-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="theme-card active" id="theme-dark" onclick="setTheme('dark')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#111 50%,#18181b 100%)"></div>
-          <div class="theme-name">Dark</div>
-        </div>
-        <div class="theme-card" id="theme-midnight" onclick="setTheme('midnight')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#08091a 50%,#0d1030 100%)"></div>
-          <div class="theme-name">Midnight</div>
-        </div>
-        <div class="theme-card" id="theme-forest" onclick="setTheme('forest')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#0a120a 50%,#102010 100%)"></div>
-          <div class="theme-name">Forest</div>
-        </div>
-        <div class="theme-card" id="theme-sakura" onclick="setTheme('sakura')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#1a0d12 50%,#201018 100%)"></div>
-          <div class="theme-name">Sakura</div>
-        </div>
-        <div class="theme-card" id="theme-light" onclick="setTheme('light')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#f5f5f5 50%,#fff 100%)"></div>
-          <div class="theme-name">Claro</div>
-        </div>
-        <div class="theme-card" id="theme-lightgray" onclick="setTheme('lightgray')">
-          <div class="theme-swatch" style="background:linear-gradient(135deg,#e5e5e7 50%,#d8d8dc 100%)"></div>
-          <div class="theme-name">Gris Claro</div>
         </div>
       </div>
     </div>
@@ -314,7 +258,6 @@
 const SERVER = 'http://localhost:3000'
 let cfg = {}
 let selectedTheme = 'dark'
-let selectedAvatarShape = 'none'
 let blockedWords = [], highlights = []
 
 
@@ -342,9 +285,7 @@ function filterSettings(q) {
 // Send partial config to main window for live preview without saving
 async function previewChange() {
     const partial = {
-        theme:        selectedTheme,
         compact:      document.getElementById('s-compact')?.checked,
-        avatarShape:  selectedAvatarShape,
         fontSize:     parseFloat(document.getElementById('s-fontsize')?.value || '13.5'),
         msgAnimation: document.getElementById('s-msg-anim')?.checked,
         scrollInvert: document.getElementById('s-scroll-invert')?.checked,
@@ -457,6 +398,7 @@ function loadForm() {
     chk('s-tts-TW', cfg.ttsTW===true)
     chk('s-tts-KK', cfg.ttsKK===true)
     chk('s-tts-noname', cfg.ttsNoName===true)
+    chk('s-tts-no-emoji', cfg.ttsNoEmoji!==false)
     updateTtsUI()
 
     const fs = cfg.fontSize||13.5
@@ -478,12 +420,11 @@ function loadForm() {
     document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
     const tc = document.getElementById('theme-'+selectedTheme)
     if(tc) tc.classList.add('active')
-
-    selectedAvatarShape = cfg.avatarShape||'none'
-    document.querySelectorAll('.shape-card').forEach(c=>c.classList.remove('active'))
-    const sc = document.getElementById('av-'+selectedAvatarShape)
-    if(sc) sc.classList.add('active')
-
+    
+    // Aplicar tema al elemento html
+    document.documentElement.classList.remove('theme-midnight','theme-forest','theme-sakura','theme-light','theme-lightgray')
+    if(selectedTheme && selectedTheme !== 'dark') document.documentElement.classList.add('theme-'+selectedTheme)
+    
     chk('s-hw-accel', cfg.disableHWAccel!==true)
     chk('s-auto-update', cfg.autoUpdateDisabled!==true)
 
@@ -552,13 +493,12 @@ function setTheme(t) {
     document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('active'))
     const el = document.getElementById('theme-'+t)
     if(el) el.classList.add('active')
+    
+    // Aplicar tema al elemento html
+    document.documentElement.classList.remove('theme-midnight','theme-forest','theme-sakura','theme-light','theme-lightgray')
+    if(t && t !== 'dark') document.documentElement.classList.add('theme-'+t)
+    
     previewChange()
-}
-
-function setAvatarShape(s) {
-    selectedAvatarShape = s
-    document.querySelectorAll('.shape-card').forEach(c=>c.classList.remove('active'))
-    document.getElementById('av-'+s).classList.add('active')
 }
 
 function updateTtsUI() {
@@ -583,32 +523,54 @@ async function settingsLoginTwitch() {
     btn.style.pointerEvents = 'none'
     try {
         const result = await window.electronAPI.loginTwitch()
-        if (result?.success && result.token) {
-            document.getElementById('s-tw-token').value = result.token
-            let login = ''
-            try {
-                const r = await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:result.token})})
-                const d = await r.json()
-                if(d.ok) { login=d.login; document.getElementById('s-tw').value=login }
-            } catch {}
-            lbl.textContent = '✓ Conectado como ' + (login || '?')
-            btn.className = 'btn btn-twitch connected'
-            st.textContent = 'Haz clic para reconectar o cambiar cuenta'
-            st.className = 'hint status-ok'
-            const f=document.getElementById('s-tw'); if(f){f.disabled=true;f.style.opacity='0.5'}
+        if (result?.polling) {
+            // Poll for token from server
+            let attempts = 0
+            const maxAttempts = 60 // 60 seconds
+            const pollInterval = setInterval(async () => {
+                attempts++
+                try {
+                    const r = await fetch(`${SERVER}/api/twitch/auth-status`)
+                    const d = await r.json()
+                    if (d.token) {
+                        clearInterval(pollInterval)
+                        document.getElementById('s-tw-token').value = d.token
+                        let login = ''
+                        try {
+                            const vr = await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:d.token})})
+                            const vd = await vr.json()
+                            if(vd.ok) { login=vd.login; document.getElementById('s-tw').value=login }
+                        } catch {}
+                        lbl.textContent = '✓ Conectado como ' + (login || '?')
+                        btn.className = 'btn btn-twitch connected'
+                        st.textContent = 'Haz clic para reconectar o cambiar cuenta'
+                        st.className = 'hint status-ok'
+                        const f=document.getElementById('s-tw'); if(f){f.disabled=true;f.style.opacity='0.5'}
+                        btn.style.pointerEvents = ''
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(pollInterval)
+                        lbl.textContent = 'Conectar con Twitch'
+                        btn.className = 'btn btn-twitch'
+                        st.textContent = 'Tiempo agotado - intenta de nuevo'
+                        st.className = 'hint status-err'
+                        btn.style.pointerEvents = ''
+                    }
+                } catch {}
+            }, 1000)
         } else {
             lbl.textContent = 'Conectar con Twitch'
             btn.className = 'btn btn-twitch'
-            st.textContent = result?.error || 'Cancelado'
+            st.textContent = 'Error al iniciar OAuth'
             st.className = 'hint status-err'
+            btn.style.pointerEvents = ''
         }
     } catch(e) {
         lbl.textContent = 'Conectar con Twitch'
         btn.className = 'btn btn-twitch'
         st.textContent = 'Error: '+e.message
         st.className = 'hint status-err'
+        btn.style.pointerEvents = ''
     }
-    btn.style.pointerEvents = ''
 }
 
 async function guardar() {
@@ -660,6 +622,7 @@ async function guardar() {
         ttsTW:              document.getElementById('s-tts-TW').checked,
         ttsKK:              document.getElementById('s-tts-KK').checked,
         ttsNoName:          document.getElementById('s-tts-noname').checked,
+        ttsNoEmoji:         document.getElementById('s-tts-no-emoji').checked,
         fontSize:           parseFloat(document.getElementById('s-fontsize').value),
         compact:            document.getElementById('s-compact').checked,
         alwaysOnTop:        document.getElementById('s-always-top').checked,
@@ -668,7 +631,6 @@ async function guardar() {
         dockPosition:       document.getElementById('s-dock-pos').value,
         dockHeight:         parseInt(document.getElementById('s-dock-height').value),
         theme:              selectedTheme,
-        avatarShape:        selectedAvatarShape,
         disableHWAccel:     !document.getElementById('s-hw-accel').checked,
         autoUpdateDisabled: !document.getElementById('s-auto-update')?.checked,
     }

@@ -87,8 +87,10 @@ function connect(channel) {
             emitEvento({ plat:'TW', type:'redeem', user, userId, avatar:null, text:message, rewardTitle:'Canje', count:0 })
             return
         }
+        // Parse Twitch native emotes from tags
+        const twitchEmotes = tags.emotes || {}
         emitMsg({ plat:'TW', type:'msg', user, userId, avatar:null, text:message, isFirst,
-                  badges:{ mod:!!tags.mod, sub:!!tags.subscriber }, badgeUrls })
+                  badges:{ mod:!!tags.mod, sub:!!tags.subscriber }, badgeUrls, twitchEmotes })
     })
 
     client.on('subscription', (_ch, username, _method, msg, tags) => {

@@ -24,9 +24,12 @@
             <div class="plat-row">
                 <div class="plat-icon pi-TT">TT</div>
                 <div class="input-wrap">
-                    <input class="input-field" id="tt-user" placeholder="usuario o @usuario" type="text">
+                    <div style="position:relative">
+                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none;user-select:none">@</span>
+                        <input class="input-field" id="tt-user" placeholder="usuario" type="text" style="padding-left:22px">
+                    </div>
                     <div class="input-hint">
-                        Tu nombre de usuario de TikTok. Con o sin @ funciona igual.<br>
+                        Tu nombre de usuario de TikTok, por ejemplo: <b>@khaby.lame</b><br>
                         Encuéntralo en <a onclick="openLink('https://www.tiktok.com/profile')">tiktok.com → tu perfil</a>
                     </div>
                 </div>
@@ -39,10 +42,13 @@
             <div class="plat-row">
                 <div class="plat-icon pi-YT">YT</div>
                 <div class="input-wrap">
-                    <input class="input-field" id="yt-channel" placeholder="Channel ID (UCxxx...)" type="text">
+                    <div style="position:relative">
+                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none;user-select:none">@</span>
+                        <input class="input-field" id="yt-channel" placeholder="usuario" type="text" style="padding-left:22px">
+                    </div>
                     <div class="input-hint">
-                        El Channel ID empieza con <b>UC</b>.<br>
-                        Encuéntralo en <a onclick="openLink('https://www.youtube.com/account_advanced')">youtube.com/account_advanced</a> → "ID de canal de YouTube"
+                        Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b><br>
+                        Encuéntralo en tu perfil de YouTube
                     </div>
                 </div>
             </div>

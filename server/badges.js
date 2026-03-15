@@ -4,6 +4,8 @@ const { fetchJson } = require('./fetch')
 
 const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
 const cache = { global: {}, channel: {} }
+let globalRetryAttempts = 0
+const MAX_GLOBAL_RETRIES = 3
 
 // Convert Helix badge response array → { set_id: { versions: { id: {url1x, url2x} } } }
 function helixToSets(data) {
@@ -32,6 +34,7 @@ async function loadGlobal(token) {
             const sets = helixToSets(data)
             cache.global = { ...cache.global, ...sets }
             console.log('[Badges] Global (Helix):', Object.keys(sets).length, 'sets')
+            globalRetryAttempts = 0 // Reset on success
             return true
         } catch(e) { console.warn('[Badges] Helix global falló:', e.message) }
     }
@@ -40,11 +43,16 @@ async function loadGlobal(token) {
         const data = await fetchJson('https://badges.twitch.tv/v1/badges/global/display')
         cache.global = { ...cache.global, ...(data?.badge_sets||{}) }
         console.log('[Badges] Global (CDN):', Object.keys(cache.global).length, 'sets')
+        globalRetryAttempts = 0 // Reset on success
         return true
     } catch(e) {
-        console.warn('[Badges] Global CDN falló:', e.message)
-        // Schedule retry in 60s
-        setTimeout(() => loadGlobal(token), 60000)
+        if (globalRetryAttempts < MAX_GLOBAL_RETRIES) {
+            globalRetryAttempts++
+            console.warn(`[Badges] Global CDN falló (intento ${globalRetryAttempts}/${MAX_GLOBAL_RETRIES}):`, e.message)
+            setTimeout(() => loadGlobal(token), 60000)
+        } else {
+            console.error('[Badges] Máximo de reintentos alcanzado. Badges globales no disponibles.')
+        }
         return false
     }
 }

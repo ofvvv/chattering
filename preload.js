@@ -21,8 +21,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     previewSettings:    (p)    => ipcRenderer.invoke('preview-settings', p),
     openSettings:       ()     => ipcRenderer.invoke('open-settings'),
     closeSettings:      ()     => ipcRenderer.invoke('close-settings'),
+    undockDock:         ()     => ipcRenderer.invoke('undock-dock'),
+    redockDock:         ()     => ipcRenderer.invoke('redock-dock'),
+    sendDockMessage:    (data) => ipcRenderer.invoke('send-dock-message', data),
     on: (ch, cb) => {
-        const allowed = ['popup-data', 'config-updated', 'settings-saved', 'update-info']
+        const allowed = ['popup-data', 'config-updated', 'settings-saved', 'update-info', 'update-msg-count', 'dock-detached', 'dock-reattached']
         if (allowed.includes(ch)) ipcRenderer.on(ch, (_e, ...a) => cb(...a))
     }
 })

@@ -32,9 +32,16 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
 const isLive = { TT:false, YT:false, TW:false, KK:false }
+const platStatus = { TT:'disconnected', YT:'disconnected', TW:'disconnected', KK:'disconnected' }
 function updateStatus(plat, status) {
     if (isLive[plat] === status) return
     isLive[plat] = status; io.emit('status', isLive)
+}
+function updatePlatformState(plat, state) {
+    // state: 'loading', 'connected', 'error', 'disconnected'
+    if (platStatus[plat] === state) return
+    platStatus[plat] = state
+    io.emit('platform_state', { plat, state })
 }
 function emitMsg(d) {
     io.emit('msg', d)
@@ -45,7 +52,7 @@ function emitEvento(d) {
     if (d.type==='gift'||d.type==='follow') storage.appendLog({ ...d, sessionStart:storage.SESSION_START, ts:Date.now() })
 }
 
-const platDeps = () => ({ emitMsg, emitEvento, updateStatus, procesarUsuario:storage.procesarUsuario, addLikes:storage.addLikes, config })
+const platDeps = () => ({ emitMsg, emitEvento, updateStatus, updatePlatformState, procesarUsuario:storage.procesarUsuario, addLikes:storage.addLikes, config })
 
 twitch.init(platDeps()); tiktok.init(platDeps()); youtube.init(platDeps()); kick.init(platDeps())
 
@@ -53,21 +60,37 @@ io.on('connection', socket => {
     socket.emit('history',      storage.getHistory())
     socket.emit('dock_history', storage.getDockHistory())
     socket.emit('status',       isLive)
+    socket.emit('platform_states', platStatus)
     socket.emit('likes_init',   storage.getTotalLikes())
     socket.on('req_user_hist', uid => socket.emit('res_user_hist', { uid, h:storage.getUserHistory(uid) }))
 })
 
+let lastConfig = {}
 function reconnectAll() {
+    const oldConfig = { ...lastConfig }
     config = loadConfig()
+    lastConfig = { ...config }
+    
     const deps = platDeps()
     twitch.init(deps); tiktok.init(deps); youtube.init(deps); kick.init(deps)
-    twitch.disconnect(); tiktok.disconnect(); youtube.disconnect(); kick.disconnect()
-    setTimeout(() => {
-        tiktok.connect(config.tiktokUser)
-        youtube.connect(config.youtubeChannelId)
-        twitch.connect(config.twitchUser)
-        kick.connect(config.kickUser, config.kickChatroomId)
-    }, 800)
+    
+    // Only disconnect/reconnect if credentials changed
+    if (oldConfig.tiktokUser !== config.tiktokUser) {
+        tiktok.disconnect()
+        setTimeout(() => tiktok.connect(config.tiktokUser), 800)
+    }
+    if (oldConfig.youtubeChannelId !== config.youtubeChannelId) {
+        youtube.disconnect()
+        setTimeout(() => youtube.connect(config.youtubeChannelId), 800)
+    }
+    if (oldConfig.twitchUser !== config.twitchUser || oldConfig.twitchToken !== config.twitchToken) {
+        twitch.disconnect()
+        setTimeout(() => twitch.connect(config.twitchUser), 800)
+    }
+    if (oldConfig.kickUser !== config.kickUser || oldConfig.kickChatroomId !== config.kickChatroomId) {
+        kick.disconnect()
+        setTimeout(() => kick.connect(config.kickUser, config.kickChatroomId), 800)
+    }
 }
 
 // ─── OAUTH CALLBACK ROUTE (receives Twitch redirect) ─────────────────────────

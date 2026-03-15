@@ -9,10 +9,6 @@
 <div id="titlebar" ondblclick="return false">
   <div id="titlebar-left">
     <div id="app-title">Chatter<span>ing</span></div>
-    <span class="tb-badge tb-TT off" id="tb-TT" title="TikTok"><svg viewBox="0 0 18 18" width="18" height="18"><rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/></svg></span>
-    <span class="tb-badge tb-YT off" id="tb-YT" title="YouTube"><svg viewBox="0 0 18 18" width="18" height="18"><rect width="18" height="18" rx="3" fill="#FF0000"/><path d="M14.7 6.3s-.2-1.1-.7-1.6c-.6-.7-1.3-.7-1.7-.7C10.6 4 9 4 9 4s-1.6 0-3.3.1c-.4 0-1.1 0-1.7.7-.5.5-.7 1.6-.7 1.6S3 7.6 3 8.9v1.2c0 1.3.3 2.6.3 2.6s.2 1.1.7 1.6c.6.7 1.5.6 1.9.7C7.3 15 9 15 9 15s1.6 0 3.3-.2c.4 0 1.1-.1 1.7-.7.5-.5.7-1.6.7-1.6s.3-1.3.3-2.6V8.9c0-1.3-.3-2.6-.3-2.6z" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/></svg></span>
-    <span class="tb-badge tb-TW off" id="tb-TW" title="Twitch"><svg viewBox="0 0 18 18" width="18" height="18"><rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/></svg></span>
-    <span class="tb-badge tb-KK off" id="tb-KK" title="Kick"><svg viewBox="0 0 18 18" width="18" height="18"><rect width="18" height="18" rx="3" fill="#53FC18"/><path d="M4 3.5h2.8V8L11 3.5h3.6L9.8 9l4.8 5.5H11l-4.2-5v5H4V3.5z" fill="#000"/></svg></span>
     <div id="viewer-count" title="Espectadores en vivo">
       <svg viewBox="0 0 16 16" fill="currentColor" width="9" height="9"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" fill-rule="evenodd" clip-rule="evenodd"/><circle cx="8" cy="8" r="2"/></svg>
       <span id="viewer-num">0</span>
@@ -135,8 +131,8 @@
     </div>
     <div id="dock-like-row">
       <span class="dock-like-color" style="font-size:14px">❤</span>
-      <span id="dock-like-count" style="font-size:13px;font-weight:700;color:#ff6080">0</span>
-      <span style="font-size:11px;color:#555">likes</span>
+      <span id="dock-like-user" class="dock-user dock-like-color"></span>
+      <span id="dock-like-action" class="dock-action"></span>
     </div>
   </div>
 
@@ -182,12 +178,21 @@
 </div>
 
 <div id="bottom-dock">
-  <div id="status-text">NOT LIVE</div>
-  <div id="viewer-count" style="display:none;align-items:center;gap:4px;font-size:10px;color:#555">
-    <svg width="9" height="9" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
-    <span id="viewer-num">0</span>
+  <div id="platform-icons">
+    <div class="plat-status-icon" data-plat="TT" title="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg>
+    </div>
+    <div class="plat-status-icon" data-plat="YT" title="YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z" fill="#FF0000"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg>
+    </div>
+    <div class="plat-status-icon" data-plat="TW" title="Twitch">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg>
+    </div>
+    <div class="plat-status-icon" data-plat="KK" title="Kick">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 109 9 9 9 0 00-9-9zm3.9 12.7l-3.1-4.2 2.8-3.1h-2.2l-2.2 2.6V7.6H9.1v7.8h1.6v-3.1l.6-.7 2.2 3.8z"/></svg>
+    </div>
   </div>
-  <span id="msg-counter">0 msgs</span>
+  <div id="status-text" style="margin-left:auto">NOT LIVE</div>
 </div>
 
 <script src="http://localhost:3000/socket.io/socket.io.js"></script>
@@ -204,6 +209,7 @@ const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.cha
 const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>',KK:'<rect width="18" height="18" rx="3" fill="#53FC18"/><path d="M4 3.5h2.8V8L11 3.5h3.6L9.8 9l4.8 5.5H11l-4.2-5v5H4V3.5z" fill="#000"/>'};return icons[spl]||icons.TT}
 const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]))
 const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank')
+const nextBg=even=>{msgLineCounter++;return msgLineCounter%2===0?'linea-bg-even':'linea-bg-odd'}
 
 // ── SOUND ─────────────────────────────────────────────────────────────────────
 let audioCtx = null
@@ -337,10 +343,61 @@ async function cargarEmotes(config) {
     if(statusEl) statusEl.textContent=total>0?`✓ ${total} emotes cargados`:twitchId?'⚠ Sin emotes':'⚠ Configura tu Twitch para emotes de canal'
 }
 
-function parseEmotes(text) {
-    return esc(text).split(' ').map(w=>{
-        const e=emoteMap[w]
-        if(!e) return linkifyWord(w)
+function parseEmotes(text, twitchEmotes) {
+    // First, handle Twitch native emotes if provided
+    if (twitchEmotes && Object.keys(twitchEmotes).length > 0) {
+        // twitchEmotes format: { "emoteId": ["0-4", "12-16"], ... }
+        // Build array of replacements: [{start, end, id, name}, ...]
+        const replacements = []
+        for (const [emoteId, positions] of Object.entries(twitchEmotes)) {
+            for (const pos of positions) {
+                const [start, end] = pos.split('-').map(Number)
+                const name = text.substring(start, end + 1)
+                replacements.push({ start, end, id: emoteId, name })
+            }
+        }
+        // Sort by start position (descending) to replace from end to start
+        replacements.sort((a, b) => b.start - a.start)
+        
+        // Replace emotes with placeholders first, then escape text, then replace placeholders with img tags
+        const placeholders = []
+        let result = text
+        for (let i = 0; i < replacements.length; i++) {
+            const { start, end, id, name } = replacements[i]
+            const placeholder = `__EMOTE_${i}__`
+            placeholders.push({
+                placeholder,
+                url: `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0`,
+                name
+            })
+            result = result.substring(0, start) + placeholder + result.substring(end + 1)
+        }
+        
+        // Escape the text
+        result = esc(result)
+        
+        // Replace placeholders with img tags
+        for (const { placeholder, url, name } of placeholders) {
+            const img = `<img src="${url}" class="emote" alt="${esc(name)}" data-emote="${esc(name)}" data-url="${url}" data-platform="Twitch" title="${esc(name)}">`
+            result = result.replace(placeholder, img)
+        }
+        
+        // Now process 7TV/BTTV/FFZ emotes on the remaining text
+        const parts = result.split(/(<img[^>]+>)/)
+        return parts.map(part => {
+            if (part.startsWith('<img')) return part
+            return part.split(' ').map(w => {
+                const e = emoteMap[w]
+                if (!e) return linkifyWord(w)
+                return `<img src="${esc(e.url)}" class="emote${e.zw?' zw':''}" alt="${esc(w)}" data-emote="${esc(w)}" data-url="${esc(e.url)}" data-platform="${esc(e.platform||'')}" title="${esc(w)}">`
+            }).join(' ')
+        }).join('')
+    }
+    
+    // No Twitch emotes, just process 7TV/BTTV/FFZ
+    return esc(text).split(' ').map(w => {
+        const e = emoteMap[w]
+        if (!e) return linkifyWord(w)
         return `<img src="${esc(e.url)}" class="emote${e.zw?' zw':''}" alt="${esc(w)}" data-emote="${esc(w)}" data-url="${esc(e.url)}" data-platform="${esc(e.platform||'')}" title="${esc(w)}">`
     }).join(' ')
 }
@@ -548,7 +605,7 @@ document.addEventListener('keydown',e=>{
     const inInput=tag==='INPUT'||tag==='TEXTAREA'
 
     if(e.ctrlKey&&e.key==='f'){e.preventDefault();openSearch();return}
-    if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('chat').innerHTML='';msgLineCounter=0;totalMsgCount=0;document.getElementById('msg-counter').textContent='0 msgs';return}
+    if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('chat').innerHTML='';msgLineCounter=0;totalMsgCount=0;return}
     if(e.key==='F5'){e.preventDefault();location.reload();return}
     if(e.key==='Escape'&&document.querySelector('.popup-open')){/* handled in popup.html */}
     if(e.key===','&&!inInput){e.preventDefault();window.electronAPI.openSettings();return}
@@ -586,9 +643,6 @@ function aplicarConfig(){
     setDockPosition(cfg.dockPosition||'top')
     setDockHeight(cfg.dockHeight||82)
 
-    // Theme
-    document.body.classList.remove('theme-midnight','theme-forest','theme-sakura','theme-light','theme-lightgray')
-    if(cfg.theme&&cfg.theme!=='dark') document.body.classList.add('theme-'+cfg.theme)
 
     // Compact mode
     document.body.classList.toggle('compact', cfg.compact===true)
@@ -631,6 +685,30 @@ const dockScroll=document.getElementById('dock-scroll')
 const dockInner=document.getElementById('dock-inner')
 const dockLikeRow=document.getElementById('dock-like-row')
 
+let dockAutoScrollTimer = null
+let dockUserInteracted = false
+
+// Auto-scroll dock to bottom after 10s of no user interaction
+function scheduleDockAutoScroll() {
+    if (dockAutoScrollTimer) clearTimeout(dockAutoScrollTimer)
+    dockAutoScrollTimer = setTimeout(() => {
+        if (!dockUserInteracted) {
+            dockScroll.scrollTop = dockScroll.scrollHeight
+        }
+        dockUserInteracted = false
+    }, 10000)
+}
+
+// Track user interaction with dock
+dockScroll.addEventListener('scroll', () => {
+    dockUserInteracted = true
+    scheduleDockAutoScroll()
+})
+
+dockScroll.addEventListener('wheel', () => {
+    dockUserInteracted = true
+})
+
 function addToDock(type,user,actionText,giftImgUrl,noAnim=false){
     if(type==='follow'&&cfg.showFollows===false)return
     if(type==='gift'&&cfg.showGifts===false)return
@@ -649,22 +727,75 @@ function addToDock(type,user,actionText,giftImgUrl,noAnim=false){
     const dockEvents=dockInner.querySelectorAll('.dock-event')
     for(let i=0;i<dockEvents.length-MAX_DOCK;i++)dockEvents[i].remove()
     if(wasAtBottom)dockScroll.scrollTop=dockScroll.scrollHeight
+    // Schedule auto-scroll after 10s
+    scheduleDockAutoScroll()
 }
 const MAX_DOCK_LIKE_KEYS=80
 function updateLikeRow(user,uid,count){
     if(cfg.showLikes===false)return
-    if(dockLikeCount.size>=MAX_DOCK_LIKE_KEYS){const first=dockLikeCount.keys().next().value;if(first!==undefined)dockLikeCount.delete(first)}
-    const prev=dockLikeCount.get(uid)||0;dockLikeCount.set(uid,prev+count)
-    document.getElementById('dock-like-user').textContent=user
-    document.getElementById('dock-like-action').textContent=` ♥ ${prev+count}`
-    dockLikeRow.classList.add('visible')
-    dockLikeRow.style.animation='none';dockLikeRow.offsetHeight
-    dockLikeRow.style.animation='dockPulse .35s ease-out'
+    
+    // Agregar likes al dock como eventos normales
+    const empty=document.getElementById('dock-empty');if(empty)empty.remove()
+    const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
+    
+    // Buscar si ya existe un evento de like para este usuario
+    let existingLike = null
+    const likeEvents = dockInner.querySelectorAll('.dock-event-like')
+    likeEvents.forEach(ev => {
+        if(ev.dataset.userId === uid) existingLike = ev
+    })
+    
+    if(existingLike) {
+        // Actualizar contador existente
+        const currentCount = parseInt(existingLike.dataset.count || '0')
+        const newCount = currentCount + count
+        existingLike.dataset.count = newCount
+        existingLike.querySelector('.dock-action').textContent = ` ${newCount} ❤`
+        // Mover al final
+        dockInner.appendChild(existingLike)
+    } else {
+        // Crear nuevo evento de like
+        const row=document.createElement('div')
+        row.className='dock-event dock-event-like'
+        row.dataset.userId = uid
+        row.dataset.count = count
+        
+        const icon=document.createElement('div')
+        icon.className='dock-event-icon dock-icon-like'
+        icon.textContent='❤'
+        
+        const body=document.createElement('div')
+        body.className='dock-event-body'
+        
+        const uSpan=document.createElement('span')
+        uSpan.className='dock-user dock-like-color'
+        uSpan.textContent=user
+        
+        const aSpan=document.createElement('span')
+        aSpan.className='dock-action'
+        aSpan.textContent=` ${count} ❤`
+        
+        body.appendChild(uSpan)
+        body.appendChild(aSpan)
+        row.appendChild(icon)
+        row.appendChild(body)
+        
+        // Agregar al final del dock
+        dockInner.appendChild(row)
+    }
+    
+    // Mantener límite de eventos
+    while(dockInner.children.length>MAX_DOCK){
+        const first=dockInner.firstElementChild
+        if(first&&first.id!=='dock-empty')first.remove()
+    }
+    
+    if(wasAtBottom||!dockUserInteracted){dockScroll.scrollTop=dockScroll.scrollHeight;dockUserInteracted=false}
+    scheduleDockAutoScroll()
 }
 
 // ── CHAT ──────────────────────────────────────────────────────────────────────
 const chatDiv=document.getElementById('chat')
-const counterEl=document.getElementById('msg-counter')
 const pausedBadge=document.getElementById('scroll-paused')
 let scrollFrozen=false
 let scrollPaused=false
@@ -672,8 +803,25 @@ let scrollPaused=false
 const isAtBottom=()=>chatDiv.scrollHeight-chatDiv.scrollTop-chatDiv.clientHeight<60
 chatDiv.addEventListener('scroll',()=>{scrollFrozen=!isAtBottom();pausedBadge.classList.toggle('visible',scrollFrozen)},{passive:true})
 pausedBadge.addEventListener('click',()=>{scrollFrozen=false;chatDiv.scrollTop=chatDiv.scrollHeight;pausedBadge.classList.remove('visible')})
-const maybeScroll=()=>{if(!scrollFrozen&&!scrollPaused)chatDiv.scrollTop=chatDiv.scrollHeight}
-function nextBg(isEv){msgLineCounter++;const p=msgLineCounter%2===0?'even':'odd';return isEv?`linea-event-bg-${p}`:`linea-bg-${p}`}
+let scrollScheduled = false
+function maybeScroll(){
+    if (scrollScheduled) return
+    scrollScheduled = true
+    requestAnimationFrame(() => {
+        scrollScheduled = false
+        const chat=document.getElementById('chat')
+        const wrap=document.getElementById('chat-wrap')
+        const isAtBottom=wrap.scrollTop+wrap.clientHeight>=wrap.scrollHeight-10
+        if(isAtBottom||!scrollPaused){
+            wrap.scrollTop=wrap.scrollHeight
+            scrollPaused=false
+            document.getElementById('scroll-paused').classList.remove('visible')
+        } else {
+            scrollPaused=true
+            document.getElementById('scroll-paused').classList.add('visible')
+        }
+    })
+}
 
 function shouldShowMsg(d) {
     if(!d||!d.user) return false
@@ -726,7 +874,7 @@ function crearMsgChat(d,animate=false){
         if(d.badges?.sub) html+=`<span class="badge-icon" title="Sub">⭐</span>`
     }
     html+=`<span class="user" style="color:${color}">${su}</span></span>`
-    html+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text)}</span>`
+    html+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text, d.twitchEmotes)}</span>`
     div.setAttribute('data-uid', d.userId||'')
     div.setAttribute('data-user', d.user||'')
     div.innerHTML=html
@@ -814,7 +962,7 @@ function appendMsg(d,animate=true){
         if(searchIndex>=searchResults.length)searchIndex=Math.max(0,searchResults.length-1)
     }
     maybeScroll()
-    totalMsgCount++;counterEl.textContent=`${totalMsgCount} msgs`
+    totalMsgCount++
     if(animate) speakMsg(d)
 }
 function appendEvento(d){const el=crearEventoChat(d);if(!el)return;chatDiv.appendChild(el);while(chatDiv.childElementCount>MAX_CHAT_NODES){chatDiv.firstChild.remove();searchResults=searchResults.filter(n=>chatDiv.contains(n));if(searchIndex>=searchResults.length)searchIndex=Math.max(0,searchResults.length-1)}maybeScroll()}
@@ -862,18 +1010,44 @@ socket.on('likes_init',()=>{})
 socket.on('msg',d=>appendMsg(d,true))
 socket.on('status',isLive=>{
     const live=isLive.TT||isLive.YT||isLive.TW||isLive.KK
-    const connected=isLive.TT||isLive.YT||cfg.twitchUser||isLive.KK // Twitch connected even when not live
     const s=document.getElementById('status-text')
     s.textContent=live?'LIVE':'NOT LIVE';s.classList.toggle('text-live',live)
-    // Twitch badge: show if has username (connected even if not live)
-    document.getElementById('tb-TT')?.classList.toggle('off',!isLive.TT)
-    document.getElementById('tb-YT')?.classList.toggle('off',!isLive.YT)
-    document.getElementById('tb-KK')?.classList.toggle('off',!isLive.KK)
-    // Twitch: badge dim = not connected at all, bright = connected (live or offline)
-    const twEl = document.getElementById('tb-TW')
-    if(twEl) twEl.classList.toggle('off', !cfg.twitchUser)
+    
+    // Update bottom-dock platform icons
+    document.querySelectorAll('.plat-status-icon').forEach(icon => {
+        const plat = icon.dataset.plat
+        // Twitch: iluminar si está conectado (incluso si no está en vivo)
+        if(plat === 'TW') {
+            icon.classList.toggle('active', !!cfg.twitchUser)
+        } else {
+            icon.classList.toggle('active', isLive[plat] === true)
+        }
+    })
     if(live) pollViewerCount()
 })
+socket.on('platform_states', states => {
+    // Initial state for all platforms
+    Object.keys(states).forEach(plat => {
+        updatePlatformIcon(plat, states[plat])
+    })
+})
+socket.on('platform_state', ({ plat, state }) => {
+    updatePlatformIcon(plat, state)
+})
+function updatePlatformIcon(plat, state) {
+    const icon = document.querySelector(`.plat-status-icon[data-plat="${plat}"]`)
+    if (!icon) return
+    icon.classList.remove('state-loading', 'state-error', 'state-connected', 'state-disconnected')
+    icon.classList.add(`state-${state}`)
+    const titles = {
+        loading: 'Conectando...',
+        connected: 'Conectado',
+        error: 'Error de conexión',
+        disconnected: 'Desconectado'
+    }
+    const platNames = { TT: 'TikTok', YT: 'YouTube', TW: 'Twitch', KK: 'Kick' }
+    icon.title = `${platNames[plat]}: ${titles[state] || state}`
+}
 socket.on('evento',d=>{
     if(d.type==='like'){updateLikeRow(d.user,d.userId,d.count||1)}
     else if(d.type==='follow'){
@@ -883,7 +1057,7 @@ socket.on('evento',d=>{
         if(cfg.soundsEnabled&&cfg.soundFollow) playFollow()
     }
     else if(d.type==='gift'&&d.plat!=='TW'){
-        addToDock('gift',d.user,` envió ${d.text}${d.count>1?` x${d.count}`:''}`,d.giftImg??null)
+        addToDock('gift',d.user,` envió ${d.text}`,d.giftImg??null)
         appendEvento(d)
         showToast(`🎁 ${d.user} envió ${d.text} x${d.count??1}`,'gift')
         if(cfg.soundsEnabled&&cfg.soundGift) playGift()
@@ -1321,7 +1495,7 @@ async function pollViewerCount() {
 function startViewerPoll() {
     if(viewerPollInterval) clearInterval(viewerPollInterval)
     pollViewerCount()
-    viewerPollInterval = setInterval(pollViewerCount, 60000)
+    viewerPollInterval = setInterval(pollViewerCount, 120000)
 }
 
 // ── LAZY EMOTE ANIMATION (IntersectionObserver) ───────────────────────────────
@@ -1401,6 +1575,11 @@ async function init(){
     })
 }
 init()
+
+// Load panel functions
+const script = document.createElement('script')
+script.src = 'panel-functions.js'
+document.head.appendChild(script)
 </script>
 </body>
 </html>
