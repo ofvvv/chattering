@@ -238,27 +238,6 @@
         </div>
       </div>
       <div class="section">
-        <div class="section-title">Forma del Avatar</div>
-        <div class="shape-grid">
-          <div class="shape-card" id="av-none" onclick="setAvatarShape('none')">
-            <div class="shape-preview" style="background:transparent; border:1px dashed #555;"></div>
-            <div class="shape-label">Oculto</div>
-          </div>
-          <div class="shape-card" id="av-square" onclick="setAvatarShape('square')">
-            <div class="shape-preview" style="border-radius:2px;"></div>
-            <div class="shape-label">Cuadrado</div>
-          </div>
-          <div class="shape-card" id="av-squircle" onclick="setAvatarShape('squircle')">
-            <div class="shape-preview" style="border-radius:30%;"></div>
-            <div class="shape-label">Squircle</div>
-          </div>
-          <div class="shape-card" id="av-circle" onclick="setAvatarShape('circle')">
-            <div class="shape-preview" style="border-radius:50%;"></div>
-            <div class="shape-label">Círculo</div>
-          </div>
-        </div>
-      </div>
-      <div class="section">
         <div class="section-title">Fuente y densidad</div>
         <div class="row"><div class="row-label"><div class="label">Tamaño de fuente</div></div>
           <div class="slider-wrap" style="width:150px"><input type="range" id="s-fontsize" min="10" max="20" step=".5" value="13.5" oninput="document.getElementById('font-size-val').textContent=this.value+'px';previewChange()"><span class="slider-val" id="font-size-val">13.5px</span></div>
@@ -317,7 +296,6 @@
 const SERVER = 'http://localhost:3000'
 let cfg = {}
 let selectedTheme = 'dark'
-let selectedAvatarShape = 'none'
 let blockedWords = [], highlights = []
 
 function filterSettings(q) {
@@ -350,7 +328,6 @@ async function previewChange() {
         linkPreviews:   document.getElementById('s-link-previews')?.checked,
         modHoverMenu:   document.getElementById('s-mod-hover')?.checked,
         theme:          selectedTheme,
-        avatarShape:    selectedAvatarShape,
         dockPosition:   document.getElementById('s-dock-pos')?.value
     }
     try { await window.electronAPI.previewSettings(partial) } catch {}
@@ -480,10 +457,7 @@ function loadForm() {
 
     selectedTheme = cfg.theme||'dark'
     setTheme(selectedTheme)
-    
-    selectedAvatarShape = cfg.avatarShape||'none'
-    setAvatarShape(selectedAvatarShape)
-    
+        
     chk('s-hw-accel', cfg.disableHWAccel!==true)
     chk('s-auto-update', cfg.autoUpdateDisabled!==true)
 
@@ -549,14 +523,6 @@ function setTheme(t) {
     selectedTheme = t
     document.querySelectorAll('.shape-card[id^="theme-"]').forEach(c=>c.classList.remove('active'))
     const el = document.getElementById('theme-'+t)
-    if(el) el.classList.add('active')
-    previewChange()
-}
-
-function setAvatarShape(s) {
-    selectedAvatarShape = s
-    document.querySelectorAll('.shape-card[id^="av-"]').forEach(c=>c.classList.remove('active'))
-    const el = document.getElementById('av-'+s)
     if(el) el.classList.add('active')
     previewChange()
 }
@@ -629,7 +595,6 @@ async function guardar() {
         windowOpacity:      parseInt(document.getElementById('s-opacity').value),
         dockPosition:       document.getElementById('s-dock-pos').value,
         theme:              selectedTheme,
-        avatarShape:        selectedAvatarShape,
         disableHWAccel:     !document.getElementById('s-hw-accel').checked,
         autoUpdateDisabled: !document.getElementById('s-auto-update')?.checked,
     }
