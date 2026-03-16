@@ -104,6 +104,12 @@ function setLastSeenVersion(v) {
 // Changelog para streamers (mostrado tras actualización). Actualizar en cada release.
 function getStreamerChangelog(version) {
     const notes = {
+        '3.5.0': [
+            '✨ ¡Soporte completo para emotes de 7TV, BTTV, FFZ y YouTube!',
+            '🐛 Corregidos los temas visuales, que no se aplicaban correctamente.',
+            '🐛 Arreglado el bug que impedía redimensionar el dock de eventos.',
+            '🔧 Mejorada la lógica para priorizar emotes largos (ej: LULW sobre LUL).'
+        ],
         '3.4.0': [
             '¡Modernización Interna del Código!',
             'Se ha migrado todo el backend a ES Modules, el estándar actual de JavaScript.',
