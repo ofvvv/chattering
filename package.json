@@ -3,6 +3,7 @@
   "version": "3.3.0",
   "description": "Multi-platform chat viewer",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win"

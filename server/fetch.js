@@ -1,32 +1,30 @@
-// server/fetch.js — Chattering v3.1
-// Uses native fetch (Node 18+) or falls back to https module
-// This avoids the getaddrinfo ENOTFOUND issue that plagues the https module in packaged Electron apps
+// server/fetch.js — Chattering v4.0 (ESM)
 'use strict'
 
-const https = require('https')
-const http  = require('http')
+import https from 'https'
+import http from 'http'
 
-// Try native fetch first (Node 18+ / Electron 28+)
+// Node 18+ tiene fetch nativo, que es más robusto en apps Electron empaquetadas.
 const hasFetch = typeof globalThis.fetch === 'function'
 
-function fetchRaw(url, extraHeaders={}) {
-    // Use native fetch if available — much more reliable in packaged apps
+export function fetchRaw(url, extraHeaders = {}) {
     if (hasFetch) {
         return globalThis.fetch(url, {
-            headers: { 'User-Agent':'Chattering/3.1', ...extraHeaders },
+            headers: { 'User-Agent': 'Chattering/3.1', ...extraHeaders },
             signal: AbortSignal.timeout(10000)
         }).then(r => r.text())
     }
-    // Fallback: Node https/http
+
+    // Fallback para Node < 18
     return new Promise((resolve, reject) => {
         const parsed = new URL(url)
         const opts = {
             hostname: parsed.hostname,
-            port:     parsed.port || (parsed.protocol==='https:'?443:80),
-            path:     parsed.pathname + parsed.search,
-            method:   'GET',
-            headers:  { 'User-Agent':'Chattering/3.1', ...extraHeaders },
-            timeout:  10000
+            port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
+            path: parsed.pathname + parsed.search,
+            method: 'GET',
+            headers: { 'User-Agent': 'Chattering/3.1', ...extraHeaders },
+            timeout: 10000
         }
         const mod = parsed.protocol === 'https:' ? https : http
         const req = mod.request(opts, res => {
@@ -40,32 +38,33 @@ function fetchRaw(url, extraHeaders={}) {
     })
 }
 
-async function fetchJson(url, headers={}) {
+export async function fetchJson(url, headers = {}) {
     const text = await fetchRaw(url, headers)
     return JSON.parse(text)
 }
 
-async function postJson(url, body, headers={}) {
+export async function postJson(url, body, headers = {}) {
     if (hasFetch) {
         const r = await globalThis.fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type':'application/json', 'User-Agent':'Chattering/3.1', ...headers },
+            headers: { 'Content-Type': 'application/json', 'User-Agent': 'Chattering/3.1', ...headers },
             body: JSON.stringify(body),
             signal: AbortSignal.timeout(10000)
         })
         return r.json()
     }
-    // Fallback POST
+    
+    // Fallback para POST
     return new Promise((resolve, reject) => {
         const bodyStr = JSON.stringify(body)
-        const parsed  = new URL(url)
+        const parsed = new URL(url)
         const opts = {
             hostname: parsed.hostname,
-            port:     parsed.port || 443,
-            path:     parsed.pathname + parsed.search,
-            method:   'POST',
-            headers:  { 'Content-Type':'application/json', 'Content-Length':Buffer.byteLength(bodyStr), 'User-Agent':'Chattering/3.1', ...headers },
-            timeout:  10000
+            port: parsed.port || 443,
+            path: parsed.pathname + parsed.search,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr), 'User-Agent': 'Chattering/3.1', ...headers },
+            timeout: 10000
         }
         const req = https.request(opts, res => {
             let d = ''
@@ -78,5 +77,3 @@ async function postJson(url, body, headers={}) {
         req.end()
     })
 }
-
-module.exports = { fetchRaw, fetchJson, postJson }

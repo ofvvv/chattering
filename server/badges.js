@@ -1,13 +1,14 @@
-// server/badges.js — Chattering v3.1
+// server/badges.js — Chattering v4.0 (ESM)
 'use strict'
-const { fetchJson } = require('./fetch')
+
+import { fetchJson } from './fetch.js'
 
 const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
 const cache = { global: {}, channel: {} }
 let globalRetryAttempts = 0
 const MAX_GLOBAL_RETRIES = 3
 
-// Convert Helix badge response array → { set_id: { versions: { id: {url1x, url2x} } } }
+// Convierte la respuesta de la API Helix de un array a un objeto de sets más eficiente
 function helixToSets(data) {
     const sets = {}
     for (const set of (data?.data || [])) {
@@ -23,8 +24,8 @@ function helixToSets(data) {
     return sets
 }
 
-async function loadGlobal(token) {
-    // 1. Try Helix with token (most reliable, bypasses CDN DNS issues)
+export async function loadGlobal(token) {
+    // 1. Intenta con la API Helix usando un token (más fiable)
     if (token) {
         try {
             const data = await fetchJson('https://api.twitch.tv/helix/chat/badges/global', {
@@ -33,33 +34,34 @@ async function loadGlobal(token) {
             })
             const sets = helixToSets(data)
             cache.global = { ...cache.global, ...sets }
-            console.log('[Badges] Global (Helix):', Object.keys(sets).length, 'sets')
-            globalRetryAttempts = 0 // Reset on success
+            console.log('[Badges] Globales (Helix):', Object.keys(sets).length, 'sets cargados')
+            globalRetryAttempts = 0 // Resetea reintentos si tiene éxito
             return true
-        } catch(e) { console.warn('[Badges] Helix global falló:', e.message) }
+        } catch (e) { console.warn('[Badges] Fallo al cargar globales con Helix:', e.message) }
     }
-    // 2. Fallback: legacy CDN
+
+    // 2. Fallback a la CDN pública (legacy)
     try {
         const data = await fetchJson('https://badges.twitch.tv/v1/badges/global/display')
-        cache.global = { ...cache.global, ...(data?.badge_sets||{}) }
-        console.log('[Badges] Global (CDN):', Object.keys(cache.global).length, 'sets')
-        globalRetryAttempts = 0 // Reset on success
+        cache.global = { ...cache.global, ...(data?.badge_sets || {}) }
+        console.log('[Badges] Globales (CDN):', Object.keys(cache.global).length, 'sets cargados')
+        globalRetryAttempts = 0 // Resetea reintentos si tiene éxito
         return true
-    } catch(e) {
+    } catch (e) {
         if (globalRetryAttempts < MAX_GLOBAL_RETRIES) {
             globalRetryAttempts++
-            console.warn(`[Badges] Global CDN falló (intento ${globalRetryAttempts}/${MAX_GLOBAL_RETRIES}):`, e.message)
-            setTimeout(() => loadGlobal(token), 60000)
+            console.warn(`[Badges] Fallo al cargar globales de CDN (intento ${globalRetryAttempts}/${MAX_GLOBAL_RETRIES}):`, e.message)
+            setTimeout(() => loadGlobal(token), 60000) // Reintenta en 1 minuto
         } else {
-            console.error('[Badges] Máximo de reintentos alcanzado. Badges globales no disponibles.')
+            console.error('[Badges] Máximo de reintentos para CDN alcanzado. Emblemas globales no disponibles.')
         }
         return false
     }
 }
 
-async function loadChannel(channelId, token) {
+export async function loadChannel(channelId, token) {
     if (!channelId || cache.channel[channelId]) return
-    cache.channel[channelId] = {} // mark attempted
+    cache.channel[channelId] = {} // Marcar como intentado para evitar cargas múltiples
 
     if (token) {
         try {
@@ -68,14 +70,16 @@ async function loadChannel(channelId, token) {
                 { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${token}` }
             )
             cache.channel[channelId] = helixToSets(data)
-            console.log('[Badges] Channel (Helix):', channelId, '→', Object.keys(cache.channel[channelId]).length, 'sets')
+            console.log('[Badges] Canal (Helix):', channelId, '→', Object.keys(cache.channel[channelId]).length, 'sets cargados')
             return
-        } catch(e) { console.warn('[Badges] Helix channel falló:', e.message) }
+        } catch (e) { console.warn('[Badges] Fallo al cargar emblemas de canal con Helix:', e.message) }
     }
+
+    // Fallback a la CDN de canal
     try {
         const data = await fetchJson(`https://badges.twitch.tv/v1/badges/channels/${channelId}/display`)
         cache.channel[channelId] = data?.badge_sets || {}
-    } catch(e) { console.warn('[Badges] Channel CDN falló:', channelId, e.message) }
+    } catch (e) { console.warn('[Badges] Fallo al cargar emblemas de canal de CDN:', channelId, e.message) }
 }
 
 function resolve(badgeName, version, channelId) {
@@ -90,13 +94,11 @@ function resolve(badgeName, version, channelId) {
     return null
 }
 
-function buildBadgeUrls(tags, channelId) {
+export function buildBadgeUrls(tags, channelId) {
     const badges = tags?.badges || {}
     return Object.entries(badges)
-        .map(([name, ver]) => { const url=resolve(name, ver, channelId); return url?{name,url}:null })
+        .map(([name, ver]) => { const url = resolve(name, ver, channelId); return url ? { name, url } : null })
         .filter(Boolean)
 }
 
-function invalidateChannel(channelId) { delete cache.channel[channelId] }
-
-module.exports = { loadGlobal, loadChannel, buildBadgeUrls, invalidateChannel }
+export function invalidateChannel(channelId) { delete cache.channel[channelId] }

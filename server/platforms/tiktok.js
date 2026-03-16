@@ -1,4 +1,4 @@
-const { WebcastPushConnection } = require('tiktok-live-connector');
+import { WebcastPushConnection } from 'tiktok-live-connector';
 
 let deps;
 let connection = null;
@@ -6,9 +6,9 @@ let currentUsername = null;
 let reconnectTimer = null;
 let reconnectAttempts = 0;
 
-function init(d) { deps = d; }
+export function init(d) { deps = d; }
 
-function disconnect() {
+export function disconnect() {
     clearTimeout(reconnectTimer);
     if (connection) {
         try { connection.disconnect(); } catch (e) {}
@@ -18,7 +18,7 @@ function disconnect() {
     deps.updatePlatformState('TT', 'disconnected');
 }
 
-function connect(username) {
+export function connect(username) {
     disconnect();
     if (!username) return;
 
@@ -33,13 +33,11 @@ function connect(username) {
         clientParams: {
             "app_language": "es-ES",
             "device_platform": "web",
-            "tt-target-idc": "useast5" 
+            "tt-target-idc": "useast5"
         },
         requestHeaders: {}
     };
 
-    // WORKAROUND: Inyectar la cookie directamente en los headers para evitar el bug 
-    // de validación estricta de "tt-target-idc" en la librería tiktok-live-connector
     if (deps.config && deps.config.tiktokSessionId) {
         options.requestHeaders['Cookie'] = `sessionid=${deps.config.tiktokSessionId}`;
     }
@@ -50,7 +48,7 @@ function connect(username) {
         console.log(`[TikTok] Conectado a ${username} (Room: ${state.roomId})`);
         deps.updateStatus('TT', true);
         deps.updatePlatformState('TT', 'connected');
-        reconnectAttempts = 0; 
+        reconnectAttempts = 0;
     }).catch(err => {
         const msg = err.message || '';
         if (msg.includes('LIVE has ended') || msg.includes('offline') || msg.includes('not found')) {
@@ -63,7 +61,7 @@ function connect(username) {
             console.warn('[TikTok] Error al conectar:', msg);
             deps.updateStatus('TT', false);
             deps.updatePlatformState('TT', 'error');
-            scheduleReconnect(); 
+            scheduleReconnect();
         }
     });
 
@@ -74,12 +72,12 @@ function connect(username) {
             avatar: data.profilePictureUrl, text: data.comment,
             isFirst: data.isFirstScreen,
             badges: { mod: data.isModerator, sub: data.isSubscriber },
-            badgeUrls:[]
+            badgeUrls: []
         });
     });
 
     connection.on('gift', data => {
-        if (data.giftType === 1 && !data.repeatEnd) return; 
+        if (data.giftType === 1 && !data.repeatEnd) return;
         deps.emitEvento({
             plat: 'TT', type: 'gift',
             user: data.uniqueId, userId: data.userId,
@@ -106,12 +104,12 @@ function connect(username) {
         });
     });
 
-    connection.on('streamEnd', () => { 
+    connection.on('streamEnd', () => {
         console.log(`[TikTok] Stream de @${username} ha terminado.`);
-        disconnect(); 
+        disconnect();
         reconnectTimer = setTimeout(() => connect(username), 60000);
     });
-    
+
     connection.on('disconnected', () => { scheduleReconnect(); });
     connection.on('error', err => { console.error('[TikTok] Error interno:', err.message); });
 }
@@ -119,11 +117,9 @@ function connect(username) {
 function scheduleReconnect() {
     clearTimeout(reconnectTimer);
     reconnectAttempts++;
-    const delay = Math.min(2000 * Math.pow(2, reconnectAttempts - 1), 60000); 
-    console.log(`[TikTok] Reconectando en ${delay/1000}s... (Intento ${reconnectAttempts})`);
+    const delay = Math.min(2000 * Math.pow(2, reconnectAttempts - 1), 60000);
+    console.log(`[TikTok] Reconectando en ${delay / 1000}s... (Intento ${reconnectAttempts})`);
     reconnectTimer = setTimeout(() => {
         if (currentUsername) connect(currentUsername);
     }, delay);
 }
-
-module.exports = { init, connect, disconnect };
