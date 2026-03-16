@@ -353,54 +353,50 @@ async function cargarEmotes(config) {
 
 function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
     if (!text) return '';
-    
-    const tokens = [];
-    let lastIndex = 0;
 
+    const tokens = [];
     const allEmotes = [];
 
-    // 1. Collect Twitch native emotes
+    // 1. Collect native emotes
     if (plat === 'TW' && twitchEmotes) {
         for (const [id, positions] of Object.entries(twitchEmotes)) {
             for (const pos of positions) {
                 const [start, end] = pos.split('-').map(Number);
-                allEmotes.push({ start, end, html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0" class="emote" alt="${esc(text.substring(start, end + 1))}" data-platform="Twitch">` });
+                const name = text.substring(start, end + 1);
+                allEmotes.push({ name, start, end, html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0" class="emote" alt="${esc(name)}" data-platform="Twitch">` });
             }
         }
     }
-
-    // 2. Collect YouTube emotes
     if (plat === 'YT' && ytEmotes) {
         for (const emote of ytEmotes) {
             let from = 0;
             while ((from = text.indexOf(emote.placeholder, from)) !== -1) {
-                allEmotes.push({ start: from, end: from + emote.placeholder.length - 1, html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube">` });
+                allEmotes.push({ name: emote.name, start: from, end: from + emote.placeholder.length - 1, html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube">` });
                 from += emote.placeholder.length;
             }
         }
     }
 
-    // 3. Collect 3rd party emotes
+    // 2. Collect 3rd party emotes
     if (plat === 'TW') {
-        for (const word in emoteMap) {
-            if (text.includes(word)) { // Quick check before using regex
-                const emote = emoteMap[word];
-                const escapedWord = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                const regex = new RegExp(`\\b${escapedWord}\\b`, 'g');
-                let match;
-                while ((match = regex.exec(text)) !== null) {
-                    allEmotes.push({
-                        start: match.index,
-                        end: match.index + word.length - 1,
-                        html: `<img src="${esc(emote.url)}" class="emote${emote.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emote.platform || '')}">`
-                    });
-                }
+        for (const name in emoteMap) {
+            const emote = emoteMap[name];
+            const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escapedName}\\b`, 'g');
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                allEmotes.push({
+                    name,
+                    start: match.index,
+                    end: match.index + name.length - 1,
+                    html: `<img src="${esc(emote.url)}" class="emote${emote.zw ? ' zw' : ''}" alt="${esc(name)}" data-platform="${esc(emote.platform || '')}">`
+                });
             }
         }
     }
 
-    // 4. Sort and process emotes to avoid overlaps
-    allEmotes.sort((a, b) => a.start - b.start);
+    // 3. Sort by start position, then by length (longest first) to prioritize specific emotes
+    allEmotes.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
 
     const processedEmotes = [];
     let lastEmoteEnd = -1;
@@ -411,7 +407,8 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
         }
     }
 
-    // 5. Build the final string
+    // 4. Build the final string with emotes and text
+    let lastIndex = 0;
     for (const emote of processedEmotes) {
         if (emote.start > lastIndex) {
             tokens.push(esc(text.substring(lastIndex, emote.start)));
@@ -419,13 +416,13 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
         tokens.push(emote.html);
         lastIndex = emote.end + 1;
     }
-
     if (lastIndex < text.length) {
         tokens.push(esc(text.substring(lastIndex)));
     }
 
     return tokens.join('');
 }
+
 
 // ── EMOTE TOOLTIP + CONTEXT MENU ─────────────────────────────────────────────
 const etTip=document.getElementById('emote-tooltip')
@@ -501,7 +498,7 @@ function showPreview(d,el){
     if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
     lpTitle.textContent=d.title||''
     lpDesc.textContent=d.description||''
-    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>{lpImg.style.display='none'}}else{lpImg.style.display='none'}
+    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}}else{lpImg.style.display='none'}
     try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
     lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
     requestAnimationFrame(()=>{
@@ -663,9 +660,9 @@ function aplicarConfig(){
     }
 
     // Aplicar tema
-    document.body.className = document.body.className.replace(/theme-\w+/g, '').trim();
+    document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sakura');
     const theme = cfg.theme || 'dark';
-    if (theme !== 'dark') {
+    if (theme && theme !== 'dark') {
         document.body.classList.add('theme-' + theme);
     }
 
