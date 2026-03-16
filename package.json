@@ -2,7 +2,7 @@
   "name": "chattering",
   "version": "3.3.0",
   "description": "Multi-platform chat viewer",
-  "main": "main.js",
+  "main": "main.cjs",
   "type": "module",
   "scripts": {
     "start": "electron .",
