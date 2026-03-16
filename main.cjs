@@ -3,7 +3,7 @@ const path   = require('path')
 const fs     = require('fs')
 const http   = require('http')
 const { fork, exec } = require('child_process')
-const ResourceMonitor = require('./resource-monitor')
+const ResourceMonitor = require('./resource-monitor.cjs')
 
 let autoUpdater = null
 if (app.isPackaged) {
