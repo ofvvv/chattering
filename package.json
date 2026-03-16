@@ -25,6 +25,9 @@
   "build": {
     "appId": "com.chattering.app",
     "productName": "Chattering",
+    "win": {
+      "icon": "assets/icon.ico"
+    },
     "publish": {
       "provider": "github",
       "owner": "ofvvv",
@@ -34,19 +37,14 @@
     "files": [
       "main.cjs",
       "preload.js",
+      "server.js",
       "resource-monitor.cjs",
-      "node_modules/**/*",
-      "!node_modules/electron-builder/**/*"
+      "server/**/*",
+      "public/**/*",
+      "assets/**/*",
+      "package.json"
     ],
     "extraResources": [
-      {
-        "from": "server.js",
-        "to": "."
-      },
-      {
-        "from": "public",
-        "to": "public"
-      },
       {
         "from": "node_modules/sql.js/dist/sql-wasm.wasm",
         "to": "."

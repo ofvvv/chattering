@@ -184,7 +184,7 @@ const KNOWN_BOTS=['nightbot','streamelements','fossabot','moobot','wizebot','bot
 
 const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return TC[Math.abs(h)%TC.length]}
 const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>'};return icons[spl]||icons.TT}
-const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c])
+const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c])
 const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank')
 const nextBg=even=>{msgLineCounter++;return msgLineCounter%2===0?'linea-bg-even':'linea-bg-odd'}
 
@@ -359,73 +359,91 @@ async function cargarEmotes(config) {
 function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
     if (!text) return '';
 
-    const tokens = [];
-    const allEmotes = [];
+    // 1. Tokenize by space to handle words and emotes
+    let tokens = [{ type: 'text', content: text }];
 
-    // 1. Collect native emotes
+    // 2. PRIORIDAD NATIVA: Parsear emotes nativos de Twitch
     if (plat === 'TW' && twitchEmotes) {
+        const nativeEmotes = [];
         for (const [id, positions] of Object.entries(twitchEmotes)) {
             for (const pos of positions) {
                 const [start, end] = pos.split('-').map(Number);
                 const name = text.substring(start, end + 1);
-                allEmotes.push({ name, start, end, html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0" class="emote" alt="${esc(name)}" data-platform="Twitch">` });
+                nativeEmotes.push({ name, start, end, id });
             }
         }
+        // Ordenar por posición de inicio para procesar en orden
+        nativeEmotes.sort((a, b) => a.start - b.start);
+
+        let lastIndex = 0;
+        const newTokens = [];
+        for (const emote of nativeEmotes) {
+            if (emote.start > lastIndex) {
+                newTokens.push({ type: 'text', content: text.substring(lastIndex, emote.start) });
+            }
+            newTokens.push({ type: 'emote', html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0" class="emote" alt="${esc(emote.name)}" data-platform="Twitch" data-emote="${esc(emote.name)}" data-url="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0">` });
+            lastIndex = emote.end + 1;
+        }
+        if (lastIndex < text.length) {
+            newTokens.push({ type: 'text', content: text.substring(lastIndex) });
+        }
+        tokens = newTokens;
     }
+
+    // 3. Parsear emotes de YouTube (si los hay)
     if (plat === 'YT' && ytEmotes) {
-        for (const emote of ytEmotes) {
-            let from = 0;
+        // Similar al de Twitch, pero con la data de YT
+        let lastIndex = 0;
+        const newTokens = [];
+        const sortedYtEmotes = [...ytEmotes].sort((a,b) => text.indexOf(a.placeholder) - text.indexOf(b.placeholder));
+        sortedYtEmotes.forEach(emote => {
+             let from = 0;
             while ((from = text.indexOf(emote.placeholder, from)) !== -1) {
-                allEmotes.push({ name: emote.name, start: from, end: from + emote.placeholder.length - 1, html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube">` });
+                if (from > lastIndex) {
+                    newTokens.push({ type: 'text', content: text.substring(lastIndex, from) });
+                }
+                newTokens.push({ type: 'emote', html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube" data-emote="${esc(emote.name)}" data-url="${emote.url}">` });
+                lastIndex = from + emote.placeholder.length;
                 from += emote.placeholder.length;
             }
+        });
+         if (lastIndex < text.length) {
+            newTokens.push({ type: 'text', content: text.substring(lastIndex) });
         }
+        tokens = newTokens;
     }
 
-    // 2. Collect 3rd party emotes
-    if (plat === 'TW') {
-        for (const name in emoteMap) {
-            const emote = emoteMap[name];
-            const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`\\b${escapedName}\\b`, 'g');
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                allEmotes.push({
-                    name,
-                    start: match.index,
-                    end: match.index + name.length - 1,
-                    html: `<img src="${esc(emote.url)}" class="emote${emote.zw ? ' zw' : ''}" alt="${esc(name)}" data-platform="${esc(emote.platform || '')}">`
-                });
+    // 4. Parsear emotes de terceros (7TV, BTTV, FFZ) SOLO en los tokens de texto restantes
+    const finalTokens = [];
+    const thirdPartyEmoteKeys = Object.keys(emoteMap).sort((a, b) => b.length - a.length);
+
+    for (const token of tokens) {
+        if (token.type === 'emote') {
+            finalTokens.push(token);
+            continue;
+        }
+
+        let currentText = token.content;
+        const parts = [];
+        const words = currentText.split(' ');
+        
+        words.forEach((word, index) => {
+            const emoteData = emoteMap[word];
+            if (emoteData) {
+                parts.push(`<img src="${esc(emoteData.url)}" class="emote${emoteData.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emoteData.platform || '')}" data-emote="${esc(word)}" data-url="${esc(emoteData.url)}">`);
+            } else {
+                parts.push(esc(word));
             }
-        }
+            if (index < words.length - 1) {
+                parts.push(' '); // Re-add space
+            }
+        });
+        
+        finalTokens.push({ type: 'text', content: parts.join('') });
     }
 
-    // 3. Sort by start position, then by length (longest first) to prioritize specific emotes
-    allEmotes.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
-
-    const processedEmotes = [];
-    let lastEmoteEnd = -1;
-    for (const emote of allEmotes) {
-        if (emote.start > lastEmoteEnd) {
-            processedEmotes.push(emote);
-            lastEmoteEnd = emote.end;
-        }
-    }
-
-    // 4. Build the final string with emotes and text
-    let lastIndex = 0;
-    for (const emote of processedEmotes) {
-        if (emote.start > lastIndex) {
-            tokens.push(esc(text.substring(lastIndex, emote.start)));
-        }
-        tokens.push(emote.html);
-        lastIndex = emote.end + 1;
-    }
-    if (lastIndex < text.length) {
-        tokens.push(esc(text.substring(lastIndex)));
-    }
-
-    return tokens.join('');
+    // 5. Unir todos los tokens en el string final
+    return finalTokens.map(t => t.type === 'emote' ? t.html : t.content).join('');
 }
 
 
@@ -503,7 +521,7 @@ function showPreview(d,el){
     if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
     lpTitle.textContent=d.title||''
     lpDesc.textContent=d.description||''
-    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>{lpImg.style.display='none'}}else{lpImg.style.display='none'}
+    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}}else{lpImg.style.display='none'}
     try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
     lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
     requestAnimationFrame(()=>{
@@ -1131,6 +1149,8 @@ async function sendChatMsg(){
     const plat=document.getElementById('chat-plat-sel')?.value||'TW'
     const text=(input.value||'').trim()
     if(!text) return
+
+    pushSentHistory(text);
 
     if(text.startsWith('/') && plat==='TW'){
         const parts=text.split(' ')
