@@ -90,7 +90,7 @@ ipcMain.handle('login-tiktok', async () => {
     });
 });
 // ─── VERSIÓN ─────────────────────────────────────────────────────────────────
-const APP_VERSION = app.getVersion() // v3.1
+const APP_VERSION = app.getVersion()
 const SEEN_VERSION_PATH = path.join(app.getPath('userData'), 'last_seen_version.txt')
 
 function getLastSeenVersion() {
@@ -104,15 +104,19 @@ function setLastSeenVersion(v) {
 // Changelog para streamers (mostrado tras actualización). Actualizar en cada release.
 function getStreamerChangelog(version) {
     const notes = {
-        '3.2.1': [
-            'Fix de mejora en el sistema, rendimiento y estabilidad general.',
-            'Nuevo sistema de vinculación de TikTok y Twitch.',
-            'Corrección en fuga de memoria, límites y optimizaciones a CPU y RAM.',
-            'Mejoras en la interfaz de configuración y setup.'
+        '3.4.0': [
+            '¡Modernización Interna del Código!',
+            'Se ha migrado todo el backend a ES Modules, el estándar actual de JavaScript.',
+            'Esto mejora la estabilidad, el rendimiento y facilita que nuevos desarrolladores puedan contribuir al proyecto.',
+            'Tu experiencia de usuario no cambia, ¡pero el motor es ahora mucho mejor!'
         ],
-        // ... versiones anteriores
+        '3.2.1': [
+            'Mejoras de rendimiento y estabilidad.',
+            'Nuevo sistema de vinculación de TikTok y Twitch.',
+            'Optimización de uso de CPU y RAM.'
+        ],
     }
-    return notes[version] || notes['3.2.1'] || ['Mejoras y correcciones.']
+    return notes[version] || ['Mejoras y correcciones generales.']
 }
 
 // ─── ESTADO ──────────────────────────────────────────────────────────────────
