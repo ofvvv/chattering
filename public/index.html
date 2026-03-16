@@ -286,18 +286,23 @@ function chipAllowsMsg(d) {
 // ── LAYOUT ────────────────────────────────────────────────────────────────────
 function setDockPosition(pos) {
     document.getElementById('main-layout').classList.toggle('dock-bottom',pos==='bottom')
-    document.getElementById('layout-dock-top').classList.toggle('active',pos==='top')
-    document.getElementById('layout-dock-bottom').classList.toggle('active',pos==='bottom')
-    cfg.dockPosition=pos
+    const dockTop = document.getElementById('layout-dock-top');
+    const dockBottom = document.getElementById('layout-dock-bottom');
+    if (dockTop) dockTop.classList.toggle('active',pos==='top');
+    if (dockBottom) dockBottom.classList.toggle('active',pos==='bottom');
+    cfg.dockPosition=pos;
 }
 function setDockHeight(h) {
-    document.getElementById('top-dock').style.height=h+'px'
-    document.getElementById('s-dock-height').value=h
-    document.getElementById('dock-height-val').textContent=h+'px'
-    cfg.dockHeight=h
+    document.getElementById('top-dock').style.height=h+'px';
+    const dockHeightSlider = document.getElementById('s-dock-height');
+    const dockHeightVal = document.getElementById('dock-height-val');
+    if (dockHeightSlider) dockHeightSlider.value=h;
+    if (dockHeightVal) dockHeightVal.textContent=h+'px';
+    cfg.dockHeight=h;
 }
 ;(function initDockResize(){
     const handle=document.getElementById('dock-resize-handle'),dock=document.getElementById('top-dock')
+    if (!handle || !dock) return;
     let dragging=false,startY=0,startH=0
     handle.addEventListener('mousedown',e=>{dragging=true;startY=e.clientY;startH=dock.offsetHeight;document.body.style.cursor='ns-resize';e.preventDefault()})
     document.addEventListener('mousemove',e=>{
@@ -498,7 +503,7 @@ function showPreview(d,el){
     if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
     lpTitle.textContent=d.title||''
     lpDesc.textContent=d.description||''
-    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}}else{lpImg.style.display='none'}
+    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>{lpImg.style.display='none'}}else{lpImg.style.display='none'}
     try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
     lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
     requestAnimationFrame(()=>{
@@ -1464,7 +1469,7 @@ async function modAction(userId, username, action, duration=300) {
 async function init(){
     showSkeleton()
     try {
-        try{cfg=(await window.electronAPI.getConfig())||{}}catch{cfg={}}
+        try{cfg=(await window.electronAPI.getConfig())||{}}catch(e){console.error('Error loading config',e);cfg={}}
         aplicarConfig()
         try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e) }
         setupEmoteObserver()
@@ -1482,9 +1487,6 @@ async function init(){
 }
 init()
 
-const script = document.createElement('script')
-script.src = 'panel-functions.js'
-document.head.appendChild(script)
 </script>
 </body>
 </html>
