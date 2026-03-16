@@ -96,21 +96,13 @@
     <div id="changelog-body">
       <div class="cl-section">
         <div class="cl-label">✨ v3.0 — Novedades</div>
-        <div class="cl-item new">Configuración en ventana independiente estilo OBS/Discord</div>
-        <div class="cl-item new">Sistema de temas: Dark, Midnight, Forest, Sakura</div>
-        <div class="cl-item new">Modo compacto y formas de avatar (círculo, squircle, cuadrado)</div>
-        <div class="cl-item new">Fondo translúcido con slider de opacidad</div>
-        <div class="cl-item new">Menú hover de moderación (timeout / ban / responder / copiar)</div>
-        <div class="cl-item new">Sistema de respuestas en Twitch</div>
-        <div class="cl-item new">Selector de emotes en la barra de chat</div>
-        <div class="cl-item new">Scroll pausado al hover + scroll invertido</div>
-        <div class="cl-item new">Contador de espectadores en la barra de título</div>
+        <div class="cl-item new">Interfaz de usuario mejorada.</div>
+        </div>
       </div>
       <div class="cl-section">
         <div class="cl-label">🔧 Fixes</div>
-        <div class="cl-item fix">Twitch no muestra LIVE al conectarse — solo cuando el stream está activo</div>
-        <div class="cl-item fix">Badges: usa Helix API primero para evitar errores DNS</div>
-        <div class="cl-item fix">Always on Top se aplica correctamente al iniciar</div>
+        <div class="cl-item fix">Arreglo de rendimiento y estabilidad.</div>
+        <div class="cl-item fix">Plataformas con logging automático.</div>
       </div>
     </div>
     <div id="changelog-footer"><button id="changelog-close" onclick="closeChangelog()">¡Entendido! →</button></div>
@@ -282,14 +274,28 @@ function syncFilterChips() {
     updateFilterButton()
 }
 function chipAllowsMsg(d) {
-    if(activeFilters.size === 0) return true
-    if(activeFilters.has('subs') && !d.badges?.sub) return false
-    if(activeFilters.has('mods') && !d.badges?.mod) return false
-    if(activeFilters.has('bots') && KNOWN_BOTS.includes((d.user||'').toLowerCase())) return false
-    if(activeFilters.has('first') && !d.isFirst) return false
-    const platFilters=['TT','YT','TW'].filter(p=>activeFilters.has(p))
-    if(platFilters.length && !platFilters.includes(d.plat)) return false
-    return true
+    if(activeFilters.size === 0) return true;
+
+    // 1. Filtro de Bots (Restrictivo: si está activo y es bot, se oculta siempre)
+    if(activeFilters.has('bots') && KNOWN_BOTS.includes((d.user||'').toLowerCase())) return false;
+
+    // 2. Filtros de Plataforma (Inclusivo: debe ser de alguna de las plataformas seleccionadas)
+    const platFilters = ['TT','YT','TW'].filter(p => activeFilters.has(p));
+    if(platFilters.length > 0 && !platFilters.includes(d.plat)) return false;
+
+    // 3. Filtros de Rol (Inclusivo: debe tener AL MENOS UNO de los roles seleccionados)
+    const roleFilters = ['subs', 'mods', 'first'].filter(r => activeFilters.has(r));
+    if(roleFilters.length > 0) {
+        let hasRole = false;
+        if(activeFilters.has('subs') && d.badges?.sub) hasRole = true;
+        if(activeFilters.has('mods') && d.badges?.mod) hasRole = true;
+        if(activeFilters.has('first') && d.isFirst) hasRole = true;
+        
+        // Si no cumple con ninguno de los roles seleccionados, lo ocultamos
+        if(!hasRole) return false;
+    }
+
+    return true;
 }
 
 // ── LAYOUT ────────────────────────────────────────────────────────────────────

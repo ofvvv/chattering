@@ -69,7 +69,6 @@ function connect(channel) {
     clientRef = client
 
     client.on('message', (_ch, tags, message, self) => {
-        if (self) return
         const user   = tags['display-name'] || tags.username || 'unknown'
         const userId = tags['user-id']      || tags.username || user
         if (!user || user === 'unknown') return
