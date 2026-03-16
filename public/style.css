@@ -1,10 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Chattering — Estilos compartidos y por ventana
-   Ventanas: .win-main (index), .win-settings (settings), .win-setup (setup)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Variables CSS globales */
-html, body {
+/* Variables CSS globales (Tema Dark por defecto) */
+:root {
   --bg: #111111;
   --bg2: #18181b;
   --bg3: #09090b;
@@ -429,8 +428,9 @@ html, body {
 .win-main .user { display: inline; font-weight: 700; vertical-align: middle; }
 .win-main .colon { display: inline; color: #666; margin: 0 4px 0 2px; }
 .win-main .text { display: inline; overflow-wrap: break-word; word-break: normal; }
-.win-main .emote { display: inline-block; height: 22px; vertical-align: middle; margin: -1px 1px; cursor: pointer; }
-.win-main .emote.zw { margin-left: -22px; z-index: 10; pointer-events: none; }
+.win-main .emote { display: inline-block; height: 28px; vertical-align: middle; margin: -4px 1px; cursor: pointer; transition: all 0.1s ease-in-out; }
+.win-main .emote:hover { transform: scale(1.2); z-index: 10; }
+.win-main .emote.zw { margin-left: -28px; }
 .win-main .chat-link { color: #7b7bdc; text-decoration: none; cursor: pointer; }
 .win-main .chat-link:hover { text-decoration: underline; color: #9b9bf5; }
 .win-main ::-webkit-scrollbar { width: 4px; }
@@ -588,7 +588,7 @@ html, body {
 .win-settings .btn-danger:hover { background: #2a0f0f; border-color: #ff4444; }
 .win-settings .btn-twitch { background: #9147ff; color: #fff; display: flex; align-items: center; gap: 7px; justify-content: center; width: 100%; }
 .win-settings .btn-twitch:hover { background: #7c2ffc; }
-.win-settings .btn-twitch.connected { background: #1a3a1a; border: 1px solid #53fc18; color: #53fc18; }
+.win-settings .btn-twitch.connected { background: #1a4a1a; border: 1px solid #53fc18; color: #53fc18; }
 .win-settings .slider-wrap { display: flex; align-items: center; gap: 10px; }
 .win-settings input[type=range] { flex: 1; height: 4px; accent-color: #9b9bf5; cursor: pointer; }
 .win-settings .slider-val { font-size: 10.5px; color: #666; font-family: 'Consolas', monospace; min-width: 30px; text-align: right; }
@@ -678,3 +678,46 @@ html, body {
 .win-setup .skip { font-size: 11px; color: #333; cursor: pointer; transition: color 0.15s; }
 .win-setup .skip:hover { color: #666; }
 .win-setup .note { font-size: 11px; color: #2e2e35; max-width: 320px; text-align: center; line-height: 1.5; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TEMAS ADICIONALES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-midnight {
+  --bg: #0a0a14;
+  --bg2: #14141f;
+  --bg3: #05050a;
+  --border: #14141f;
+  --border2: #242438;
+  --text: #c0c0e0;
+  --text2: #707090;
+  --text3: #303050;
+  --accent: #a0a0ff;
+  --accent2: #8080dd;
+}
+
+.theme-forest {
+  --bg: #0f1a15;
+  --bg2: #15241c;
+  --bg3: #08100c;
+  --border: #1a2e24;
+  --border2: #284439;
+  --text: #b0d0c0;
+  --text2: #608070;
+  --text3: #305040;
+  --accent: #90d0b0;
+  --accent2: #70b090;
+}
+
+.theme-sakura {
+  --bg: #1a0f15;
+  --bg2: #24151c;
+  --bg3: #10080c;
+  --border: #2e1a24;
+  --border2: #442839;
+  --text: #d0b0c0;
+  --text2: #806070;
+  --text3: #503040;
+  --accent: #d090b0;
+  --accent2: #b07090;
+}
