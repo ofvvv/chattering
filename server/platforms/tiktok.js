@@ -34,11 +34,14 @@ function connect(username) {
             "app_language": "es-ES",
             "device_platform": "web",
             "tt-target-idc": "useast5" 
-        }
+        },
+        requestHeaders: {}
     };
 
+    // WORKAROUND: Inyectar la cookie directamente en los headers para evitar el bug 
+    // de validación estricta de "tt-target-idc" en la librería tiktok-live-connector
     if (deps.config && deps.config.tiktokSessionId) {
-        options.sessionId = deps.config.tiktokSessionId;
+        options.requestHeaders['Cookie'] = `sessionid=${deps.config.tiktokSessionId}`;
     }
 
     connection = new WebcastPushConnection(username, options);
@@ -50,7 +53,6 @@ function connect(username) {
         reconnectAttempts = 0; 
     }).catch(err => {
         const msg = err.message || '';
-        // Si el error es porque no está en vivo, no mostramos error, solo reintentamos en silencio
         if (msg.includes('LIVE has ended') || msg.includes('offline') || msg.includes('not found')) {
             console.log(`[TikTok] @${username} está offline. Reintentando en silencio en 60s...`);
             deps.updateStatus('TT', false);
@@ -107,7 +109,6 @@ function connect(username) {
     connection.on('streamEnd', () => { 
         console.log(`[TikTok] Stream de @${username} ha terminado.`);
         disconnect(); 
-        // Reintentar en silencio tras terminar
         reconnectTimer = setTimeout(() => connect(username), 60000);
     });
     

@@ -33,6 +33,7 @@
     "files": [
       "main.js",
       "preload.js",
+      "resource-monitor.js",
       "node_modules/**/*",
       "!node_modules/electron-builder/**/*"
     ],
