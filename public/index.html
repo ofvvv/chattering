@@ -265,14 +265,11 @@ function syncFilterChips() {
 function chipAllowsMsg(d) {
     if(activeFilters.size === 0) return true;
 
-    // 1. Filtro de Bots (Restrictivo: si está activo y es bot, se oculta siempre)
     if(activeFilters.has('bots') && KNOWN_BOTS.includes((d.user||'').toLowerCase())) return false;
 
-    // 2. Filtros de Plataforma (Inclusivo: debe ser de alguna de las plataformas seleccionadas)
     const platFilters = ['TT','YT','TW'].filter(p => activeFilters.has(p));
     if(platFilters.length > 0 && !platFilters.includes(d.plat)) return false;
 
-    // 3. Filtros de Rol (Inclusivo: debe tener AL MENOS UNO de los roles seleccionados)
     const roleFilters = ['subs', 'mods', 'first'].filter(r => activeFilters.has(r));
     if(roleFilters.length > 0) {
         let hasRole = false;
@@ -280,7 +277,6 @@ function chipAllowsMsg(d) {
         if(activeFilters.has('mods') && d.badges?.mod) hasRole = true;
         if(activeFilters.has('first') && d.isFirst) hasRole = true;
         
-        // Si no cumple con ninguno de los roles seleccionados, lo ocultamos
         if(!hasRole) return false;
     }
 
@@ -357,7 +353,7 @@ async function cargarEmotes(config) {
 
 function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
     if (!text) return '';
-
+    
     const tokens = [];
     let lastIndex = 0;
 
@@ -386,18 +382,20 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
 
     // 3. Collect 3rd party emotes
     if (plat === 'TW') {
-        const words = text.split(' ');
-        let currentPos = 0;
-        for (const word of words) {
-            if (emoteMap[word]) {
+        for (const word in emoteMap) {
+            if (text.includes(word)) { // Quick check before using regex
                 const emote = emoteMap[word];
-                allEmotes.push({ 
-                    start: currentPos, 
-                    end: currentPos + word.length - 1, 
-                    html: `<img src="${esc(emote.url)}" class="emote${emote.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emote.platform || '')}">`
-                });
+                const escapedWord = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(`\\b${escapedWord}\\b`, 'g');
+                let match;
+                while ((match = regex.exec(text)) !== null) {
+                    allEmotes.push({
+                        start: match.index,
+                        end: match.index + word.length - 1,
+                        html: `<img src="${esc(emote.url)}" class="emote${emote.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emote.platform || '')}">`
+                    });
+                }
             }
-            currentPos += word.length + 1;
         }
     }
 
@@ -428,8 +426,6 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
 
     return tokens.join('');
 }
-
-
 
 // ── EMOTE TOOLTIP + CONTEXT MENU ─────────────────────────────────────────────
 const etTip=document.getElementById('emote-tooltip')
@@ -667,8 +663,11 @@ function aplicarConfig(){
     }
 
     // Aplicar tema
-    document.body.classList.remove('theme-dark', 'theme-midnight', 'theme-forest', 'theme-sakura');
-    document.body.classList.add('theme-' + (cfg.theme || 'dark'));
+    document.body.className = document.body.className.replace(/theme-\w+/g, '').trim();
+    const theme = cfg.theme || 'dark';
+    if (theme !== 'dark') {
+        document.body.classList.add('theme-' + theme);
+    }
 
     window.electronAPI?.setAlwaysOnTop(cfg.alwaysOnTop===true)
 
