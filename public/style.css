@@ -89,15 +89,36 @@
 .win-main #changelog-close-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 16px; padding: 2px 5px; border-radius: 3px; }
 .win-main #changelog-close-btn:hover { color: #ddd; }
 
-
 .win-main #btn-filter.has-filters { color: var(--accent) !important; background: rgba(155,155,245,0.12) !important; }
 
-.win-main body.compact .linea { padding: 2px 8px; font-size: 12.5px; }
-.win-main body.compact .linea-event { padding: 1px 8px; font-size: 11px; }
-.win-main body.compact .avatar { width: 16px; height: 16px; }
-.win-main body.compact .badge-img { height: 14px; }
-.win-main body.compact .emote { height: 24px; }
-.win-main body.compact .colon { margin: 0 3px 0 1px; }
+/* Modo Compacto */
+.win-main body.compact .linea {
+  padding: 1px 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.win-main body.compact .linea-event {
+  padding: 0 8px;
+  font-size: 11px;
+}
+.win-main body.compact .avatar {
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+}
+.win-main body.compact .plat-icon {
+  width: 14px;
+  height: 14px;
+}
+.win-main body.compact .badge-img {
+  height: 14px;
+}
+.win-main body.compact .emote {
+  height: 22px;
+}
+.win-main body.compact .colon {
+  margin: 0 3px 0 2px;
+}
 
 .win-main body.translucent { background: transparent !important; }
 .win-main body.translucent #titlebar,
