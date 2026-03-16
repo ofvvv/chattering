@@ -32,40 +32,25 @@
     },
     "asar": false,
     "files": [
-      "main.js",
+      "main.cjs",
       "preload.js",
-      "resource-monitor.js",
+      "resource-monitor.cjs",
       "node_modules/**/*",
       "!node_modules/electron-builder/**/*"
     ],
     "extraResources": [
       {
         "from": "server.js",
-        "to": "server.js"
-      },
-      {
-        "from": "server",
-        "to": "server"
+        "to": "."
       },
       {
         "from": "public",
         "to": "public"
+      },
+      {
+        "from": "node_modules/sql.js/dist/sql-wasm.wasm",
+        "to": "."
       }
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "assets/icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "assets/icon.ico",
-      "shortcutName": "Chattering",
-      "deleteAppDataOnUninstall": false
-    },
-    "directories": {
-      "output": "dist"
-    }
+    ]
   }
 }
