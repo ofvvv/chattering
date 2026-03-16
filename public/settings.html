@@ -273,10 +273,7 @@
           <div class="slider-wrap" style="width:150px"><input type="range" id="s-opacity" min="20" max="100" step="5" value="90" oninput="document.getElementById('opacity-val').textContent=this.value+'%';previewChange()"><span class="slider-val" id="opacity-val">90%</span></div>
         </div>
         <div class="row"><div class="row-label"><div class="label">Posición del dock</div></div>
-          <select id="s-dock-pos"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
-        </div>
-        <div class="row"><div class="row-label"><div class="label">Altura del dock</div></div>
-          <div class="slider-wrap" style="width:150px"><input type="range" id="s-dock-height" min="40" max="240" step="4" value="82" oninput="document.getElementById('dock-height-val').textContent=this.value+'px'"><span class="slider-val" id="dock-height-val">82px</span></div>
+          <select id="s-dock-pos" onchange="previewChange()"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
         </div>
       </div>
     </div>
@@ -286,7 +283,7 @@
       <div class="page-title">Acerca de</div>
       <div class="section">
         <div class="section-title">Versión</div>
-        <div class="row"><div class="row-label"><div class="label">Chattering</div><div class="sublabel">Visor de chat multi-plataforma para streamers</div></div><div id="app-version" style="font-size:13px;font-weight:700;color:#9b9bf5">—</div></div>
+        <div class="row"><div class="row-label"><div class="label">Chattering</div><div class="sublabel">Visor de chat multi-plataforma para streamers</div></div><div id="app-version" style="font-size:13px;font-weight:700;color:#9b9bf5">v3.4.0</div></div>
       </div>
       <div class="section">
         <div class="section-title">Actualizaciones</div>
@@ -353,7 +350,8 @@ async function previewChange() {
         linkPreviews:   document.getElementById('s-link-previews')?.checked,
         modHoverMenu:   document.getElementById('s-mod-hover')?.checked,
         theme:          selectedTheme,
-        avatarShape:    selectedAvatarShape
+        avatarShape:    selectedAvatarShape,
+        dockPosition:   document.getElementById('s-dock-pos')?.value
     }
     try { await window.electronAPI.previewSettings(partial) } catch {}
 }
@@ -479,9 +477,6 @@ function loadForm() {
     document.getElementById('opacity-val').textContent = op+'%'
     updateTranslucent()
     document.getElementById('s-dock-pos').value = cfg.dockPosition||'top'
-    const dh = cfg.dockHeight||82
-    document.getElementById('s-dock-height').value = dh
-    document.getElementById('dock-height-val').textContent = dh+'px'
 
     selectedTheme = cfg.theme||'dark'
     setTheme(selectedTheme)
@@ -633,7 +628,6 @@ async function guardar() {
         translucent:        document.getElementById('s-translucent').checked,
         windowOpacity:      parseInt(document.getElementById('s-opacity').value),
         dockPosition:       document.getElementById('s-dock-pos').value,
-        dockHeight:         parseInt(document.getElementById('s-dock-height').value),
         theme:              selectedTheme,
         avatarShape:        selectedAvatarShape,
         disableHWAccel:     !document.getElementById('s-hw-accel').checked,
