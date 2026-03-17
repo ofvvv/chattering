@@ -1,23 +1,41 @@
 function showToast(msg,type=''){
-    const t=document.getElementById('toast')
-    if(!t) return;
-    t.textContent=msg; t.className=`show${type?' toast-'+type:''}`;
-    clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000);
+    try {
+        const t=document.getElementById('toast')
+        if(!t) return;
+        t.textContent=msg; t.className=`show${type?' toast-'+type:''}`;
+        clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000);
+    } catch (e) {
+        const errorMessage = `ERROR IN showToast: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 }
 
 // ── CHANGELOG ─────────────────────────────────────────────────────────────────
 async function checkChangelog() {
-    const version = await window.electronAPI.getVersion()
-    const lastSeen = await window.electronAPI.getLastSeenVersion()
-    document.getElementById('changelog-version').textContent=`Chattering v${version}`
-    if(lastSeen !== version) {
-        document.getElementById('changelog-overlay').classList.add('open')
+    try {
+        const version = await window.electronAPI.getVersion()
+        const lastSeen = await window.electronAPI.getLastSeenVersion()
+        document.getElementById('changelog-version').textContent=`Chattering v${version}`
+        if(lastSeen !== version) {
+            document.getElementById('changelog-overlay').classList.add('open')
+        }
+    } catch (e) {
+        const errorMessage = `ERROR IN checkChangelog: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
     }
 }
 async function closeChangelog() {
-    document.getElementById('changelog-overlay').classList.remove('open')
-    const version = await window.electronAPI.getVersion()
-    await window.electronAPI.setLastSeenVersion(version)
+    try {
+        document.getElementById('changelog-overlay').classList.remove('open')
+        const version = await window.electronAPI.getVersion()
+        await window.electronAPI.setLastSeenVersion(version)
+    } catch (e) {
+        const errorMessage = `ERROR IN closeChangelog: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 }
 
 // ── FILTER CHIPS (multi-select) ──────────────────────────────────────────────
@@ -73,18 +91,24 @@ const etImg=document.getElementById('et-img'),etName=document.getElementById('et
 let etTimer=null, currentCtxEmote=null
 
 document.addEventListener('mouseover',e=>{
-    const img=e.target.closest('img.emote')
-    if(!img){clearTimeout(etTimer);etTip.classList.remove('visible');return}
-    clearTimeout(etTimer)
-    etTimer=setTimeout(()=>{
-        etImg.src=img.dataset.url||img.src
-        etName.textContent=img.dataset.emote||img.alt
-        etPlat.textContent=img.dataset.platform||''
-        const r=img.getBoundingClientRect()
-        etTip.style.left=Math.min(r.left+r.width/2-40,window.innerWidth-130)+'px'
-        etTip.style.top=(r.top-90)+'px'
-        etTip.classList.add('visible')
-    },400)
+    try {
+        const img=e.target.closest('img.emote')
+        if(!img){clearTimeout(etTimer);etTip.classList.remove('visible');return}
+        clearTimeout(etTimer)
+        etTimer=setTimeout(()=>{
+            etImg.src=img.dataset.url||img.src
+            etName.textContent=img.dataset.emote||img.alt
+            etPlat.textContent=img.dataset.platform||''
+            const r=img.getBoundingClientRect()
+            etTip.style.left=Math.min(r.left+r.width/2-40,window.innerWidth-130)+'px'
+            etTip.style.top=(r.top-90)+'px'
+            etTip.classList.add('visible')
+        },400)
+    } catch (e) {
+        const errorMessage = `ERROR IN emote mouseover: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 })
 document.addEventListener('mouseout',e=>{
     if(!e.target.closest('img.emote')){clearTimeout(etTimer);etTip.classList.remove('visible')}
@@ -92,24 +116,59 @@ document.addEventListener('mouseout',e=>{
 
 const emoteCtx=document.getElementById('emote-ctx')
 document.addEventListener('contextmenu',e=>{
-    const img=e.target.closest('img.emote')
-    if(!img)return
-    e.preventDefault()
-    currentCtxEmote={name:img.dataset.emote||img.alt,url:img.dataset.url||img.src,platform:img.dataset.platform}
-    document.getElementById('ctx-emote-name').textContent=currentCtxEmote.name
-    emoteCtx.style.left=Math.min(e.clientX,window.innerWidth-170)+'px'
-    emoteCtx.style.top=Math.min(e.clientY,window.innerHeight-150)+'px'
-    emoteCtx.classList.add('open')
+    try {
+        const img=e.target.closest('img.emote')
+        if(!img)return
+        e.preventDefault()
+        currentCtxEmote={name:img.dataset.emote||img.alt,url:img.dataset.url||img.src,platform:img.dataset.platform}
+        document.getElementById('ctx-emote-name').textContent=currentCtxEmote.name
+        emoteCtx.style.left=Math.min(e.clientX,window.innerWidth-170)+'px'
+        emoteCtx.style.top=Math.min(e.clientY,window.innerHeight-150)+'px'
+        emoteCtx.classList.add('open')
+    } catch (e) {
+        const errorMessage = `ERROR IN emote contextmenu: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 })
 document.addEventListener('click',e=>{if(!e.target.closest('#emote-ctx'))closeEmoteCtx()})
 
-function closeEmoteCtx(){emoteCtx.classList.remove('open')}
-function ctxCopyName(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.name);closeEmoteCtx();showToast('📋 Nombre copiado')}
-function ctxCopyUrl(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.url);closeEmoteCtx();showToast('🔗 Link copiado')}
+function closeEmoteCtx(){
+    try { emoteCtx.classList.remove('open') }
+    catch (e) {
+        const errorMessage = `ERROR IN closeEmoteCtx: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
+}
+function ctxCopyName(){
+    try {
+        if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.name);closeEmoteCtx();showToast('📋 Nombre copiado')
+    } catch (e) {
+        const errorMessage = `ERROR IN ctxCopyName: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
+}
+function ctxCopyUrl(){
+    try {
+        if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.url);closeEmoteCtx();showToast('🔗 Link copiado')
+    } catch (e) {
+        const errorMessage = `ERROR IN ctxCopyUrl: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
+}
 function ctxDownload(){
-    if(!currentCtxEmote)return
-    const a=document.createElement('a');a.href=currentCtxEmote.url;a.download=currentCtxEmote.name;a.target='_blank';a.click()
-    closeEmoteCtx()
+    try {
+        if(!currentCtxEmote)return
+        const a=document.createElement('a');a.href=currentCtxEmote.url;a.download=currentCtxEmote.name;a.target='_blank';a.click()
+        closeEmoteCtx()
+    } catch (e) {
+        const errorMessage = `ERROR IN ctxDownload: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 }
 
 // ── LINK PREVIEW ─────────────────────────────────────────────────────────────
@@ -138,19 +197,25 @@ document.addEventListener('mouseout',e=>{
     if(!e.target.closest('a.chat-link')){clearTimeout(lpTimer);lpDiv.classList.remove('visible')}
 })
 function showPreview(d,el){
-    if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
-    lpTitle.textContent=d.title||''
-    lpDesc.textContent=d.description||''
-    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}else{lpImg.style.display='none'}
-    try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
-    lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
-    requestAnimationFrame(()=>{
-        const r=el.getBoundingClientRect(),h=lpDiv.offsetHeight||120
-        const top=r.top>h+10?r.top-h-6:r.bottom+6
-        lpDiv.style.left=Math.max(4,Math.min(r.left,window.innerWidth-294))+'px'
-        lpDiv.style.top=top+'px'
-        lpDiv.style.opacity=''
-    })
+    try {
+        if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
+        lpTitle.textContent=d.title||''
+        lpDesc.textContent=d.description||''
+        if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}else{lpImg.style.display='none'}
+        try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
+        lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
+        requestAnimationFrame(()=>{
+            const r=el.getBoundingClientRect(),h=lpDiv.offsetHeight||120
+            const top=r.top>h+10?r.top-h-6:r.bottom+6
+            lpDiv.style.left=Math.max(4,Math.min(r.left,window.innerWidth-294))+'px'
+            lpDiv.style.top=top+'px'
+            lpDiv.style.opacity=''
+        })
+    } catch (e) {
+        const errorMessage = `ERROR IN showPreview: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 }
 
 
@@ -176,40 +241,52 @@ function clearSearchHighlights() {
     searchResults=[]
 }
 function runSearch(query) {
-    clearSearchHighlights()
-    if(!query.trim()){document.getElementById('search-count').textContent='';return}
-    const q=query.trim().toLowerCase()
-    let userFilter=null, typeFilter=null, text=q
-    const fromM=q.match(/from:(\S+)/)
-    if(fromM){userFilter=fromM[1];text=text.replace(fromM[0],'').trim()}
-    const isM=q.match(/is:(\S+)/)
-    if(isM){typeFilter=isM[1];text=text.replace(isM[0],'').trim()}
+    try {
+        clearSearchHighlights()
+        if(!query.trim()){document.getElementById('search-count').textContent='';return}
+        const q=query.trim().toLowerCase()
+        let userFilter=null, typeFilter=null, text=q
+        const fromM=q.match(/from:(\S+)/)
+        if(fromM){userFilter=fromM[1];text=text.replace(fromM[0],'').trim()}
+        const isM=q.match(/is:(\S+)/)
+        if(isM){typeFilter=isM[1];text=text.replace(isM[0],'').trim()}
 
-    const lines=[...document.querySelectorAll('#chat .linea')]
-    lines.forEach(line=>{
-        let match=true
-        const lineUser=(line.querySelector('.user')?.textContent||'').toLowerCase()
-        const lineText=(line.querySelector('.text')?.textContent||'').toLowerCase()
-        const isSub=line.dataset.sub==='true'
-        const isMod=line.dataset.mod==='true'
-        if(userFilter&&!lineUser.includes(userFilter)) match=false
-        if(typeFilter==='sub'&&!isSub) match=false
-        if(typeFilter==='mod'&&!isMod) match=false
-        if(text&&!lineText.includes(text)&&!lineUser.includes(text)) match=false
-        if(match){line.classList.add('search-match');searchResults.push(line)}
-    })
-    searchIndex=0
-    if(searchResults.length){
-        searchResults[0].classList.add('search-match-current')
-        searchResults[0].scrollIntoView({block:'nearest'})
+        const lines=[...document.querySelectorAll('#chat .linea')]
+        lines.forEach(line=>{
+            let match=true
+            const lineUser=(line.querySelector('.user')?.textContent||'').toLowerCase()
+            const lineText=(line.querySelector('.text')?.textContent||'').toLowerCase()
+            const isSub=line.dataset.sub==='true'
+            const isMod=line.dataset.mod==='true'
+            if(userFilter&&!lineUser.includes(userFilter)) match=false
+            if(typeFilter==='sub'&&!isSub) match=false
+            if(typeFilter==='mod'&&!isMod) match=false
+            if(text&&!lineText.includes(text)&&!lineUser.includes(text)) match=false
+            if(match){line.classList.add('search-match');searchResults.push(line)}
+        })
+        searchIndex=0
+        if(searchResults.length){
+            searchResults[0].classList.add('search-match-current')
+            searchResults[0].scrollIntoView({block:'nearest'})
+        }
+        document.getElementById('search-count').textContent=searchResults.length?`${searchIndex+1}/${searchResults.length}`:'0 resultados'
+    } catch (e) {
+        const errorMessage = `ERROR IN runSearch: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
     }
-    document.getElementById('search-count').textContent=searchResults.length?`${searchIndex+1}/${searchResults.length}`:'0 resultados'
 }
 function searchNext() {
-    if(!searchResults.length)return
-    searchResults[searchIndex].classList.remove('search-match-current')
-    searchIndex=(searchIndex+1)%searchResults.length
-    searchResults[searchIndex].classList.add('search-match-current')
-    searchResults[searchIndex].scrollIntoView({block:'nearest'})
-    document.getElementById('search-count').textContent=`${searchIndex+1}/${searchResults.length}`
+    try {
+        if(!searchResults.length)return
+        searchResults[searchIndex].classList.remove('search-match-current')
+        searchIndex=(searchIndex+1)%searchResults.length
+        searchResults[searchIndex].classList.add('search-match-current')
+        searchResults[searchIndex].scrollIntoView({block:'nearest'})
+        document.getElementById('search-count').textContent=`${searchIndex+1}/${searchResults.length}`
+    } catch (e) {
+        const errorMessage = `ERROR IN searchNext: ${e.message}\n${e.stack}`;
+        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
+        else console.error('Fallback: ', errorMessage);
+    }
 }

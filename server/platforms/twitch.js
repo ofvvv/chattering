@@ -3,7 +3,7 @@
 
 import tmi from 'tmi.js'
 import { fetchJson } from '../fetch.js'
-import { buildBadgeUrls, loadChannel, loadGlobal } from '../badges.js'
+import { buildBadgeUrls, loadChannel, loadGlobal, invalidateChannel } from '../badges.js'
 
 const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
 
@@ -14,11 +14,16 @@ let reconnectTimer = null
 let emitMsg, emitEvento, updateStatus, procesarUsuario, config
 
 export function init(deps) {
-    emitMsg = deps.emitMsg
-    emitEvento = deps.emitEvento
-    updateStatus = deps.updateStatus
-    procesarUsuario = deps.procesarUsuario
-    config = deps.config
+    try {
+        emitMsg = deps.emitMsg
+        emitEvento = deps.emitEvento
+        updateStatus = deps.updateStatus
+        procesarUsuario = deps.procesarUsuario
+        config = deps.config
+    } catch (e) {
+        console.error('[Twitch] Critical error in init:', e.message, e.stack)
+        throw e
+    }
 }
 
 export async function checkLive(channel) {
@@ -34,93 +39,168 @@ export async function checkLive(channel) {
         const live = Array.isArray(data?.data) && data.data.length > 0
         updateStatus('TW', live)
     } catch (e) {
-        console.warn('[Twitch] checkLive falló:', e.message)
+        console.warn('[Twitch] checkLive failed:', e.message)
+        updateStatus('TW', false)
     }
 }
 
 export function disconnect() {
-    if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
-    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
-    if (clientRef) {
-        try { clientRef.disconnect() } catch { }
+    try {
+        if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
+        if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
+        if (clientRef) {
+            console.log('[Twitch] Disconnecting client...')
+            if (clientRef.readyState() === 'OPEN') clientRef.disconnect()
+        }
+    } catch (e) {
+        console.error('[Twitch] Error during disconnect:', e.message, e.stack)
+    } finally {
         clientRef = null
+        channelId = null
+        updateStatus('TW', false)
     }
-    channelId = null
 }
 
 export function connect(channel) {
-    if (!channel) return
-    channel = channel.toLowerCase().replace('@', '')
+    try {
+        if (!channel) return
+        channel = channel.toLowerCase().replace('@', '')
+        disconnect()
+        console.log(`[Twitch] Attempting to connect to #${channel}...`)
 
-    disconnect()
+        const identity = (config.twitchToken && config.twitchUser)
+            ? { username: config.twitchUser.toLowerCase(), password: `oauth:${config.twitchToken}` }
+            : undefined
 
-    const identity = (config.twitchToken && config.twitchUser)
-        ? { username: config.twitchUser, password: `oauth:${config.twitchToken}` }
-        : undefined
+        const client = new tmi.Client({
+            options: { debug: false, skipMembership: true },
+            connection: { reconnect: false, secure: true },
+            identity,
+            channels: [channel]
+        })
+        clientRef = client
 
-    const client = new tmi.Client({
-        options: { debug: false, skipMembership: true },
-        connection: { reconnect: false, secure: true },
-        identity,
-        channels: [channel]
-    })
-    clientRef = client
+        client.on('message', (ch, tags, message, self) => {
+            try {
+                if (self) return
+                const user = tags['display-name'] || tags.username || 'unknown'
+                const userId = tags['user-id']
+                if (!userId) return
 
-    client.on('message', (_ch, tags, message, self) => {
-        const user = tags['display-name'] || tags.username || 'unknown'
-        const userId = tags['user-id'] || tags.username || user
-        if (!user || user === 'unknown') return
+                if (tags['room-id'] && (!channelId || channelId !== tags['room-id'])) {
+                    channelId = tags['room-id']
+                    invalidateChannel(channelId)
+                    loadChannel(channelId, config.twitchToken)
+                }
 
-        if (tags['room-id'] && !channelId) {
-            channelId = tags['room-id']
-            loadChannel(channelId, config.twitchToken)
-        }
-
-        const badgeUrls = buildBadgeUrls(tags, channelId)
-        const isFirst = procesarUsuario(userId, user, 'TW')
-
-        if (tags['custom-reward-id']) {
-            emitEvento({ plat: 'TW', type: 'redeem', user, userId, avatar: null, text: message, rewardTitle: 'Canje', count: 0 })
-            return
-        }
+                const badgeUrls = buildBadgeUrls(tags, channelId)
+                const isFirst = procesarUsuario(userId, user, 'TW')
+                
+                if (tags['custom-reward-id']) {
+                    emitEvento({ plat: 'TW', type: 'redeem', user, userId, avatar: null, text: message, rewardTitle: tags['custom-reward-id'], count: 0 })
+                    return
+                }
+                
+                const twitchEmotes = tags.emotes || {}
+                emitMsg({ plat: 'TW', type: 'msg', user, userId, avatar: null, text: message, isFirst, badges: { mod: !!tags.mod, sub: !!tags.subscriber }, badgeUrls, twitchEmotes })
+            } catch (e) { console.error('[Twitch] Error in onMessageHandler:', e.message, e.stack) }
+        })
         
-        const twitchEmotes = tags.emotes || {}
-        emitMsg({ plat: 'TW', type: 'msg', user, userId, avatar: null, text: message, isFirst, badges: { mod: !!tags.mod, sub: !!tags.subscriber }, badgeUrls, twitchEmotes })
-    })
+        client.on('subscription', (ch, username, method, message, userstate) => {
+             try {
+                const user = userstate['display-name'] || username
+                const userId = userstate['user-id']
+                emitEvento({ plat: 'TW', type: 'sub', user, userId, avatar: null, text: message || '', count: 1 })
+            } catch (e) { console.error('[Twitch] Error in onSubscriptionHandler:', e.message, e.stack) }
+        });
 
-    // ... (Otros manejadores de eventos como sub, resub, etc. sin cambios) ...
+        client.on('resub', (ch, username, months, message, userstate, methods) => {
+            try {
+                const user = userstate['display-name'] || username
+                const userId = userstate['user-id']
+                emitEvento({ plat: 'TW', type: 'resub', user, userId, avatar: null, text: message || '', count: months || 1 })
+            } catch (e) { console.error('[Twitch] Error in onResubHandler:', e.message, e.stack) }
+        });
+        
+        client.on('subgift', (ch, username, streakMonths, recipient, methods, userstate) => {
+             try {
+                const gifter = userstate['display-name'] || username
+                const gifterId = userstate['user-id']
+                emitEvento({ plat: 'TW', type: 'gift', user: gifter, userId: gifterId, avatar: null, text: `regaló una sub a ${recipient}!`, count: 1 })
+            } catch (e) { console.error('[Twitch] Error in onSubGiftHandler:', e.message, e.stack) }
+        });
+        
+        client.on('cheer', (ch, userstate, message) => {
+            try {
+                const user = userstate['display-name'] || userstate.username
+                const userId = userstate['user-id']
+                const bits = parseInt(userstate.bits || '0', 10)
+                emitEvento({ plat: 'TW', type: 'cheer', user, userId, avatar: null, text: message, count: bits })
+            } catch (e) { console.error('[Twitch] Error in onCheerHandler:', e.message, e.stack) }
+        });
 
-    client.on('connected', () => {
-        console.log('[Twitch] Conectado a', channel)
-        checkLive(channel)
-        liveCheckTimer = setInterval(() => checkLive(channel), 60000)
-        if (config.twitchToken) loadGlobal(config.twitchToken)
-    })
+        client.on('raid', (ch, username, viewers, userstate) => {
+            try {
+                const user = userstate['display-name'] || username
+                const userId = userstate['user-id']
+                emitEvento({ plat: 'TW', type: 'raid', user, userId, avatar: null, text: '', count: viewers || 0 })
+            } catch (e) { console.error('[Twitch] Error in onRaidHandler:', e.message, e.stack) }
+        });
 
-    client.on('disconnected', reason => {
-        console.log('[Twitch] Desconectado:', reason)
+        client.on('connected', (address, port) => {
+            try {
+                console.log(`[Twitch] Connected to ${address}:${port} in channel #${channel}`)
+                updateStatus('TW', 'connected')
+                checkLive(channel)
+                if (liveCheckTimer) clearInterval(liveCheckTimer)
+                liveCheckTimer = setInterval(() => checkLive(channel), 60000)
+                if (config.twitchToken) loadGlobal(config.twitchToken)
+                if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+            } catch (e) { console.error('[Twitch] Error in onConnectedHandler:', e.message, e.stack) }
+        })
+
+        client.on('disconnected', reason => {
+            try {
+                console.log('[Twitch] Disconnected. Reason:', reason)
+                updateStatus('TW', false)
+                if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
+                clientRef = null
+                if (reason && !reason.includes('manual')) {
+                    if (reconnectTimer) clearTimeout(reconnectTimer)
+                    reconnectTimer = setTimeout(() => connect(channel), 10000)
+                    console.log('[Twitch] Reconnecting in 10 seconds...')
+                }
+            } catch (e) { console.error('[Twitch] Error in onDisconnectedHandler:', e.message, e.stack) }
+        })
+
+        client.connect().catch(e => {
+            console.error('[Twitch] Client failed to connect:', e?.message || e)
+            if (reconnectTimer) clearTimeout(reconnectTimer)
+            reconnectTimer = setTimeout(() => connect(channel), 10000)
+        })
+
+    } catch (e) {
+        console.error('[Twitch] Critical error in connect function:', e.message, e.stack)
         updateStatus('TW', false)
-        if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
-        clientRef = null
-        reconnectTimer = setTimeout(() => connect(channel), 10000)
-    })
-
-    client.connect().catch(e => {
-        console.error('[Twitch] Error al conectar:', e.message || e)
-        reconnectTimer = setTimeout(() => connect(channel), 10000)
-    })
-}
-
-function emit_ban_event(username, duration) {
-    if (emitEvento) emitEvento({ plat: 'TW', type: 'ban', user: username, userId: username, avatar: null, text: duration ? `timeout ${duration}s` : 'baneado', count: 0 })
+        if (reconnectTimer) clearTimeout(reconnectTimer)
+        reconnectTimer = setTimeout(() => connect(channel), 30000)
+    }
 }
 
 export async function say(channel, text) {
-    if (!clientRef) throw new Error('No conectado a Twitch')
-    if (!config.twitchToken) throw new Error('Token requerido para enviar mensajes')
-    const targetChannel = channel.startsWith('#') ? channel.toLowerCase() : `#${channel.toLowerCase()}`
-    return clientRef.say(targetChannel, text)
+    try {
+        if (!clientRef || clientRef.readyState() !== 'OPEN') throw new Error('Not connected to Twitch chat.')
+        if (!config.twitchToken) throw new Error('Twitch token is required to send messages.')
+        const targetChannel = channel.startsWith('#') ? channel.toLowerCase() : `#${channel.toLowerCase()}`
+        return clientRef.say(targetChannel, text)
+    } catch (e) {
+        console.error('[Twitch] Error sending message:', e.message)
+        throw e
+    }
 }
 
 export function getChannelId() { return channelId }
-export function getClient() { return clientRef }
+
+export function isConnected() {
+    return clientRef && clientRef.readyState() === 'OPEN'
+}
