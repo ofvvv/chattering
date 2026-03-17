@@ -1,9 +1,9 @@
-
 socket.on('chat_message', (data) => {
+    window.electronAPI.logError(`[DIAGNÓSTICO] chat_message recibido: ${JSON.stringify(data)}`);
     try {
         renderMessage(data);
     } catch (e) {
-        window.electronAPI.logError(`[socket-chat_message] Render Error: ${e.message}`);
+        window.electronAPI.logError(`[socket-chat_message] Error de renderizado: ${e.message}`);
     }
 });
 
@@ -14,7 +14,7 @@ socket.on('stream_event', (data) => {
             playSound(data.sound);
         }
     } catch (e) {
-        window.electronAPI.logError(`[socket-stream_event] Render/Sound Error: ${e.message}`);
+        window.electronAPI.logError(`[socket-stream_event] Error de renderizado/sonido: ${e.message}`);
     }
 });
 
