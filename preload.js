@@ -7,6 +7,7 @@ const ALLOWED_CHANNELS = [
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // --- Invocaciones (Renderer -> Main) ---
+    logError:           (err) => ipcRenderer.send('log-error', err),
     minimize:           () => ipcRenderer.send('win-minimize'),
     maximize:           () => ipcRenderer.send('win-maximize'),
     close:              () => ipcRenderer.send('win-close'),

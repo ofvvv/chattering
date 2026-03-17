@@ -1,3 +1,18 @@
+window.addEventListener('error', (event) => {
+    const error = event.error;
+    const message = error.message;
+    const stack = error.stack;
+    const filename = event.filename || (stack ? stack.split('\n')[1].match(/\((.*):\d+:\d+\)/)?.[1].split('/').pop() : 'archivo desconocido');
+
+    const errorMessage = `ERROR IN ${filename.toUpperCase()}: ${message}\n${stack}`;
+
+    if (window.electronAPI && typeof window.electronAPI.logError === 'function') {
+        window.electronAPI.logError(errorMessage);
+    } else {
+        console.error('Fallback: ', errorMessage);
+    }
+});
+
 const SERVER='http://localhost:3000'
 const socket=io(SERVER,{reconnectionDelay:2000,reconnectionAttempts:20})
 let cfg={}

@@ -219,6 +219,10 @@ app.on('window-all-closed', () => {
 
 // ─── IPC HANDLERS ────────────────────────────────────────────────────────────
 
+ipcMain.on('log-error', (_event, errorLog) => {
+    writeLog(`[Renderer Process] ${errorLog}`);
+});
+
 ipcMain.on('win-minimize', () => mainWindow?.minimize())
 ipcMain.on('win-maximize', () => { mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize() })
 ipcMain.on('win-close', () => mainWindow?.close())
