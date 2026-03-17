@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 // Lista blanca de canales seguros para la comunicación bidireccional
 const ALLOWED_CHANNELS = [
-    'update-info', 'settings-saved', 'dock-detached', 'dock-reattached'
+    'update-info', 'settings-saved', 'settings-preview', 'dock-detached', 'dock-reattached'
 ];
 
 contextBridge.exposeInMainWorld('electronAPI', {

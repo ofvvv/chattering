@@ -70,12 +70,9 @@ let serverProc = null
 let pendingPopup = null
 
 // ─── PATHS ───────────────────────────────────────────────────────────────────
-// En modo desarrollo, __dirname es la raíz del proyecto.
-// En modo empaquetado (asar:false), __dirname es /resources/app/
 const APP_ROOT = app.isPackaged ? path.join(__dirname, '..') : __dirname
 
 function getResourcePath(...parts) {
-    // En dev, los recursos están en la raíz. En prod, están en /resources/.
     return path.join(app.isPackaged ? process.resourcesPath : __dirname, ...parts)
 }
 
@@ -108,11 +105,11 @@ function startServer() {
 
         if (!fs.existsSync(serverPath)) {
             writeLog(`[Main] FATAL: server.js not found at ${serverPath}`)
-            return resolve() // Resolve to not block app startup
+            return resolve()
         }
 
         serverProc = fork(serverPath, [], {
-            cwd: __dirname, // CRITICAL: Sets the correct working directory for the child process.
+            cwd: __dirname,
             env: { ...process.env, CONFIG_PATH, PORT: '3000', ELECTRON_RUN_AS_NODE: '1' },
             stdio: ['pipe', 'pipe', 'pipe', 'ipc']
         })
@@ -185,7 +182,6 @@ function createMainWindow(isSetup) {
 
 // ─── APP LIFECYCLE ───────────────────────────────────────────────────────────
 
-// Prevent multiple instances
 if (!app.requestSingleInstanceLock()) {
     app.quit()
 }
@@ -196,7 +192,6 @@ app.on('second-instance', () => {
     }
 })
 
-// Disable hardware acceleration if requested
 const initialConfig = loadConfig()
 if (initialConfig?.disableHWAccel) app.disableHardwareAcceleration()
 
@@ -210,11 +205,10 @@ app.whenReady().then(async () => {
     writeLog(`[Main] __dirname: ${__dirname}`)
     writeLog(`[Main] isPackaged: ${app.isPackaged}`)
 
-    // CRITICAL: Start the server BEFORE any window is created.
     await startServer()
 
     const config = loadConfig()
-    createMainWindow(!config) // If no config, show setup (true)
+    createMainWindow(!config)
     
     setupAutoUpdater(config)
 })
@@ -225,27 +219,24 @@ app.on('window-all-closed', () => {
 
 // ─── IPC HANDLERS ────────────────────────────────────────────────────────────
 
-// Window Controls
 ipcMain.on('win-minimize', () => mainWindow?.minimize())
 ipcMain.on('win-maximize', () => { mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize() })
 ipcMain.on('win-close', () => mainWindow?.close())
 ipcMain.handle('set-always-on-top', (_e, flag) => { mainWindow?.setAlwaysOnTop(!!flag, 'floating'); if(flag) mainWindow?.setMovable(true) })
 
-// Generic
 ipcMain.handle('open-external', (_e, url) => { shell.openExternal(url) })
 ipcMain.handle('get-version', () => APP_VERSION)
 
-// Config & Setup
 ipcMain.handle('get-config', () => loadConfig())
 ipcMain.handle('save-config', async (_e, cfg) => {
     saveConfig(cfg)
     mainWindow?.setAlwaysOnTop(cfg.alwaysOnTop === true, 'floating')
-    await startServer() // Restart server with new config
+    await startServer()
     mainWindow?.loadFile(path.join(__dirname, 'public', 'index.html'))
     return true
 })
 ipcMain.on('setup-complete', async () => {
-    await startServer() // Ensure server is running with latest config
+    await startServer()
     mainWindow?.loadFile(path.join(__dirname, 'public', 'index.html'))
 })
 ipcMain.handle('reset-config', async () => {
@@ -254,12 +245,11 @@ ipcMain.handle('reset-config', async () => {
         await require('electron').session.fromPartition('persist:tiktok').clearStorageData()
     } catch (e) { writeLog('[Reset] Failed to clear TikTok session: ' + e.message) }
     
-    await startServer() // Restart server for a clean state
+    await startServer()
     mainWindow?.loadFile(path.join(__dirname, 'public', 'setup.html'))
     return true
 })
 
-// Settings Window
 let settingsWindow = null
 ipcMain.handle('open-settings', () => {
     if (settingsWindow && !settingsWindow.isDestroyed()) { settingsWindow.focus(); return }
@@ -272,6 +262,14 @@ ipcMain.handle('open-settings', () => {
     settingsWindow.on('closed', () => { settingsWindow = null })
 })
 ipcMain.handle('close-settings', () => { settingsWindow?.close() })
+
+// ESTE ES EL HANDLER QUE FALTABA
+ipcMain.handle('preview-settings', (event, partialConfig) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('settings-preview', partialConfig);
+    }
+});
+
 ipcMain.handle('save-settings', async (_e, cfg) => {
     saveConfig(cfg)
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -291,15 +289,12 @@ ipcMain.handle('save-settings', async (_e, cfg) => {
     return true
 })
 
-// Changelog & Versioning
 ipcMain.handle('get-last-seen-version', () => getLastSeenVersion())
 ipcMain.handle('set-last-seen-version', (_e, v) => { setLastSeenVersion(v) })
 
-// Popups (User Profile)
 ipcMain.handle('open-popup', (_e, userData) => { openPopupWindow(userData) })
 ipcMain.handle('get-popup-data', () => pendingPopup)
 
-// Twitch Auth
 const TWITCH_CLIENT_ID = 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt'
 const REDIRECT_URI     = 'http://localhost:3000/oauth/callback'
 const OAUTH_SCOPES     = 'chat:read chat:edit channel:moderate moderator:manage:banned_users user:manage:chat_color'
@@ -311,7 +306,6 @@ ipcMain.handle('login-twitch', async () => {
     return { success: true }
 })
 
-// Auto-Updater
 let updateChangelogWindow = null
 function setupAutoUpdater(config) {
     if (!autoUpdater) return
@@ -322,7 +316,6 @@ function setupAutoUpdater(config) {
     autoUpdater.on('update-downloaded', (info) => {
         writeLog('[Updater] Download complete: v' + info.version)
         const notes = getStreamerChangelog(info.version)
-        // Create window to show changelog and ask to restart
         if (updateChangelogWindow && !updateChangelogWindow.isDestroyed()) return
         updateChangelogWindow = new BrowserWindow({
             width: 420, height: 380, resizable: false, frame: false, backgroundColor: '#18181b',

@@ -184,7 +184,7 @@ const KNOWN_BOTS=['nightbot','streamelements','fossabot','moobot','wizebot','bot
 
 const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return TC[Math.abs(h)%TC.length]}
 const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>'};return icons[spl]||icons.TT}
-const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c])
+const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c])
 const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank')
 const nextBg=even=>{msgLineCounter++;return msgLineCounter%2===0?'linea-bg-even':'linea-bg-odd'}
 
@@ -285,33 +285,29 @@ function chipAllowsMsg(d) {
 
 // ── LAYOUT ────────────────────────────────────────────────────────────────────
 function setDockPosition(pos) {
-    document.getElementById('main-layout').classList.toggle('dock-bottom',pos==='bottom')
-    const dockTop = document.getElementById('layout-dock-top');
-    const dockBottom = document.getElementById('layout-dock-bottom');
-    if (dockTop) dockTop.classList.toggle('active',pos==='top');
-    if (dockBottom) dockBottom.classList.toggle('active',pos==='bottom');
-    cfg.dockPosition=pos;
+    document.getElementById('main-layout').classList.toggle('dock-bottom', pos === 'bottom');
 }
 function setDockHeight(h) {
     document.getElementById('top-dock').style.height=h+'px';
-    const dockHeightSlider = document.getElementById('s-dock-height');
-    const dockHeightVal = document.getElementById('dock-height-val');
-    if (dockHeightSlider) dockHeightSlider.value=h;
-    if (dockHeightVal) dockHeightVal.textContent=h+'px';
     cfg.dockHeight=h;
 }
-;(function initDockResize(){
-    const handle=document.getElementById('dock-resize-handle'),dock=document.getElementById('top-dock')
+function initDockResize(){
+    const handle=document.getElementById('dock-resize-handle');
+    const dock=document.getElementById('top-dock');
     if (!handle || !dock) return;
-    let dragging=false,startY=0,startH=0
-    handle.addEventListener('mousedown',e=>{dragging=true;startY=e.clientY;startH=dock.offsetHeight;document.body.style.cursor='ns-resize';e.preventDefault()})
+    let dragging=false,startY=0,startH=0;
+    handle.addEventListener('mousedown',e=>{
+        dragging=true;startY=e.clientY;startH=dock.offsetHeight;
+        document.body.style.cursor='ns-resize';e.preventDefault();
+    });
     document.addEventListener('mousemove',e=>{
-        if(!dragging)return
-        const isBottom=document.getElementById('main-layout').classList.contains('dock-bottom')
-        const delta=isBottom?startY-e.clientY:e.clientY-startY
-        setDockHeight(Math.max(40,Math.min(240,startH+delta)))
-    })
-    document.addEventListener('mouseup',()=>{dragging=false;document.body.style.cursor=''})})()
+        if(!dragging)return;
+        const isBottom=document.getElementById('main-layout').classList.contains('dock-bottom');
+        const delta=isBottom?startY-e.clientY:e.clientY-startY;
+        setDockHeight(Math.max(40,Math.min(240,startH+delta)));
+    });
+    document.addEventListener('mouseup',()=>{dragging=false;document.body.style.cursor=''});
+}
 
 // ── EMOTES ────────────────────────────────────────────────────────────────────
 async function cargarEmotes(config) {
@@ -359,10 +355,8 @@ async function cargarEmotes(config) {
 function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
     if (!text) return '';
 
-    // 1. Tokenize by space to handle words and emotes
     let tokens = [{ type: 'text', content: text }];
 
-    // 2. PRIORIDAD NATIVA: Parsear emotes nativos de Twitch
     if (plat === 'TW' && twitchEmotes) {
         const nativeEmotes = [];
         for (const [id, positions] of Object.entries(twitchEmotes)) {
@@ -372,7 +366,6 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
                 nativeEmotes.push({ name, start, end, id });
             }
         }
-        // Ordenar por posición de inicio para procesar en orden
         nativeEmotes.sort((a, b) => a.start - b.start);
 
         let lastIndex = 0;
@@ -390,9 +383,7 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
         tokens = newTokens;
     }
 
-    // 3. Parsear emotes de YouTube (si los hay)
     if (plat === 'YT' && ytEmotes) {
-        // Similar al de Twitch, pero con la data de YT
         let lastIndex = 0;
         const newTokens = [];
         const sortedYtEmotes = [...ytEmotes].sort((a,b) => text.indexOf(a.placeholder) - text.indexOf(b.placeholder));
@@ -413,7 +404,6 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
         tokens = newTokens;
     }
 
-    // 4. Parsear emotes de terceros (7TV, BTTV, FFZ) SOLO en los tokens de texto restantes
     const finalTokens = [];
     const thirdPartyEmoteKeys = Object.keys(emoteMap).sort((a, b) => b.length - a.length);
 
@@ -435,14 +425,13 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
                 parts.push(esc(word));
             }
             if (index < words.length - 1) {
-                parts.push(' '); // Re-add space
+                parts.push(' ');
             }
         });
         
         finalTokens.push({ type: 'text', content: parts.join('') });
     }
 
-    // 5. Unir todos los tokens en el string final
     return finalTokens.map(t => t.type === 'emote' ? t.html : t.content).join('');
 }
 
@@ -521,7 +510,7 @@ function showPreview(d,el){
     if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
     lpTitle.textContent=d.title||''
     lpDesc.textContent=d.description||''
-    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}}else{lpImg.style.display='none'}
+    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>lpImg.style.display='none'}else{lpImg.style.display='none'}
     try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
     lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
     requestAnimationFrame(()=>{
@@ -533,170 +522,58 @@ function showPreview(d,el){
     })
 }
 
-// ── TAGS INPUT (blocked words + highlights) ───────────────────────────────────
-function makeTagsInput(containerId, inputId, chipClass='') {
-    const container=document.getElementById(containerId)
-    const input=document.getElementById(inputId)
-    const chips=[]
-
-    function render() {
-        container.querySelectorAll('.tag-chip').forEach(c=>c.remove())
-        chips.forEach((word,i)=>{
-            const chip=document.createElement('span')
-            chip.className=`tag-chip${chipClass?' '+chipClass:''}`
-            chip.innerHTML=`${esc(word)} <button onclick="removeTag(this)">×</button>`
-            chip.dataset.word=word
-            chip.querySelector('button').addEventListener('click',()=>{chips.splice(i,1);render()})
-            container.insertBefore(chip,input)
-        })
-    }
-    input.addEventListener('keydown',e=>{
-        if(e.key==='Enter'||e.key===','){
-            e.preventDefault()
-            const v=input.value.trim().toLowerCase()
-            if(v&&!chips.includes(v)){chips.push(v);render()}
-            input.value=''
-        } else if(e.key==='Backspace'&&!input.value&&chips.length){
-            chips.pop();render()
-        }
-    })
-    return {
-        get:()=>[...chips],
-        set:(arr)=>{chips.length=0;(arr||[]).forEach(w=>chips.push(w));render()}
-    }
-}
-
-const blockedTags   = { get:()=>cfg.blockedWords||[], set:()=>{} }
-const highlightTags = { get:()=>cfg.customHighlights||[], set:()=>{} }
-
-// ── SEARCH ────────────────────────────────────────────────────────────────────
-let searchActive=false, searchResults=[], searchIndex=0
-
-function openSearch() {
-    searchActive=true
-    document.getElementById('search-bar').classList.add('open')
-    document.getElementById('search-input').focus()
-}
-function closeSearch() {
-    searchActive=false
-    document.getElementById('search-bar').classList.remove('open')
-    document.getElementById('search-input').value=''
-    clearSearchHighlights()
-    document.getElementById('search-count').textContent=''
-}
-function clearSearchHighlights() {
-    document.querySelectorAll('.search-match,.search-match-current').forEach(el=>{
-        el.classList.remove('search-match','search-match-current')
-    })
-    searchResults=[]
-}
-function runSearch(query) {
-    clearSearchHighlights()
-    if(!query.trim()){document.getElementById('search-count').textContent='';return}
-    const q=query.trim().toLowerCase()
-    let userFilter=null, typeFilter=null, text=q
-    const fromM=q.match(/from:(\S+)/)
-    if(fromM){userFilter=fromM[1];text=text.replace(fromM[0],'').trim()}
-    const isM=q.match(/is:(\S+)/)
-    if(isM){typeFilter=isM[1];text=text.replace(isM[0],'').trim()}
-
-    const lines=[...document.querySelectorAll('#chat .linea')]
-    lines.forEach(line=>{
-        let match=true
-        const lineUser=(line.querySelector('.user')?.textContent||'').toLowerCase()
-        const lineText=(line.querySelector('.text')?.textContent||'').toLowerCase()
-        const isSub=line.dataset.sub==='true'
-        const isMod=line.dataset.mod==='true'
-        if(userFilter&&!lineUser.includes(userFilter)) match=false
-        if(typeFilter==='sub'&&!isSub) match=false
-        if(typeFilter==='mod'&&!isMod) match=false
-        if(text&&!lineText.includes(text)&&!lineUser.includes(text)) match=false
-        if(match){line.classList.add('search-match');searchResults.push(line)}
-    })
-    searchIndex=0
-    if(searchResults.length){
-        searchResults[0].classList.add('search-match-current')
-        searchResults[0].scrollIntoView({block:'nearest'})
-    }
-    document.getElementById('search-count').textContent=searchResults.length?`${searchIndex+1}/${searchResults.length}`:'0 resultados'
-}
-function searchNext() {
-    if(!searchResults.length)return
-    searchResults[searchIndex].classList.remove('search-match-current')
-    searchIndex=(searchIndex+1)%searchResults.length
-    searchResults[searchIndex].classList.add('search-match-current')
-    searchResults[searchIndex].scrollIntoView({block:'nearest'})
-    document.getElementById('search-count').textContent=`${searchIndex+1}/${searchResults.length}`
-}
-
-// ── HOTKEYS ───────────────────────────────────────────────────────────────────
-document.addEventListener('keydown',e=>{
-    const tag=document.activeElement?.tagName
-    const inInput=tag==='INPUT'||tag==='TEXTAREA'
-
-    if(e.ctrlKey&&e.key==='f'){e.preventDefault();openSearch();return}
-    if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('chat').innerHTML='';msgLineCounter=0;totalMsgCount=0;return}
-    if(e.key==='F5'){e.preventDefault();location.reload();return}
-    if(e.key==='Escape'&&document.querySelector('.popup-open')){/* handled in popup.html */}
-    if(e.key===','&&!inInput){e.preventDefault();window.electronAPI.openSettings();return}
-
-    if(e.key==='Escape'){
-        if(searchActive){closeSearch();return}
-        if(emoteCtx.classList.contains('open')){closeEmoteCtx();return}
-        if(document.getElementById('filter-bar')?.classList.contains('open')){document.getElementById('filter-bar').classList.remove('open');return}
-        lpDiv.classList.remove('visible')
-        return
-    }
-    if(e.key==='Enter'&&searchActive&&!inInput){searchNext();return}
-    if(e.key==='F3'||((e.key==='g')&&e.ctrlKey)){e.preventDefault();searchNext()}
-})
-
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
 window.electronAPI.on('settings-saved', newCfg => {
-    cfg = newCfg
-    aplicarConfig()
-    syncFilterChips()
-    showToast('✓ Configuración guardada')
-    if(newCfg.show7tvGlobal!==undefined) cargarEmotes(newCfg)
-})
+    cfg = newCfg;
+    aplicarConfig();
+    syncFilterChips();
+    showToast('✓ Configuración guardada');
+    if(newCfg.show7tvGlobal!==undefined) cargarEmotes(newCfg);
+});
+
+// ESTA ES LA NUEVA PARTE PARA LA VISTA PREVIA
+window.electronAPI.on('settings-preview', partialCfg => {
+    const previewCfg = { ...cfg, ...partialCfg };
+    aplicarConfig(previewCfg); 
+});
+
 async function resetConfig(){
     if(!confirm('¿Volver al setup inicial? Se borrará la configuración.'))return
     await window.electronAPI.resetConfig()
 }
-function aplicarConfig(){
+function aplicarConfig(configToApply = cfg){
     const chat=document.getElementById('chat')
-    if(chat) chat.style.fontSize=(cfg.fontSize||13.5)+'px'
-    document.getElementById('test-panel')?.classList.toggle('visible',cfg.showTestButtons===true)
-    setDockPosition(cfg.dockPosition||'top')
-    setDockHeight(cfg.dockHeight||82)
+    if(chat) chat.style.fontSize=(configToApply.fontSize||13.5)+'px'
+    document.getElementById('test-panel')?.classList.toggle('visible', configToApply.showTestButtons === true)
+    setDockPosition(configToApply.dockPosition || 'top')
+    setDockHeight(configToApply.dockHeight || 82)
 
-    document.body.classList.toggle('compact', cfg.compact===true)
+    document.body.classList.toggle('compact', configToApply.compact===true)
     document.body.classList.remove('av-none','av-square','av-squircle','av-circle')
-    document.body.classList.add('av-'+(cfg.avatarShape||'none'))
-    document.body.classList.toggle('accessibility', cfg.accessibility===true)
-    document.body.classList.toggle('no-anim', cfg.msgAnimation===false)
-    if(chat) chat.classList.toggle('scroll-invert', cfg.scrollInvert===true)
-    document.body.classList.toggle('translucent', cfg.translucent===true)
-    if(cfg.translucent) {
-        const op = (cfg.windowOpacity||90)/100
+    document.body.classList.add('av-'+(configToApply.avatarShape||'none'))
+    document.body.classList.toggle('accessibility', configToApply.accessibility===true)
+    document.body.classList.toggle('no-anim', configToApply.msgAnimation===false)
+    if(chat) chat.classList.toggle('scroll-invert', configToApply.scrollInvert===true)
+    document.body.classList.toggle('translucent', configToApply.translucent===true)
+    if(configToApply.translucent) {
+        const op = (configToApply.windowOpacity||90)/100
         document.body.style.setProperty('--translucent-opacity', op)
     }
 
-    // Aplicar tema
     document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sakura');
-    const theme = cfg.theme || 'dark';
+    const theme = configToApply.theme || 'dark';
     if (theme && theme !== 'dark') {
         document.body.classList.add('theme-' + theme);
     }
 
-    window.electronAPI?.setAlwaysOnTop(cfg.alwaysOnTop===true)
+    window.electronAPI?.setAlwaysOnTop(configToApply.alwaysOnTop===true)
 
     const bar=document.getElementById('chat-input-bar')
     if(bar){
-        const hasAny=!!(cfg.twitchToken||cfg.tiktokUser||cfg.youtubeChannelId)
+        const hasAny=!!(configToApply.twitchToken||configToApply.tiktokUser||configToApply.youtubeChannelId)
         bar.classList.toggle('disabled', !hasAny)
         const field=document.getElementById('chat-input-field')
-        if(field) field.placeholder=cfg.twitchToken?'Escribe un mensaje... (:emote /cmd)':'Conecta una plataforma en ⚙ para escribir'
+        if(field) field.placeholder=configToApply.twitchToken?'Escribe un mensaje... (:emote /cmd)':'Conecta una plataforma en ⚙ para escribir'
     }
 }
 
@@ -1065,434 +942,13 @@ function te(tipo){
     fetch(`${SERVER}/test/${tipo}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b[tipo])}).catch(console.error)
 }
 
-// ── TTS ───────────────────────────────────────────────────────────────────────
-let ttsQueue=[], ttsBusy=false
-let ttsVoiceIdx=0   
-let ttsVoiceList=[] 
-
-function getTTSVoices(){
-    if(ttsVoiceList.length) return ttsVoiceList
-    const all=speechSynthesis.getVoices()
-    const es=all.filter(v=>v.lang.startsWith('es'))
-    const en=all.filter(v=>v.lang.startsWith('en'))
-    ttsVoiceList = es.length >= 2 ? es : es.length === 1 ? [...es,...en] : en.length ? en : all
-    return ttsVoiceList
-}
-speechSynthesis.addEventListener('voiceschanged',()=>{ ttsVoiceList=[] })
-
-function speakMsg(d){
-    if(!cfg.ttsEnabled || !cfg['tts'+d.plat]) return;
-
-    let textToSpeak = d.text || '';
-
-    if (cfg.ttsNoEmoji !== false) {
-        // Regex para eliminar emojis, incluidos los que tienen variaciones de tono de piel y género
-        textToSpeak = textToSpeak.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F004}-\u{1F0CF}]/gu, '');
-        // Eliminar también los emotes de Twitch/7TV por su nombre
-        if (d.plat === 'TW') {
-            Object.keys(emoteMap).forEach(emoteName => {
-                textToSpeak = textToSpeak.replace(new RegExp(`\\b${emoteName}\\b`, 'g'), '');
-            });
-        }
-    }
-
-    // Limpiar texto restante y añadir nombre de usuario si es necesario
-    const cleanText = textToSpeak.replace(/https?:\/\/\S+/g, 'link').trim();
-    const text = cfg.ttsNoName ? cleanText : `${d.user}: ${cleanText}`;
-    if(!text) return;
-
-    const MAX_TTS_QUEUE=50;
-    if(ttsQueue.length>=MAX_TTS_QUEUE)ttsQueue.shift();
-    ttsQueue.push({text,plat:d.plat,user:d.user});
-    if(!ttsBusy) flushTTS();
-}
-function flushTTS(){
-    if(!ttsQueue.length){ttsBusy=false;return}
-    ttsBusy=true
-    const {text,plat}=ttsQueue.shift()
-    const utt=new SpeechSynthesisUtterance(text)
-    utt.lang='es-MX'
-    utt.volume=Math.min((cfg.soundVolume||60)/100,1)
-
-    const voices=getTTSVoices()
-    if(voices.length>0){
-        utt.voice=voices[ttsVoiceIdx % voices.length]
-        ttsVoiceIdx++
-        const variation=ttsVoiceIdx%4
-        utt.rate  = [1.0, 1.08, 0.95, 1.05][variation]
-        utt.pitch = [1.0, 1.15, 0.88, 1.08][variation]
-    } else {
-        const v=ttsVoiceIdx++%4
-        utt.rate  = [1.0, 1.08, 0.95, 1.05][v]
-        utt.pitch = [1.0, 1.15, 0.88, 1.08][v]
-    }
-
-    utt.onend=()=>flushTTS()
-    utt.onerror=()=>{ ttsVoiceIdx++; flushTTS() }
-    speechSynthesis.speak(utt)
-}
-
-// ── CHAT INPUT ────────────────────────────────────────────────────────────────
-const sentHistory = []
-let histIdx = -1
-
-function pushSentHistory(text) {
-    if (!text) return
-    if (sentHistory[0] === text) return  
-    sentHistory.unshift(text)
-    if (sentHistory.length > 50) sentHistory.pop()
-    histIdx = -1
-}
-
-async function sendChatMsg(){
-    const input=document.getElementById('chat-input-field')
-    const plat=document.getElementById('chat-plat-sel')?.value||'TW'
-    const text=(input.value||'').trim()
-    if(!text) return
-
-    pushSentHistory(text);
-
-    if(text.startsWith('/') && plat==='TW'){
-        const parts=text.split(' ')
-        const cmd=parts[0].toLowerCase()
-        const target=parts[1]?.replace('@','')
-        const rest=parts.slice(2).join(' ')
-
-        const tmiCommands=['/ban','/unban','/timeout','/untimeout','/mod','/unmod',
-            '/vip','/unvip','/clear','/color','/commercial','/emoteonly','/emoteonlyoff',
-            '/subscribers','/subscribersoff','/slow','/slowoff','/me','/w','/host','/unhost']
-
-        if(tmiCommands.includes(cmd)){
-            input.value=''
-            try{
-                const r=await fetch(`${SERVER}/api/send-message`,{
-                    method:'POST',headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({text,platform:'TW',isCommand:true})
-                })
-                const d=await r.json()
-                if(!d.ok) showToast(`⚠ ${d.error||'Error al ejecutar comando'}`)
-                else showToast(`✓ ${cmd}${target?' → '+target:''}`)
-            }catch(e){ showToast('⚠ Sin conexión al servidor') }
-            return
-        }
-    }
-
-    if(replyTo){
-        const fullText=`@${replyTo.user} ${text}`
-        input.value=''
-        cancelReply()
-        try{
-            const r=await fetch(`${SERVER}/api/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:fullText,platform:plat})})
-            const d=await r.json()
-            if(!d.ok) showToast(`⚠ ${d.error||'Error al enviar'}`)
-        }catch(e){ showToast('⚠ Sin conexión al servidor') }
-        return
-    }
-
-    input.value=''
-    try{
-        const r=await fetch(`${SERVER}/api/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,platform:plat})})
-        const d=await r.json()
-        if(!d.ok) showToast(`⚠ ${d.error||'Error al enviar'}`)
-    }catch(e){ showToast('⚠ Sin conexión al servidor') }
-}
-
-document.addEventListener('click',e=>{
-    const link=e.target.closest('a.chat-link')
-    if(!link)return
-    e.preventDefault()
-    const url=link.dataset.href
-    if(url) window.electronAPI.openExternal(url)
-})
-
-function showSkeleton(){
-    document.getElementById('skeleton-overlay').classList.add('visible')
-}
-function hideSkeleton(){
-    document.getElementById('skeleton-overlay').classList.remove('visible')
-}
-
-async function settingsLoginTwitch(){
-    const btn=document.getElementById('s-tw-oauth-btn')
-    const lbl=document.getElementById('s-tw-oauth-label')
-    const st=document.getElementById('tw-token-status')
-    lbl.textContent='Esperando...'
-    st.textContent='Abre el navegador para autorizar...';st.style.color='#888'
-    btn.style.pointerEvents='none'
-    try{
-        const result=await window.electronAPI.loginTwitch()
-        if(result?.success && result.token){
-            let login=''
-            try{
-                const r=await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:result.token})})
-                const d=await r.json()
-                if(d.ok) login=d.login||''
-            }catch{}
-            document.getElementById('s-tw-token').value=result.token
-            if(login) document.getElementById('s-tw').value=login
-            lbl.textContent='✓ Conectado'+(login?' como '+login:'')
-            btn.style.background='#1a4a1a';btn.style.border='1px solid #53fc18';btn.style.color='#53fc18'
-            st.textContent='';
-            document.getElementById('chat-input-bar').classList.add('visible')
-            showToast('✓ Twitch conectado'+(login?' como '+login:''))
-        } else {
-            lbl.textContent='Conectar con Twitch'
-            btn.style.cssText=''
-            st.textContent=result?.error||'Cancelado';st.style.color='#666'
-        }
-    }catch(e){
-        lbl.textContent='Conectar con Twitch'
-        btn.style.cssText=''
-        st.textContent='Error: '+e.message;st.style.color='#ff6060'
-    }
-    btn.style.pointerEvents=''
-}
-
-const TWITCH_COMMANDS=[
-    {name:'/ban',desc:'Banear usuario: /ban [usuario] [razón]'},
-    {name:'/timeout',desc:'Silenciar: /timeout [usuario] [segundos]'},
-    {name:'/unban',desc:'Desbanear: /unban [usuario]'},
-    {name:'/mod',desc:'Dar mod: /mod [usuario]'},
-    {name:'/unmod',desc:'Quitar mod: /unmod [usuario]'},
-    {name:'/vip',desc:'Dar VIP: /vip [usuario]'},
-    {name:'/unvip',desc:'Quitar VIP: /unvip [usuario]'},
-    {name:'/clear',desc:'Limpiar chat'},
-    {name:'/slow',desc:'Modo lento: /slow [segundos]'},
-    {name:'/slowoff',desc:'Desactivar modo lento'},
-    {name:'/subscribers',desc:'Modo solo subs'},
-    {name:'/subscribersoff',desc:'Desactivar modo subs'},
-    {name:'/emoteonly',desc:'Solo emotes'},
-    {name:'/emoteonlyoff',desc:'Desactivar solo emotes'},
-    {name:'/color',desc:'Cambiar color de nombre'},
-    {name:'/me',desc:'Acción en el chat'},
-    {name:'/w',desc:'Susurro: /w [usuario] [mensaje]'},]
-
-let acItems=[], acIndex=-1
-
-const acDiv=document.getElementById('chat-autocomplete')
-const chatField=document.getElementById('chat-input-field')
-
-function closeAC(){acDiv.classList.remove('open');acItems=[];acIndex=-1}
-
-function buildAC(q){
-    acDiv.innerHTML='';acItems=[];acIndex=-1
-    if(!q){closeAC();return}
-    const ql=q.toLowerCase()
-    let results=[]
-    if(q.startsWith('/')){
-        results=TWITCH_COMMANDS.filter(c=>c.name.startsWith(ql)).slice(0,8)
-        results.forEach((c,i)=>{
-            const d=document.createElement('div')
-            d.className='ac-item ac-cmd'
-            d.innerHTML=`<span class="ac-name">${esc(c.name)}</span><span style="font-size:10px;color:#555;flex:1;margin-left:8px">${esc(c.desc)}</span>`
-            d.addEventListener('mousedown',e=>{e.preventDefault();chatField.value=c.name+' ';closeAC();chatField.focus()})
-            acDiv.appendChild(d);acItems.push(d)
-        })
-    } else {
-        results=Object.entries(emoteMap).filter(([n])=>n.toLowerCase().startsWith(ql)).slice(0,10)
-        results.forEach(([name,e],i)=>{
-            const d=document.createElement('div')
-            d.className='ac-item'
-            d.innerHTML=`<img src="${esc(e.url)}" alt=""><span class="ac-name">${esc(name)}</span><span class="ac-plat">${esc(e.platform||'')}</span>`
-            d.addEventListener('mousedown',ev=>{
-                ev.preventDefault()
-                const val=chatField.value
-                const colon=val.lastIndexOf(':')
-                chatField.value=(colon>=0?val.slice(0,colon):val)+name+' '
-                closeAC();chatField.focus()
-            })
-            acDiv.appendChild(d);acItems.push(d)
-        })
-    }
-    if(acItems.length) acDiv.classList.add('open')
-    else closeAC()
-}
-
-function acNavigate(dir){
-    if(!acItems.length)return true 
-    acItems.forEach(i=>i.classList.remove('selected'))
-    acIndex=((acIndex+dir)+acItems.length)%acItems.length
-    acItems[acIndex].classList.add('selected')
-    acItems[acIndex].scrollIntoView({block:'nearest'})
-    return false
-}
-
-chatField?.addEventListener('input',()=>{ 
-    const val=chatField.value
-    if(val.startsWith('/')){
-        buildAC(val)
-    } else {
-        const m=val.match(/:([a-zA-Z0-9_]{2,})$/)
-        if(m) buildAC(m[1])
-        else closeAC()
-    }
-})
-
-chatField?.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-        if(acDiv.classList.contains('open')&&acIndex>=0){
-            e.preventDefault();acItems[acIndex].dispatchEvent(new MouseEvent('mousedown'));return
-        }
-        e.preventDefault();sendChatMsg()
-    }
-    if(e.key==='Tab'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(1)}
-    if(e.key==='ArrowDown'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(1)}
-    if(e.key==='ArrowUp'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(-1)}
-    if(e.key==='Escape'){closeAC()}
-    if(!acDiv.classList.contains('open')){
-        if(e.key==='ArrowUp'){
-            e.preventDefault()
-            if(sentHistory.length===0) return
-            histIdx = Math.min(histIdx+1, sentHistory.length-1)
-            chatField.value = sentHistory[histIdx] || ''
-            setTimeout(()=>chatField.setSelectionRange(chatField.value.length,chatField.value.length),0)
-        }
-        if(e.key==='ArrowDown'){
-            e.preventDefault()
-            histIdx = Math.max(histIdx-1, -1)
-            chatField.value = histIdx < 0 ? '' : (sentHistory[histIdx] || '')
-        }
-    }
-})
-
-document.addEventListener('click',e=>{
-    if(!e.target.closest('#chat-input-bar'))closeAC()
-})
-
-let replyTo = null 
-
-function startReply(user, text, msgId) {
-    replyTo = { user, text, msgId }
-    document.getElementById('reply-bar').classList.add('open')
-    document.getElementById('reply-user').textContent = user
-    document.getElementById('reply-text').textContent = text.slice(0,60)+(text.length>60?'…':'')
-    document.getElementById('chat-input-field')?.focus()
-}
-
-function cancelReply() {
-    replyTo = null
-    document.getElementById('reply-bar').classList.remove('open')
-}
-
-let epOpen = false
-
-function buildEmotePicker() {
-    const grid = document.getElementById('ep-grid')
-    if(!grid) return
-    grid.innerHTML = ''
-    Object.entries(emoteMap).slice(0,200).forEach(([name, e]) => {
-        const item = document.createElement('div')
-        item.className = 'ep-item'
-        item.title = name
-        item.dataset.name = name
-        item.innerHTML = `<img src="${esc(e.url)}" alt="${esc(name)}" loading="lazy">`
-        item.addEventListener('click', () => {
-            const field = document.getElementById('chat-input-field')
-            if(field){ field.value += name+' '; field.focus() }
-            toggleEmotePicker()
-        })
-        grid.appendChild(item)
-    })
-}
-
-function toggleEmotePicker() {
-    const picker = document.getElementById('emote-picker')
-    if(!picker) return
-    epOpen = !epOpen
-    if(epOpen){ picker.classList.add('open'); buildEmotePicker(); document.getElementById('ep-search')?.focus() }
-    else picker.classList.remove('open')
-}
-
-function filterEmotePicker(q) {
-    const ql = q.toLowerCase()
-    document.querySelectorAll('#ep-grid .ep-item').forEach(el => {
-        el.style.display = el.dataset.name.toLowerCase().includes(ql) ? '' : 'none'
-    })
-}
-
-document.addEventListener('click', e => {
-    if(!e.target.closest('#emote-picker') && !e.target.closest('#emote-picker-btn') && epOpen) toggleEmotePicker()
-})
-
-let viewerPollInterval = null
-
-async function pollViewerCount() {
-    try {
-        const r = await fetch(`${SERVER}/api/viewer-count`)
-        const d = await r.json()
-        const el = document.getElementById('viewer-count')
-        const num = document.getElementById('viewer-num')
-        if(d.ok && d.viewers > 0 && el && num) {
-            num.textContent = d.viewers.toLocaleString()
-            el.style.display = 'flex'
-        } else if(el) {
-            el.style.display = 'none'
-        }
-    } catch {}
-}
-function startViewerPoll() {
-    if(viewerPollInterval) clearInterval(viewerPollInterval)
-    pollViewerCount()
-    viewerPollInterval = setInterval(pollViewerCount, 120000)
-}
-
-let emoteObserver = null
-
-function setupEmoteObserver() {
-    if(!cfg.lazyEmotes) return
-    if(emoteObserver) emoteObserver.disconnect()
-    emoteObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            const img = entry.target
-            if(entry.isIntersecting) {
-                if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src }
-            } else {
-                if(img.classList.contains('emote-animated') && img.src) {
-                    img.dataset.lazysrc = img.src
-                }
-            }
-        })
-    }, { rootMargin:'200px' })
-}
-
-async function modAction(userId, username, action, duration=300) {
-    if(!cfg.twitchToken){ showToast('⚠ Necesitas autenticarte con Twitch'); return }
-    let tmiCmd = ''
-    if(action === 'ban')     tmiCmd = `/ban ${username}`
-    if(action === 'timeout') tmiCmd = `/timeout ${username} ${duration}`
-    if(action === 'unban')   tmiCmd = `/unban ${username}`
-    if(action === 'mod')     tmiCmd = `/mod ${username}`
-    if(action === 'unmod')   tmiCmd = `/unmod ${username}`
-    if(action === 'vip')     tmiCmd = `/vip ${username}`
-    if(action === 'unvip')   tmiCmd = `/unvip ${username}`
-    if(!tmiCmd) return
-
-    try {
-        const r = await fetch(`${SERVER}/api/send-message`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ text: tmiCmd, platform:'TW', isCommand:true })
-        })
-        const d = await r.json()
-        if(d.ok){
-            showToast(`✓ ${action} → ${username}`)
-            const els = document.querySelectorAll(`.linea[data-uid="${CSS.escape(userId)}"]`)
-            if(action==='ban'||action==='timeout'){
-                if(cfg.showBannedMessages) els.forEach(el=>el.classList.add('banned-msg'))
-                else els.forEach(el=>el.remove())
-            }
-        } else {
-            showToast(`⚠ ${d.error||'Error en '+action}`)
-        }
-    } catch(e) { showToast('⚠ Sin conexión') }
-}
-
 async function init(){
     showSkeleton()
     try {
         try{cfg=(await window.electronAPI.getConfig())||{}}catch(e){console.error('Error loading config',e);cfg={}}
         aplicarConfig()
+        initDockResize() // <-- LLAMADA A LA FUNCIÓN CORREGIDA
         try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e) }
-        setupEmoteObserver()
         await checkChangelog()
         startViewerPoll()
     } finally {
