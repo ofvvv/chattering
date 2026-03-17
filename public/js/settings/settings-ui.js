@@ -1,87 +1,98 @@
+// Contiene la lógica para la interactividad de la UI en la ventana de configuración.
+
 function setupEventListeners() {
     try {
-        // Navegación principal
+        // Navegación del Menú Lateral
         document.querySelector('.main-menu').addEventListener('click', (e) => {
             if (e.target.tagName === 'A') {
-                const page = e.target.getAttribute('href').substring(1);
-                navigateTo(page);
+                const pageId = e.target.getAttribute('href').substring(1);
+                navigateTo(pageId);
             }
         });
 
-        // Botones de acción
+        // Botones de Acción Principales
         document.getElementById('save-button').addEventListener('click', save);
         document.getElementById('reset-button').addEventListener('click', reset);
+        document.getElementById('cancel-button').addEventListener('click', () => {
+            window.electronAPI.closeSettings(); // Cierra la ventana sin guardar
+        });
 
-        // Búsqueda
+        // Búsqueda de Configuración
         const searchInput = document.getElementById('search-input');
         searchInput.addEventListener('input', (e) => searchSettings(e.target.value));
 
-        // Previsualizaciones en vivo
-        document.querySelectorAll('[data-preview]').forEach(el => {
-            el.addEventListener('input', (e) => handlePreview(e.target));
-        });
+        // Previsualizaciones en Vivo (para opacidad, etc.)
+        document.getElementById('windowOpacity').addEventListener('input', handleOpacityPreview);
+
     } catch (e) {
-        window.electronAPI.logError(`[settings-setupEventListeners] ${e.message}`);
+        window.electronAPI.logError(`[settings-ui:setupEventListeners] ${e.message}`);
     }
 }
 
 function setupInitialUI() {
     try {
-        // Lógica para establecer el estado inicial de la UI, como el tema.
-        const initialTheme = cfg.theme || 'dark';
-        document.body.className = `theme-${initialTheme}`;
+        // Actualiza el valor numérico del slider de opacidad al iniciar
+        const opacitySlider = document.getElementById('windowOpacity');
+        const opacityValue = document.getElementById('window-opacity-value');
+        if (opacitySlider && opacityValue) {
+            opacityValue.textContent = opacitySlider.value;
+        }
     } catch (e) {
-        window.electronAPI.logError(`[settings-setupInitialUI] ${e.message}`);
+        window.electronAPI.logError(`[settings-ui:setupInitialUI] ${e.message}`);
     }
 }
 
 function navigateTo(pageId) {
     try {
+        // Oculta todas las páginas
         document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        document.getElementById(pageId).style.display = 'block';
+        
+        // Muestra la página solicitada
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.style.display = 'block';
+        }
 
+        // Actualiza el estado activo en el menú
         document.querySelectorAll('.main-menu a').forEach(a => a.classList.remove('active'));
-        document.querySelector(`.main-menu a[href="#${pageId}"]`).classList.add('active');
+        const activeLink = document.querySelector(`.main-menu a[href="#${pageId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
     } catch (e) {
-        window.electronAPI.logError(`[settings-navigateTo] ${e.message}`);
+        window.electronAPI.logError(`[settings-ui:navigateTo] ${e.message}`);
     }
 }
 
 function searchSettings(term) {
-    // Lógica para la búsqueda
-    // ...
+    // La implementación de la búsqueda se puede añadir aquí si se desea.
+    // Por ahora, esta función está vacía pero conectada.
 }
 
-function handlePreview(element) {
+function handleOpacityPreview(event) {
     try {
-        const { setting, value } = getPreviewData(element);
-        if (setting) {
-            window.electronAPI.previewSettings({ [setting]: value });
+        const opacityValue = parseInt(event.target.value, 10);
+        
+        // Actualiza el texto del porcentaje en la UI
+        const opacityValueLabel = document.getElementById('window-opacity-value');
+        if (opacityValueLabel) {
+            opacityValueLabel.textContent = opacityValue;
         }
+
+        // Envía el valor de previsualización al proceso principal
+        window.electronAPI.previewSettings({ windowOpacity: opacityValue });
     } catch (e) {
-        window.electronAPI.logError(`[settings-handlePreview] ${e.message}`);
+        window.electronAPI.logError(`[settings-ui:handleOpacityPreview] ${e.message}`);
     }
 }
 
-function getPreviewData(element) {
-    try {
-        const setting = element.dataset.preview;
-        let value = element.type === 'checkbox' ? element.checked : element.value;
-        if (element.dataset.type === 'number') {
-            value = parseFloat(value);
-        }
-        return { setting, value };
-    } catch (e) {
-        window.electronAPI.logError(`[settings-getPreviewData] ${e.message}`);
-        return {};
-    }
+function showSaveConfirmation() {
+    // Esta es una forma simple. Si tienes un sistema de "toasts" o notificaciones,
+    // sería mejor usarlo aquí.
+    alert('Configuración guardada con éxito.');
 }
 
+// Esta función asegura que el contenido inicial sea visible al cargar.
 function showInitialContent() {
-    try {
-        // Muestra la primera página por defecto
-        navigateTo('page-general');
-    } catch (e) {
-        window.electronAPI.logError(`[settings-showInitialContent] ${e.message}`);
-    }
+    navigateTo('page-general');
 }
