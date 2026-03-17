@@ -132,21 +132,21 @@ function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
     return finalTokens.map(t => t.type === 'emote' ? t.html : t.content).join('');
 }
 
-let emoteObserver = null
+let emoteObserver = null;
 
 function setupEmoteObserver() {
-    if(!cfg.lazyEmotes) return
-    if(emoteObserver) emoteObserver.disconnect()
+    if(!cfg.lazyEmotes) return;
+    if(emoteObserver) emoteObserver.disconnect();
     emoteObserver = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-            const img = entry.target
+            const img = entry.target;
             if(entry.isIntersecting) {
-                if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src }
+                if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
             } else {
                 if(img.classList.contains('emote-animated') && img.src) {
-                    img.dataset.lazysrc = img.src
+                    img.dataset.lazysrc = img.src;
                 }
             }
-        })
-    }, { rootMargin:'200px' })
+        });
+    }, { rootMargin:'200px' });
 }
