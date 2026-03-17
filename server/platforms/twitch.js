@@ -32,9 +32,10 @@ export async function checkLive(channel) {
         return
     }
     try {
+        const cleanToken = config.twitchToken.replace('oauth:', '')
         const data = await fetchJson(
             `https://api.twitch.tv/helix/streams?user_login=${encodeURIComponent(channel)}`,
-            { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${config.twitchToken}` }
+            { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${cleanToken}` }
         )
         const live = Array.isArray(data?.data) && data.data.length > 0
         updateStatus('TW', live)
@@ -69,7 +70,7 @@ export function connect(channel) {
         console.log(`[Twitch] Attempting to connect to #${channel}...`)
 
         const identity = (config.twitchToken && config.twitchUser)
-            ? { username: config.twitchUser.toLowerCase(), password: `oauth:${config.twitchToken}` }
+            ? { username: config.twitchUser.toLowerCase(), password: `oauth:${config.twitchToken.replace('oauth:', '')}` }
             : undefined
 
         const client = new tmi.Client({
@@ -163,7 +164,7 @@ export function connect(channel) {
             try {
                 console.log('[Twitch] Disconnected. Reason:', reason)
                 updateStatus('TW', false)
-                if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
+                if (liveCheckiver) { clearInterval(liveCheckTimer); liveCheckTimer = null }
                 clientRef = null
                 if (reason && !reason.includes('manual')) {
                     if (reconnectTimer) clearTimeout(reconnectTimer)

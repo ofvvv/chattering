@@ -139,8 +139,9 @@ app.post('/api/send-message', async (req, res) => {
     if (!text) return res.json({ ok: false, error: 'no text' })
     try {
         if (platform === 'TW' || !platform) {
-            const channel = config.twitchUser || twitch.getClient()?.channels?.[0]?.replace('#', '')
+            const channel = config.twitchUser;
             if (!channel) return res.json({ ok: false, error: 'Canal de Twitch no configurado' })
+            if (!twitch.isConnected()) return res.json({ ok: false, error: 'No conectado al chat de Twitch' })
             const msg = (!isCommand && replyTo) ? `@${replyTo} ${text}` : text
             await twitch.say(channel, msg)
             return res.json({ ok: true })

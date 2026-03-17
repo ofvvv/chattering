@@ -30,11 +30,13 @@ function helixToSets(data) {
 
 export async function loadGlobal(token) {
     try {
-        if (token) {
+        const cleanToken = token?.replace('oauth:', '')
+
+        if (cleanToken) {
             try {
                 const data = await fetchJson('https://api.twitch.tv/helix/chat/badges/global', {
                     'Client-ID': TWITCH_CLIENT_ID,
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${cleanToken}`
                 })
                 const sets = helixToSets(data)
                 cache.global = { ...cache.global, ...sets }
@@ -72,12 +74,13 @@ export async function loadChannel(channelId, token) {
     try {
         if (!channelId || cache.channel[channelId]) return
         cache.channel[channelId] = {} // Marcar como intentado
+        const cleanToken = token?.replace('oauth:', '')
 
-        if (token) {
+        if (cleanToken) {
             try {
                 const data = await fetchJson(
                     `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${channelId}`,
-                    { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${token}` }
+                    { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${cleanToken}` }
                 )
                 cache.channel[channelId] = helixToSets(data)
                 console.log('[Badges] Canal (Helix):', channelId, '→', Object.keys(cache.channel[channelId]).length, 'sets cargados')
