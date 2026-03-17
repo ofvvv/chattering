@@ -111,6 +111,20 @@ function reconnectAll() {
 
 // --- Endpoints de la API ---
 
+app.get('/api/viewer-count', (req, res) => {
+    try {
+        const viewers = {
+            'TW': twitch.getViewers(),
+            'YT': youtube.getViewers(),
+            'TT': tiktok.getViewers()
+        };
+        const total = Object.values(viewers).reduce((a, b) => a + b, 0);
+        res.json({ ok: true, viewers: total, sources: viewers });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
 app.get('/oauth/callback', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(`<!DOCTYPE html><html><head><title>Chattering Auth</title></head><body style="background:#111;color:#fff;font-family:sans-serif;text-align:center;padding-top:50px;">

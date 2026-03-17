@@ -182,7 +182,7 @@ function setupSocketListeners() {
 
 async function checkChangelog() {
     try {
-        const currentVersion = await window.electronAPI.getAppVersion();
+        const currentVersion = await window.electronAPI.getVersion(); // Corregido
         const lastVersion = cfg.lastVersion;
 
         if (currentVersion !== lastVersion) {
