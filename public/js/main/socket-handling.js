@@ -1,34 +1,4 @@
 
-socket.on('connect', () => {
-    try {
-        document.getElementById('conn-status-dot').style.backgroundColor = '#2ecc71';
-        document.getElementById('conn-status-text').textContent = 'Conectado';
-        socket.emit('join', { room: 'stream' });
-        clearChat();
-    } catch (e) {
-        window.electronAPI.logError(`[socket-connect] ${e.message}`);
-    }
-});
-
-socket.on('disconnect', () => {
-    try {
-        document.getElementById('conn-status-dot').style.backgroundColor = '#e74c3c';
-        document.getElementById('conn-status-text').textContent = 'Desconectado';
-    } catch (e) {
-        window.electronAPI.logError(`[socket-disconnect] ${e.message}`);
-    }
-});
-
-socket.on('connect_error', (err) => {
-    try {
-        document.getElementById('conn-status-dot').style.backgroundColor = '#f39c12';
-        document.getElementById('conn-status-text').textContent = 'Error de conexión';
-        window.electronAPI.logError(`[socket-connect_error] ${err.message}`);
-    } catch (e) {
-        window.electronAPI.logError(`[socket-connect_error-handler] ${e.message}`);
-    }
-});
-
 socket.on('chat_message', (data) => {
     try {
         renderMessage(data);

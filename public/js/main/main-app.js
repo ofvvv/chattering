@@ -7,7 +7,6 @@ document.addEventListener('keydown',e=>{
     if(e.ctrlKey&&e.key==='f'){e.preventDefault();openSearch();return}
     if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('chat').innerHTML='';msgLineCounter=0;totalMsgCount=0;return}
     if(e.key==='F5'){e.preventDefault();location.reload();return}
-    if(e.key==='Escape'&&document.querySelector('.popup-open')){/* handled in popup.html */}
     if(e.key===','&&!inInput){e.preventDefault();window.electronAPI.openSettings();return}
 
     if(e.key==='Escape'){
@@ -52,56 +51,30 @@ async function resetConfig(){
 }
 function aplicarConfig(configToApply = cfg) {
     try {
+        document.body.classList.toggle('compact', configToApply.compact === true);
+        document.body.classList.remove('av-none', 'av-square', 'av-squircle', 'av-circle');
+        document.body.classList.add('av-' + configToApply.avatarShape);
+        document.body.classList.toggle('accessibility', configToApply.accessibility === true);
+        document.body.classList.toggle('no-anim', configToApply.msgAnimation === false);
+        document.body.classList.toggle('translucent', configToApply.translucent === true);
+        document.body.style.setProperty('--translucent-opacity', configToApply.windowOpacity / 100);
+
         const chat = document.getElementById('chat');
-
-        if (configToApply.fontSize) {
-            if (chat) chat.style.fontSize = configToApply.fontSize + 'px';
-        }
-        if (configToApply.showTestButtons !== undefined) {
-            document.getElementById('test-panel')?.classList.toggle('visible', configToApply.showTestButtons === true);
-        }
-        if (configToApply.dockPosition) {
-            setDockPosition(configToApply.dockPosition);
-        }
-        if (configToApply.dockHeight) {
-            setDockHeight(configToApply.dockHeight);
-        }
-        if (configToApply.compact !== undefined) {
-            document.body.classList.toggle('compact', configToApply.compact === true);
-        }
-        if (configToApply.avatarShape) {
-            document.body.classList.remove('av-none', 'av-square', 'av-squircle', 'av-circle');
-            document.body.classList.add('av-' + configToApply.avatarShape);
-        }
-        if (configToApply.accessibility !== undefined) {
-            document.body.classList.toggle('accessibility', configToApply.accessibility === true);
-        }
-        if (configToApply.msgAnimation !== undefined) {
-            document.body.classList.toggle('no-anim', configToApply.msgAnimation === false);
-        }
-        if (configToApply.scrollInvert !== undefined) {
-            if (chat) chat.classList.toggle('scroll-invert', configToApply.scrollInvert === true);
-        }
-        if (configToApply.translucent !== undefined) {
-            document.body.classList.toggle('translucent', configToApply.translucent === true);
-        }
-        if (configToApply.windowOpacity) {
-            const op = configToApply.windowOpacity / 100;
-            document.body.style.setProperty('--translucent-opacity', op);
+        if (chat) {
+            chat.style.fontSize = configToApply.fontSize + 'px';
+            chat.classList.toggle('scroll-invert', configToApply.scrollInvert === true);
         }
 
-        // Aplicar tema
-        if (configToApply.theme) {
-            document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sakura');
-            const theme = configToApply.theme;
-            if (theme && theme !== 'dark') {
-                document.body.classList.add('theme-' + theme);
-            }
+        document.getElementById('test-panel')?.classList.toggle('visible', configToApply.showTestButtons === true);
+        setDockPosition(configToApply.dockPosition);
+        setDockHeight(configToApply.dockHeight);
+        
+        document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sakura');
+        if (configToApply.theme && configToApply.theme !== 'dark') {
+            document.body.classList.add('theme-' + configToApply.theme);
         }
         
-        if (configToApply.alwaysOnTop !== undefined) {
-            window.electronAPI?.setAlwaysOnTop(configToApply.alwaysOnTop === true);
-        }
+        window.electronAPI?.setAlwaysOnTop(configToApply.alwaysOnTop === true);
 
         const bar = document.getElementById('chat-input-bar');
         if (bar) {
@@ -134,10 +107,10 @@ document.addEventListener('click',e=>{
 })
 
 function showSkeleton(){
-    document.getElementById('skeleton-overlay').classList.add('visible')
+    document.getElementById('skeleton-overlay')?.classList.add('visible')
 }
 function hideSkeleton(){
-    document.getElementById('skeleton-overlay').classList.remove('visible')
+    document.getElementById('skeleton-overlay')?.classList.remove('visible')
 }
 
 let viewerPollInterval = null
@@ -164,21 +137,37 @@ function startViewerPoll() {
     viewerPollInterval = setInterval(pollViewerCount, 120000)
 }
 
-async function init(){
-    try {
-        showSkeleton()
-        try{cfg=(await window.electronAPI.getConfig())||{}}catch(e){console.error('Error loading config',e);cfg={}; window.electronAPI.logError(`[init] getConfig failed: ${e.message}`)}
-        aplicarConfig()
-        try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e); window.electronAPI.logError(`[init] cargarEmotes failed: ${e.message}`) }
-        setupEmoteObserver()
-        await checkChangelog()
-        startViewerPoll()
-    } catch(e) {
-        window.electronAPI.logError(`[init] CRITICAL: ${e.message}`);
-        showErrorToast('Error fatal al iniciar. Revise los logs.');
-    } finally {
-        hideSkeleton()
-    }
+function setupSocketListeners() {
+    socket.on('connect', () => {
+        try {
+            document.getElementById('conn-status-dot').style.backgroundColor = '#2ecc71';
+            document.getElementById('conn-status-text').textContent = 'Conectado';
+            socket.emit('join', { room: 'stream' });
+            clearChat();
+        } catch (e) {
+            window.electronAPI.logError(`[socket-connect] ${e.message}`);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        try {
+            document.getElementById('conn-status-dot').style.backgroundColor = '#e74c3c';
+            document.getElementById('conn-status-text').textContent = 'Desconectado';
+        } catch (e) {
+            window.electronAPI.logError(`[socket-disconnect] ${e.message}`);
+        }
+    });
+
+    socket.on('connect_error', (err) => {
+        try {
+            document.getElementById('conn-status-dot').style.backgroundColor = '#f39c12';
+            document.getElementById('conn-status-text').textContent = 'Error de conexión';
+            window.electronAPI.logError(`[socket-connect_error] ${err.message}`);
+        } catch (e) {
+            window.electronAPI.logError(`[socket-connect_error-handler] ${e.message}`);
+        }
+    });
+
     socket.on('twitch_auth',d=>{
         try {
             if(d.ok){
@@ -191,7 +180,25 @@ async function init(){
     })
 }
 
-// Función para mostrar errores no fatales en la UI
+async function init(){
+    try {
+        showSkeleton()
+        try{cfg=(await window.electronAPI.getConfig())||{}}catch(e){console.error('Error loading config',e);cfg={}; window.electronAPI.logError(`[init] getConfig failed: ${e.message}`)}
+        aplicarConfig()
+        setupSocketListeners()
+        
+        try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e); window.electronAPI.logError(`[init] cargarEmotes failed: ${e.message}`) }
+        setupEmoteObserver()
+        await checkChangelog()
+        startViewerPoll()
+    } catch(e) {
+        window.electronAPI.logError(`[init] CRITICAL: ${e.message}`);
+        showErrorToast('Error fatal al iniciar. Revise los logs.');
+    } finally {
+        hideSkeleton()
+    }
+}
+
 function showErrorToast(message) {
     const toast = document.createElement('div');
     toast.className = 'toast error';
@@ -205,5 +212,3 @@ function showErrorToast(message) {
         }, 3000);
     }, 100);
 }
-
-init()
