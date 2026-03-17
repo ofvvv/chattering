@@ -72,13 +72,9 @@
           <div class="row-label"><div class="label">Usuario</div></div>
           <div style="width:180px;position:relative">
             <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
-            <input type="text" id="s-tt" placeholder="Autodetectado" style="padding-left:18px" readonly title="El usuario se obtiene automáticamente al vincular">
+            <input type="text" id="s-tt" placeholder="usuario de tiktok" style="padding-left:18px">
           </div>
         </div>
-        <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
-          <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
-        </button>
-        <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
       </div>
 
       <!-- YOUTUBE -->
@@ -87,13 +83,12 @@
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 4px;"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg> YouTube
         </div>
         <div class="row">
-          <div class="row-label"><div class="label">Usuario</div></div>
+          <div class="row-label"><div class="label">ID del Canal</div></div>
           <div style="width:180px;position:relative">
-            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
-            <input type="text" id="s-yt" placeholder="usuario" style="padding-left:18px">
+            <input type="text" id="s-yt" placeholder="UC...">
           </div>
         </div>
-        <div class="hint">Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b></div>
+        <div class="hint">El ID del canal de Youtube, que empieza por UC.</div>
       </div>
 
       <!-- TWITCH -->
@@ -101,7 +96,12 @@
         <div class="section-title">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#9146FF" style="vertical-align: middle; margin-right: 4px;"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg> Twitch
         </div>
-        <input type="hidden" id="s-tw">
+        <div class="row">
+          <div class="row-label"><div class="label">Canal a observar</div></div>
+          <div style="width:180px;position:relative">
+            <input type="text" id="s-tw" placeholder="tucanal">
+          </div>
+        </div>
         <input type="hidden" id="s-tw-token">
         <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()" style="width:100%">
           <span id="s-tw-oauth-label">Conectar con Twitch</span>
@@ -133,7 +133,6 @@
       </div>
       <div class="section">
         <div class="section-title">Comportamiento</div>
-        <div class="row"><div class="row-label"><div class="label">Pausar scroll al pasar cursor</div></div><label class="toggle"><input type="checkbox" id="s-scroll-pause"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Scroll invertido</div><div class="sublabel">Mensajes nuevos arriba</div></div><label class="toggle"><input type="checkbox" id="s-scroll-invert"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Preview de links</div></div><label class="toggle"><input type="checkbox" id="s-link-previews"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -145,7 +144,7 @@
     <!-- EMOTES -->
     <div class="page" id="page-emotes">
       <div class="page-title">Emotes</div>
-      <div id="emote-status" class="hint" style="color:#555"></div>
+      <div id="emote-status" class="hint" style="color:#555">Cargando...</div>
       <div class="emote-group">
         <div class="eg-title">7TV</div>
         <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-7tv-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -161,7 +160,6 @@
         <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-ffz-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-ffz-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
-      <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
     </div>
 
     <!-- MODERACIÓN -->
@@ -171,7 +169,6 @@
         <div class="section-title">Herramientas de moderación</div>
         <div class="row"><div class="row-label"><div class="label">Mostrar menú de moderación al hover</div><div class="sublabel">Timeout / ban / responder / copiar</div></div><label class="toggle"><input type="checkbox" id="s-mod-hover"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Marcar (no ocultar) mensajes baneados</div><div class="sublabel">Aparecen en gris en lugar de desaparecer</div></div><label class="toggle"><input type="checkbox" id="s-show-banned"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-        <div class="row"><div class="row-label"><div class="label">Botones de mod visibles en pantalla</div><div class="sublabel">Toggle rápido sin abrir configuración</div></div><label class="toggle"><input type="checkbox" id="s-mod-visible"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
       <div class="section">
         <div class="section-title">Botones de prueba</div>
@@ -292,11 +289,13 @@
   <button class="btn btn-primary" onclick="guardar()">Guardar cambios</button>
 </div>
 
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
 const SERVER = 'http://localhost:3000'
 let cfg = {}
 let selectedTheme = 'dark'
 let blockedWords = [], highlights = []
+const socket = io(SERVER);
 
 function filterSettings(q) {
     const ql = q.toLowerCase().trim()
@@ -356,6 +355,21 @@ function testSoundPreview(type) {
 async function init() {
     cfg = (await window.electronAPI.getConfig()) || {}
     loadForm()
+
+    socket.on('twitch_auth', (data) => {
+        if (data.ok && data.token) {
+            console.log('Twitch auth success from socket', data);
+            const btn = document.getElementById('s-tw-oauth-btn');
+            const lbl = document.getElementById('s-tw-oauth-label');
+            const status = document.getElementById('s-tw-status');
+            document.getElementById('s-tw-token').value = data.token;
+            
+            lbl.textContent = '✓ Conectado';
+            btn.className = 'btn btn-twitch connected';
+            status.textContent = 'Autenticación completada. Guarda los cambios.';
+            status.style.color = '#53fc18';
+        }
+    });
 }
 
 function loadForm() {
@@ -363,49 +377,23 @@ function loadForm() {
     set('s-yt', cfg.youtubeChannelId||'')
     set('s-tw', cfg.twitchUser||'')
 
-    const ttBtn = document.getElementById('btn-tt-login')
-    const ttLbl = document.getElementById('tt-btn-label')
-    const ttSt  = document.getElementById('tt-status-msg')
-    if (cfg.tiktokSessionId && cfg.tiktokUser) {
-        ttLbl.textContent = '✓ Conectado como @' + cfg.tiktokUser
-        ttBtn.style.background = '#1a4a1a'
-        ttBtn.style.borderColor = '#53fc18'
-        ttBtn.style.color = '#53fc18'
-        ttSt.textContent = 'Haz clic para reconectar o cambiar cuenta'
-        ttSt.className = 'hint status-ok'
-    } else if (cfg.tiktokUser) {
-        ttLbl.textContent = 'Actualizar conexión a @' + cfg.tiktokUser
-        ttSt.textContent = 'Tu conexión a TikTok es antigua. Por favor revincula.'
-        ttSt.style.color = '#ffaa00'
-    }
-
     document.getElementById('s-tw-token').value = cfg.twitchToken||''
 
     const btn = document.getElementById('s-tw-oauth-btn')
     const lbl = document.getElementById('s-tw-oauth-label')
     const st  = document.getElementById('s-tw-status')
-    if (cfg.twitchToken) {
-        lbl.textContent = '✓ Conectado como ' + (cfg.twitchUser || '?')
+    if (cfg.twitchToken && cfg.twitchUser) {
+        lbl.textContent = '✓ Conectado como ' + (cfg.twitchUser)
         btn.className = 'btn btn-twitch connected'
         st.textContent = 'Haz clic para reconectar o cambiar cuenta'
         st.className = 'hint'
-        const twField = document.getElementById('s-tw')
-        if(twField){
-            twField.disabled = true
-            twField.title = 'El usuario se gestiona automáticamente mediante OAuth'
-            twField.style.opacity = '0.5'
-        }
-    } else {
-        const twField = document.getElementById('s-tw')
-        if(twField){ twField.disabled = false; twField.style.opacity = ''; twField.title = '' }
-    }
+    } 
 
     set('s-streamer', cfg.streamerName||'')
     chk('s-filter-subs', cfg.filterSubsOnly)
     chk('s-filter-mods', cfg.filterModsOnly)
     chk('s-hide-bots', cfg.hideBots)
     chk('s-block-enabled', cfg.blockedWordsEnabled)
-    chk('s-scroll-pause', cfg.scrollPauseOnHover!==false)
     chk('s-scroll-invert', cfg.scrollInvert===true)
     chk('s-timestamps', cfg.showTimestamps!==false)
     chk('s-link-previews', cfg.linkPreviews!==false)
@@ -418,11 +406,9 @@ function loadForm() {
     chk('s-bttv-canal', cfg.showBttvCanal!==false)
     chk('s-ffz-global', cfg.showFfzGlobal!==false)
     chk('s-ffz-canal', cfg.showFfzCanal!==false)
-    chk('s-lazy-emotes', cfg.lazyEmotes!==false)
 
     chk('s-mod-hover', cfg.modHoverMenu!==false)
     chk('s-show-banned', cfg.showBannedMessages===true)
-    chk('s-mod-visible', cfg.modButtonsVisible===true)
     chk('s-test-buttons', cfg.showTestButtons===true)
 
     chk('s-show-follows', cfg.showFollows!==false)
@@ -557,7 +543,6 @@ async function guardar() {
         blockedWordsEnabled:document.getElementById('s-block-enabled').checked,
         blockedWords,
         customHighlights:   highlights,
-        scrollPauseOnHover: document.getElementById('s-scroll-pause').checked,
         scrollInvert:       document.getElementById('s-scroll-invert').checked,
         showTimestamps:     document.getElementById('s-timestamps').checked,
         linkPreviews:       document.getElementById('s-link-previews').checked,
@@ -569,10 +554,8 @@ async function guardar() {
         showBttvCanal:      document.getElementById('s-bttv-canal').checked,
         showFfzGlobal:      document.getElementById('s-ffz-global').checked,
         showFfzCanal:       document.getElementById('s-ffz-canal').checked,
-        lazyEmotes:         document.getElementById('s-lazy-emotes').checked,
         modHoverMenu:       document.getElementById('s-mod-hover').checked,
         showBannedMessages: document.getElementById('s-show-banned').checked,
-        modButtonsVisible:  document.getElementById('s-mod-visible').checked,
         showTestButtons:    document.getElementById('s-test-buttons').checked,
         showFollows:        document.getElementById('s-show-follows').checked,
         showGifts:          document.getElementById('s-show-gifts').checked,
@@ -600,83 +583,31 @@ async function guardar() {
     }
     const r = await window.electronAPI.saveSettings(newCfg)
     cfg = newCfg
-    statusEl.textContent = '✓ Guardado — reconectando plataformas...'
+    statusEl.textContent = '✓ Guardado'
+    setTimeout(() => statusEl.textContent='', 3000);
 }
 
 async function resetConfig() {
     if(!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return
     await window.electronAPI.resetConfig()
-    window.close()
-}
-
-function openLink(url) {
-    window.electronAPI.openExternal(url)
-}
-
-init()
-
-async function loginTiktokSeamless() {
-    const btn = document.getElementById('btn-tt-login');
-    const status = document.getElementById('tt-status-msg');
-    const ttInput = document.getElementById('s-tt');
-
-    btn.disabled = true;
-    status.textContent = "Abriendo ventana segura...";
-    
-    try {
-        const res = await window.electronAPI.loginTiktok();
-        if (res.success && res.sessionId) {
-            cfg.tiktokSessionId = res.sessionId; // Guardar en memoria para que guardar() lo tome
-            const user = res.username;
-            
-            if(user) {
-                cfg.tiktokUser = user;
-                ttInput.value = user;
-                await window.electronAPI.saveSettings(cfg); 
-                
-                btn.style.background = '#1a4a1a';
-                btn.style.color = '#53fc18';
-                document.getElementById('tt-btn-label').textContent = '✓ TikTok Vinculado';
-                status.textContent = 'Sesión guardada correctamente.';
-                status.style.color = '#53fc18';
-            } else {
-                status.textContent = "⚠️ Sesión capturada. Por favor, escribe tu usuario en la caja de arriba y guarda los cambios.";
-                status.style.color = "#ffcc00";
-                ttInput.removeAttribute('readonly');
-                ttInput.focus();
-            }
-        } else {
-            status.textContent = "Error: " + (res.error || "Desconocido");
-            status.style.color = "#ff6060";
-        }
-    } catch (e) {
-        status.textContent = "Error interno: " + e.message;
-        status.style.color = "#ff6060";
-    }
-    btn.disabled = false;
 }
 
 async function settingsLoginTwitch() {
     const btn = document.getElementById('s-tw-oauth-btn');
     const lbl = document.getElementById('s-tw-oauth-label');
     lbl.textContent = 'Esperando conexión...';
+    btn.disabled = true;
     try {
-        const result = await window.electronAPI.loginTwitch();
-        if (result?.polling) {
-            const poll = setInterval(async () => {
-                const r = await fetch(`${SERVER}/api/twitch/auth-status`);
-                const d = await r.json();
-                if (d.token) {
-                    clearInterval(poll);
-                    document.getElementById('s-tw-token').value = d.token;
-                    document.getElementById('s-tw').value = d.login;
-                    lbl.textContent = '✓ Conectado: ' + d.login;
-                    btn.classList.add('connected');
-                }
-            }, 1000);
-        }
-    } catch (e) { console.error(e); }
+        await window.electronAPI.loginTwitch();
+    } catch (e) { 
+        console.error(e); 
+        lbl.textContent = 'Error al iniciar login';
+        btn.disabled = false;
+    }
 }
+
+init()
+
 </script>
 </body>
 </html>

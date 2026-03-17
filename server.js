@@ -112,9 +112,27 @@ function reconnectAll() {
 // --- Endpoints de la API ---
 
 app.get('/oauth/callback', (req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-    res.end(`<!DOCTYPE html><html>...</html>`) // Contenido HTML omitido por brevedad
-})
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(`<!DOCTYPE html><html><head><title>Chattering Auth</title></head><body style="background:#111;color:#fff;font-family:sans-serif;text-align:center;padding-top:50px;">
+        <h2>✓ Autenticación completada</h2>
+        <p>Puedes cerrar esta ventana.</p>
+        <script>
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const token = params.get('access_token');
+            if (token) {
+                fetch('/api/twitch/token-received', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: 'oauth:' + token })
+                }).then(() => {
+                    setTimeout(() => window.close(), 2000);
+                });
+            } else {
+                 document.body.innerHTML = '<h2>❌ Error de autenticación</h2><p>No se recibió el token. Inténtalo de nuevo.</p>';
+            }
+        </script></body></html>`);
+});
 
 app.post('/api/send-message', async (req, res) => {
     const { text, platform, replyTo, isCommand } = req.body || {}
@@ -131,43 +149,25 @@ app.post('/api/send-message', async (req, res) => {
     } catch (e) { res.json({ ok: false, error: e.message }) }
 })
 
-app.post('/api/moderate', async (req, res) => {
-    const { action, userId, reason, duration } = req.body || {}
-    if (!config.twitchToken) return res.json({ ok:false, error:'Token de Twitch requerido' })
-    const cid = twitch.getChannelId()
-    if (!cid) return res.json({ ok:false, error:'Canal no identificado aún' })
-    try {
-        const me = await fetchJson('https://api.twitch.tv/helix/users', {
-            'Client-ID':TWITCH_CLIENT_ID, 'Authorization':`Bearer ${config.twitchToken}`
-        })
-        const modId = me?.data?.[0]?.id
-        if (!modId) return res.json({ ok:false, error:'Token inválido' })
-        const body = action==='ban'
-            ? { data:{ user_id:userId, reason:reason||'' } }
-            : { data:{ user_id:userId, duration:duration||300, reason:reason||'' } }
-        await postJson(
-            `https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${cid}&moderator_id=${modId}`,
-            body, { 'Client-ID':TWITCH_CLIENT_ID, 'Authorization':`Bearer ${config.twitchToken}` }
-        )
-        res.json({ ok:true })
-    } catch(e) { res.json({ ok:false, error:e.message }) }
-})
+app.post('/api/twitch/token-received', async (req, res) => {
+    const { token } = req.body;
+    if (token) {
+        io.emit('twitch_auth', { ok: true, token });
+        console.log('[Auth] Token de Twitch recibido y emitido.');
+        res.json({ ok: true });
+    } else {
+        res.status(400).json({ ok: false, error: 'No se recibió el token' });
+    }
+});
 
-// ... (otros endpoints de la API omitidos por brevedad, la lógica no cambia) ...
-
-app.get('/api/viewer-count', async (req, res) => { /* ... */ })
-app.post('/api/twitch/validate', async (req, res) => { /* ... */ })
-app.get('/api/twitch/auth-status', (req, res) => { /* ... */ })
-app.post('/api/twitch/token-received', async (req, res) => { /* ... */ })
-app.get('/api/preview_html', async (req, res) => { /* ... */ })
 app.post('/api/reconnect', (req, res) => { reconnectAll(); res.json({ ok: true }) })
 
 // Endpoints de Test
-app.post('/test/msg', (req, res) => { /* ... */ })
-app.post('/test/follow', (req, res) => { /* ... */ })
-app.post('/test/gift', (req, res) => { /* ... */ })
-app.post('/test/raid', (req, res) => { /* ... */ })
-app.post('/test/like', (req, res) => { /* ... */ })
+app.post('/test/msg', (req, res) => { emitMsg(req.body); res.json({ok:true}); })
+app.post('/test/follow', (req, res) => { emitEvento(req.body); res.json({ok:true}); })
+app.post('/test/gift', (req, res) => { emitEvento(req.body); res.json({ok:true}); })
+app.post('/test/raid', (req, res) => { emitEvento(req.body); res.json({ok:true}); })
+app.post('/test/like', (req, res) => { emitEvento(req.body); res.json({ok:true}); })
 
 
 // --- Arranque del Servidor ---
