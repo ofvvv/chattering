@@ -2,6 +2,7 @@
 
 Multi-platform chat viewer for livestreamers. Supports TikTok, YouTube, Twitch, and Kick.
 
+
 Built with Electron + Node.js + Express + Socket.IO.
 
 ## Project Structure
