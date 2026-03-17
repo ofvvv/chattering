@@ -32,7 +32,7 @@
 /* ─── BARRA DE TÍTULO ──────────────────────────────────────────────────────── */
 
 .win-main #titlebar {
-  height: 36px;
+  height: 32px;
   flex-shrink: 0;
   background: var(--bg3);
   border-bottom: 1px solid var(--border);
@@ -119,9 +119,9 @@
 /* ─── DOCK INFERIOR (Status) ───────────────────────────────────────────────── */
 
 .win-main #bottom-dock {
-  background: #09090b;
-  border-top: 2px solid #1a1a1e;
-  height: 24px;
+  background: var(--bg-input, #0e0e10);
+  border-top: 1px solid var(--border);
+  height: 22px;
   display: flex;
   align-items: center;
   padding: 0 10px;

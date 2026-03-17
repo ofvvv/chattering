@@ -279,3 +279,45 @@
   margin: 4px 0; 
   width: 100%; 
 }
+
+/* ─── TEST / DEBUG ─────────────────────────────────────────────────────────── */
+
+.win-main #test-panel {
+  position: fixed;
+  bottom: 60px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px;
+  display: none; /* change in settings */
+  flex-direction: column;
+  gap: 6px;
+  z-index: 100;
+}
+
+.win-main #test-panel-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #666;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.win-main .test-btn {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.8;
+}
+
+.win-main .test-btn:hover { 
+  opacity: 1; 
+}
