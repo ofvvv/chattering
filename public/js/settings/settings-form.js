@@ -36,21 +36,21 @@ function collectFormData() {
         // General
         newCfg.theme = get('theme');
         newCfg.fontSize = parseFloat(get('fontSize'));
-        newCfg.compact = isChecked('compact');
-        newCfg.translucent = isChecked('translucent');
+        newCfg.compact = get('compact');
+        newCfg.translucent = get('translucent');
         newCfg.windowOpacity = parseInt(get('windowOpacity'), 10);
 
         // Chat
         newCfg.avatarShape = get('avatarShape');
-        newCfg.hideBots = isChecked('hideBots');
-        newCfg.showTimestamps = isChecked('showTimestamps');
+        newCfg.hideBots = get('hideBots');
+        newCfg.showTimestamps = get('showTimestamps');
 
         // Emotes
-        newCfg.show7tvCanal = isChecked('show7tvCanal');
-        newCfg.showBttvCanal = isChecked('showBttvCanal');
+        newCfg.show7tvCanal = get('show7tvCanal');
+        newCfg.showBttvCanal = get('showBttvCanal');
 
         // Notificaciones
-        newCfg.soundsEnabled = isChecked('soundsEnabled');
+        newCfg.soundsEnabled = get('soundsEnabled');
 
         // Moderación
         newCfg.blockedWords = getTags('blocked-words-list');

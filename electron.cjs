@@ -9,17 +9,14 @@ const { fork } = require('child_process')
 const IS_MAC = process.platform === 'darwin'
 const IS_DEV = process.env.NODE_ENV === 'development'
 
-// --- Paths ---
 const APP_DATA = app.getPath('userData')
 const CONFIG_PATH = path.join(APP_DATA, 'config.json')
 
-// --- State ---
 let mainWindow = null
 let settingsWindow = null
 let serverProcess = null
 let serverPort = 3000
 
-// --- Config Handling ---
 function loadConfig() {
     try {
         return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'))
@@ -33,7 +30,6 @@ function saveConfig(newConfig) {
     try {
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(newConfig, null, 4))
         config = newConfig
-        // Notificar a la ventana principal que la configuración ha cambiado
         if (mainWindow) {
             mainWindow.webContents.send('settings-updated');
             console.log('[Electron] Sent settings-updated event to mainWindow.');
@@ -45,7 +41,6 @@ function saveConfig(newConfig) {
     }
 }
 
-// --- Server Process Management ---
 function startServer() {
     if (serverProcess) {
         console.log('[Electron] Killing existing server process...')
@@ -53,8 +48,8 @@ function startServer() {
     }
     const serverPath = path.join(__dirname, 'server.js')
     serverProcess = fork(serverPath, [], {
-        env: { ...process.env, CONFIG_PATH, PORT: 0 }, // PORT 0 para que elija uno libre
-        silent: false, // true para capturar logs
+        env: { ...process.env, CONFIG_PATH, PORT: 0 },
+        silent: false,
     })
 
     serverProcess.on('message', (msg) => {
@@ -72,7 +67,6 @@ function startServer() {
     })
 }
 
-// --- Window Management ---
 function createMainWindow() {
     const { width, height, x, y } = config.windowBounds || { width: 400, height: 600 }
     mainWindow = new BrowserWindow({
@@ -127,7 +121,6 @@ function createSettingsWindow() {
     settingsWindow.on('closed', () => { settingsWindow = null })
 }
 
-// --- App Lifecycle ---
 app.whenReady().then(() => {
     if (config.disableHWAccel) {
         app.disableHardwareAcceleration()
@@ -154,6 +147,13 @@ ipcMain.handle('get-config', () => loadConfig())
 ipcMain.handle('save-settings', (e, newCfg) => saveConfig(newCfg))
 ipcMain.handle('get-version', () => app.getVersion())
 ipcMain.handle('open-external', (e, url) => shell.openExternal(url))
+ipcMain.handle('sync-filters', (e, filters) => {
+    const currentConfig = loadConfig();
+    currentConfig.blockedWords = filters.blocked || [];
+    currentConfig.highlightWords = filters.highlight || [];
+    return saveConfig(currentConfig);
+});
+
 
 // Main Window
 ipcMain.on('open-settings', createSettingsWindow)
