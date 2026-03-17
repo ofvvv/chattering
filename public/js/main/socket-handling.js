@@ -1,9 +1,9 @@
-socket.on('chat_message', (data) => {
-    window.electronAPI.logError(`[DIAGNÓSTICO] chat_message recibido: ${JSON.stringify(data)}`);
+socket.on('msg', (data) => {
+    // window.electronAPI.logError(`[DIAGNÓSTICO] msg recibido: ${JSON.stringify(data)}`);
     try {
         renderMessage(data);
     } catch (e) {
-        window.electronAPI.logError(`[socket-chat_message] Error de renderizado: ${e.message}`);
+        window.electronAPI.logError(`[socket-msg] Error de renderizado: ${e.message}`);
     }
 });
 
