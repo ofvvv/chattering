@@ -115,9 +115,9 @@ function renderEvent(data) {
 function shouldFilter(data) {
     try {
         if (cfg.hideBots && data.user.isBot) return true;
-        if (cfg.filterMods && data.user.isMod) return true;
-        if (cfg.filterSubs && data.user.isSub) return true;
-        if (cfg.blockEnabled && cfg.blockedWords?.some(word => data.text.toLowerCase().includes(word.toLowerCase()))) {
+        if (cfg.filterModsOnly && !data.user.isMod) return true;
+        if (cfg.filterSubsOnly && !data.user.isSub) return true;
+        if (cfg.blockedWordsEnabled && cfg.blockedWords?.some(word => data.text.toLowerCase().includes(word.toLowerCase()))) {
             return true;
         }
         return false;
@@ -128,12 +128,12 @@ function shouldFilter(data) {
 }
 
 function escapeHTML(str) {
-    return str.replace(/[&<>" ']/g, (m) => ({
+    // No reemplazar espacios con &nbsp; para permitir el ajuste de línea natural.
+    return str.replace(/[&<>\"']/g, (m) => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
-        " ": '&nbsp;',
-        "\'": '&#39;'
+        "'": '&#39;'
     }[m]));
 }
