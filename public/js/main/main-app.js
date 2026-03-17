@@ -180,6 +180,44 @@ function setupSocketListeners() {
     })
 }
 
+async function checkChangelog() {
+    try {
+        const currentVersion = await window.electronAPI.getAppVersion();
+        const lastVersion = cfg.lastVersion;
+
+        if (currentVersion !== lastVersion) {
+            const changelogOverlay = document.getElementById('changelog-overlay');
+            const changelogVersion = document.getElementById('changelog-version');
+            const changelogBody = document.getElementById('changelog-body');
+
+            if (changelogOverlay && changelogVersion && changelogBody) {
+                const response = await fetch('../changelog.md');
+                const text = await response.text();
+
+                changelogVersion.textContent = `v${currentVersion}`;
+                changelogBody.innerHTML = text;
+                changelogOverlay.style.display = 'flex';
+
+                cfg.lastVersion = currentVersion;
+                await window.electronAPI.saveConfig(cfg);
+            }
+        }
+    } catch (e) {
+        window.electronAPI.logError(`[checkChangelog] ${e.message}`);
+    }
+}
+
+function closeChangelog() {
+    try {
+        const changelogOverlay = document.getElementById('changelog-overlay');
+        if (changelogOverlay) {
+            changelogOverlay.style.display = 'none';
+        }
+    } catch (e) {
+        window.electronAPI.logError(`[closeChangelog] ${e.message}`);
+    }
+}
+
 async function init(){
     try {
         showSkeleton()
