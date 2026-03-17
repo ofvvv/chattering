@@ -1,4 +1,5 @@
-// electron.cjs
+console.log('--- ELECTRON.CJS V3 LOADED ---'); // Diagnóstico de recarga
+
 'use strict'
 
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
@@ -141,6 +142,7 @@ app.on('activate', () => {
 })
 
 // --- IPC Handlers ---
+console.log('--- ELECTRON.CJS: Registering IPC Handlers ---'); // Diagnóstico
 
 // General
 ipcMain.handle('get-config', () => loadConfig())
@@ -148,12 +150,12 @@ ipcMain.handle('save-settings', (e, newCfg) => saveConfig(newCfg))
 ipcMain.handle('get-version', () => app.getVersion())
 ipcMain.handle('open-external', (e, url) => shell.openExternal(url))
 ipcMain.handle('sync-filters', (e, filters) => {
+    console.log('[Electron] sync-filters HANDLER EXECUTED', filters); // Diagnóstico
     const currentConfig = loadConfig();
     currentConfig.blockedWords = filters.blocked || [];
     currentConfig.highlightWords = filters.highlight || [];
     return saveConfig(currentConfig);
 });
-
 
 // Main Window
 ipcMain.on('open-settings', createSettingsWindow)
