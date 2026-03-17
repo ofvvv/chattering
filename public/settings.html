@@ -1,92 +1,101 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="win-settings">
 <head>
-    <meta charset="UTF-8">
-    <title>Chattering — Configuración</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"><title>Chattering — Configuración</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <aside class="sidebar">
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Buscar...">
-            </div>
-            <nav class="main-menu">
-                <a href="#page-general" class="active">General</a>
-                <a href="#page-accounts">Cuentas</a>
-                <a href="#page-appearance">Apariencia</a>
-                <a href="#page-chat">Chat</a>
-                <a href="#page-emotes">Emotes</a>
-            </nav>
-        </aside>
+<div id="body">
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="main-menu">
+    <div style="padding:8px 8px 4px">
+      <input id="search-input" type="text" placeholder="🔍 Buscar..." 
+        style="width:100%;background:#111115;border:1px solid #2a2a32;color:#dadada;padding:5px 8px;font-size:11px;border-radius:4px;outline:none;font-family:inherit">
+    </div>
+    <div class="sb-section">Plataformas</div>
+    <a href="#page-cuentas" class="sb-item active">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 5.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5C3 11 5.24 9 8 9s5 2 5 4.5z"/></svg>
+      Cuentas
+    </a>
+    <div class="sb-section">Chat</div>
+    <a href="#page-chat" class="sb-item">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5l-3 2V3a1 1 0 0 1 1-1z"/></svg>
+      Chat
+    </a>
+    <a href="#page-emotes" class="sb-item">
+      <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="7" r="1"/><circle cx="10" cy="7" r="1"/><path d="M5.5 10.5s.7 1.5 2.5 1.5 2.5-1.5 2.5-1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Emotes
+    </a>
+    <div class="sb-section">Visualización</div>
+    <a href="#page-apariencia" class="sb-item">
+      <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>
+      Apariencia
+    </a>
+  </div>
 
-        <main class="content">
-            <div id="page-general" class="page">
-                <h1>Configuración General</h1>
-                <div class="setting-item">
-                    <label for="autoupdate-checkbox">Buscar actualizaciones automáticamente</label>
-                    <input type="checkbox" id="autoupdate-checkbox" data-config="autoUpdate">
-                </div>
-            </div>
+  <!-- CONTENT PAGES -->
+  <div id="content">
 
-            <div id="page-accounts" class="page" style="display: none;">
-                <h1>Cuentas</h1>
-                <div class="setting-item">
-                    <label for="twitch-user-input">Usuario de Twitch</label>
-                    <input type="text" id="twitch-user-input" data-config="twitchUser" placeholder="tu_canal">
-                </div>
-                <div class="setting-item">
-                    <button id="twitch-auth-button">Conectar con Twitch</button>
-                    <span id="twitch-auth-status"></span>
-                </div>
-            </div>
-
-            <div id="page-appearance" class="page" style="display: none;">
-                <h1>Apariencia</h1>
-                <div class="setting-item">
-                    <label for="theme-select">Tema</label>
-                    <select id="theme-select" data-config="theme" data-preview="theme">
-                        <option value="dark">Dark</option>
-                        <option value="midnight">Midnight</option>
-                        <option value="forest">Forest</option>
-                        <option value="sakura">Sakura</option>
-                    </select>
-                </div>
-                <div class="setting-item">
-                    <label for="compact-mode-checkbox">Modo Compacto</label>
-                    <input type="checkbox" id="compact-mode-checkbox" data-config="compact" data-preview="compact">
-                </div>
-            </div>
-
-            <div id="page-chat" class="page" style="display: none;">
-                <h1>Chat</h1>
-                <div class="setting-item">
-                    <label for="font-size-slider">Tamaño de Fuente: <span id="font-size-value">14</span>px</label>
-                    <input type="range" id="font-size-slider" data-config="fontSize" data-preview="fontSize" min="10" max="20" step="0.5">
-                </div>
-            </div>
-
-            <div id="page-emotes" class="page" style="display: none;">
-                <h1>Emotes</h1>
-                <p>Configuración de emotes próximamente.</p>
-            </div>
-
-        </main>
+    <!-- CUENTAS -->
+    <div class="page active" id="page-cuentas">
+      <div class="page-title">Cuentas</div>
+      <div class="section">
+        <div class="section-title">Twitch</div>
+        <input type="text" data-config="twitchUser" placeholder="tucanal">
+        <button id="twitch-login-btn">Conectar con Twitch</button>
+        <button id="twitch-logout-btn" style="display:none;">Desconectar</button>
+        <div id="twitch-status" class="hint"></div>
+      </div>
     </div>
 
-    <footer class="footer-bar">
-        <button id="reset-button" class="btn-danger">Restaurar</button>
-        <div class="footer-actions">
-            <button id="cancel-button">Cancelar</button>
-            <button id="save-button">Guardar</button>
+    <!-- CHAT -->
+    <div class="page" id="page-chat" style="display:none;">
+      <div class="page-title">Chat</div>
+        <div class="setting-item">
+            <label for="font-size-slider">Tamaño de Fuente: <span id="font-size-value">14</span>px</label>
+            <input type="range" id="font-size-slider" data-config="fontSize" data-preview="fontSize" min="10" max="20" step="0.5">
         </div>
-    </footer>
+    </div>
 
-    <script src="js/settings/settings-helpers.js"></script>
-    <script src="js/settings/settings-form.js"></script>
-    <script src="js/settings/settings-ui.js"></script>
-    <script src="js/settings/settings-accounts.js"></script>
-    <script src="js/settings/settings-main.js"></script>
+    <!-- EMOTES -->
+    <div class="page" id="page-emotes" style="display:none;">
+      <div class="page-title">Emotes</div>
+       <p>Configuración de emotes próximamente.</p>
+    </div>
+
+    <!-- APARIENCIA -->
+    <div class="page" id="page-apariencia" style="display:none;">
+      <div class="page-title">Apariencia</div>
+      <div class="setting-item">
+          <label for="theme-select">Tema</label>
+          <select id="theme-select" data-config="theme" data-preview="theme">
+              <option value="dark">Dark</option>
+              <option value="midnight">Midnight</option>
+              <option value="forest">Forest</option>
+              <option value="sakura">Sakura</option>
+          </select>
+      </div>
+      <div class="setting-item">
+          <label for="compact-mode-checkbox">Modo Compacto</label>
+          <input type="checkbox" id="compact-mode-checkbox" data-config="compact" data-preview="compact">
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /body -->
+
+<div id="save-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 10px;">
+  <button id="reset-button" class="btn btn-danger">Restaurar</button>
+  <button id="cancel-button">Cancelar</button>
+  <button id="save-button" class="btn btn-primary">Guardar</button>
+</div>
+
+<script src="js/settings/settings-helpers.js"></script>
+<script src="js/settings/settings-form.js"></script>
+<script src="js/settings/settings-ui.js"></script>
+<script src="js/settings/settings-accounts.js"></script>
+<script src="js/settings/settings-main.js"></script>
+
 </body>
 </html>
