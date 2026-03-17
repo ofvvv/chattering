@@ -1,96 +1,76 @@
-function setDockPosition(pos) {
-    try {
-        const dock = document.getElementById('dock');
-        if (!dock) return;
-        document.body.classList.remove('dock-top', 'dock-bottom');
-        document.body.classList.add(`dock-${pos}`);
-    } catch (e) {
-        window.electronAPI.logError(`[setDockPosition] ${e.message}`);
-    }
+function toggleFilterBar() {
+    const bar = document.getElementById('filter-bar');
+    if (bar) bar.classList.toggle('open');
 }
 
-function setDockHeight(h) {
-    try {
-        const dock = document.getElementById('dock');
-        if (!dock) return;
-        dock.style.height = `${h}px`;
-    } catch (e) {
-        window.electronAPI.logError(`[setDockHeight] ${e.message}`);
+function setDockPosition(position) {
+    const dock = document.getElementById('top-dock');
+    const handle = document.getElementById('dock-resize-handle');
+    if (!dock || !handle) return;
+
+    if (position === 'top') {
+        document.body.classList.remove('dock-bottom');
+        document.body.classList.add('dock-top');
+    } else {
+        document.body.classList.remove('dock-top');
+        document.body.classList.add('dock-bottom');
     }
+    // Re-init drag para el nuevo layout
+    initDockDrag(handle, dock);
 }
 
-function onMsgCtxMenu(event, msgLine, data) {
-    try {
-        event.preventDefault();
-        closeAllCtxMenus();
-
-        const menu = document.createElement('div');
-        menu.className = 'ctx-menu';
-        menu.style.left = `${event.clientX}px`;
-        menu.style.top = `${event.clientY}px`;
-
-        // Opciones del menú
-        menu.innerHTML = `
-            <div class="ctx-item" onclick="replyToUser('${data.user.nick}')">@ Responder</div>
-            <div class="ctx-item" onclick="copyText('${data.text}')">Copiar Mensaje</div>
-            <div class="ctx-divider"></div>
-            <div class="ctx-item" onclick="timeoutUser('${data.user.id}', '${data.platform}', 600)">Timeout (10min)</div>
-            <div class="ctx-item" onclick="banUser('${data.user.id}', '${data.platform}')">Banear Usuario</div>
-        `;
-
-        document.body.appendChild(menu);
-        document.addEventListener('click', closeAllCtxMenus, { once: true });
-    } catch (e) {
-        window.electronAPI.logError(`[onMsgCtxMenu] ${e.message}`);
-    }
+function setDockHeight(height) {
+    const dock = document.getElementById('top-dock');
+    if (dock) dock.style.setProperty('--dock-height', `${height}px`);
 }
 
-function closeAllCtxMenus() {
-    try {
-        document.querySelectorAll('.ctx-menu').forEach(m => m.remove());
-    } catch (e) {
-        window.electronAPI.logError(`[closeAllCtxMenus] ${e.message}`);
-    }
+function initDockDrag(handle, dock) {
+    let isResizing = false;
+
+    handle.onmousedown = (e) => {
+        isResizing = true;
+        document.body.style.userSelect = 'none';
+        document.body.style.pointerEvents = 'none'; // Prevenir selección de texto/eventos de otros elementos
+    };
+
+    document.onmousemove = (e) => {
+        if (!isResizing) return;
+
+        const isDockTop = document.body.classList.contains('dock-top');
+        let newHeight;
+
+        if (isDockTop) {
+            newHeight = e.clientY - dock.offsetTop;
+        } else { // Dock bottom
+            newHeight = window.innerHeight - e.clientY;
+        }
+
+        // Limitar altura
+        if (newHeight > 50 && newHeight < window.innerHeight * 0.7) {
+            setDockHeight(newHeight);
+        }
+    };
+
+    document.onmouseup = (e) => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.userSelect = 'auto';
+            document.body.style.pointerEvents = 'auto';
+            // Guardar la nueva altura en la config
+            const newHeight = parseInt(dock.style.getPropertyValue('--dock-height'));
+            if (cfg.dockHeight !== newHeight) {
+                cfg.dockHeight = newHeight;
+                window.electronAPI.saveConfig(cfg);
+            }
+        }
+    };
 }
 
-// Funciones de acción (placeholders)
-async function replyToUser(nick) {
-    try {
-        const input = document.getElementById('chat-input-field');
-        if (!input) return;
-        input.value = `@${nick} ${input.value}`;
-        input.focus();
-    } catch (e) {
-        window.electronAPI.logError(`[replyToUser] ${e.message}`);
+// Inicializar drag en el arranque
+document.addEventListener('DOMContentLoaded', () => {
+    const handle = document.getElementById('dock-resize-handle');
+    const dock = document.getElementById('top-dock');
+    if (handle && dock) {
+        initDockDrag(handle, dock);
     }
-}
-
-async function copyText(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        showToast('Mensaje copiado al portapapeles');
-    } catch (e) {
-        window.electronAPI.logError(`[copyText] ${e.message}`);
-        showErrorToast('No se pudo copiar el mensaje');
-    }
-}
-
-async function timeoutUser(userId, platform, duration) {
-    try {
-        // Lógica para llamar al backend/API de la plataforma
-        console.log(`Timeout: ${userId} en ${platform} por ${duration}s`);
-        showToast(`Usuario ${userId} ha recibido un timeout.`);
-    } catch (e) {
-        window.electronAPI.logError(`[timeoutUser] ${e.message}`);
-    }
-}
-
-async function banUser(userId, platform) {
-    try {
-        // Lógica para llamar al backend/API de la plataforma
-        console.log(`Ban: ${userId} en ${platform}`);
-        showToast(`Usuario ${userId} ha sido baneado.`);
-    } catch (e) {
-        window.electronAPI.logError(`[banUser] ${e.message}`);
-    }
-}
+});

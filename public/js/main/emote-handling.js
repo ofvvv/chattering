@@ -1,85 +1,71 @@
-async function cargarEmotes(cfg) {
-    try {
-        const twitchId = cfg.twitchUserId;
-        if (!twitchId) {
-            console.warn('No hay ID de usuario de Twitch para cargar emotes de canal.');
-            return;
-        }
+let emotes = {
+    twitch: new Map(),
+    bttv: new Map(),
+    ffz: new Map(),
+    '7tv': new Map(),
+};
 
-        let emoteLoaded = false;
-        const providers = [
-            { name: '7TV', enabled: cfg.show7tvCanal, url: `https://7tv.io/v3/users/twitch/${twitchId}` },
-            { name: 'BTTV', enabled: cfg.showBttvCanal, url: `https://api.betterttv.net/3/cached/users/twitch/${twitchId}` },
-            { name: 'FFZ', enabled: cfg.showFfzCanal, url: `https://api.frankerfacez.com/v1/room/id/${twitchId}` }
-        ];
-
-        for (const provider of providers) {
-            if (provider.enabled) {
-                try {
-                    const response = await fetch(provider.url);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const data = await response.json();
-                    // Aquí iría la lógica para procesar y almacenar los emotes de cada proveedor
-                    // ej: process7TV(data), processBTTV(data), etc.
-                    console.log(`Emotes de canal de ${provider.name} cargados.`);
-                    emoteLoaded = true;
-                } catch (e) {
-                    window.electronAPI.logError(`[cargarEmotes] Failed to load ${provider.name} emotes: ${e.message}`);
-                }
-            }
-        }
-
-        if (emoteLoaded) {
-            console.log('Emotes de canal actualizados.');
-        }
-    } catch (e) {
-        window.electronAPI.logError(`[cargarEmotes] General Error: ${e.message}`);
+async function cargarEmotes(config) {
+    if (!config) {
+        console.warn('Configuración no disponible para cargar emotes.');
+        return;
     }
-}
+    console.log('Cargando emotes...');
 
-function replaceEmotes(text, messageEmotes) {
     try {
-        let processedText = text;
-        // Lógica para reemplazar emotes. Primero los emotes del mensaje, luego los globales.
-        // Esta es una simplificación. La lógica real necesitaría manejar solapamientos y prioridades.
-        
-        const allEmotes = [...(messageEmotes || []), ...globalEmotes]; // Simplificación
-
-        allEmotes.forEach(emote => {
-            const emoteHTML = `<img src="${emote.url}" alt="${emote.name}" class="emote">`;
-            // Usar un regex global para reemplazar todas las ocurrencias
-            const regex = new RegExp(`\\b${emote.name}\\b`, 'g');
-            processedText = processedText.replace(regex, emoteHTML);
-        });
-
-        return processedText;
+        if (config.twitchChannel) {
+            // Lógica para cargar emotes de Twitch, BTTV, FFZ, 7TV para el canal
+        }
+        if (config.show7tvGlobal) {
+            // Lógica para cargar emotes globales de 7TV
+        }
     } catch (e) {
-        window.electronAPI.logError(`[replaceEmotes] Error: ${e.message}`);
-        return text; // Devuelve el texto original en caso de error
+        window.electronAPI.logError(`[cargarEmotes] ${e.message}`);
     }
 }
 
 function setupEmoteObserver() {
-    // Lógica para el IntersectionObserver que anima solo los emotes visibles
-    try {
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    const src = img.dataset.src; // Asumiendo que la URL del emote animado está en data-src
-                    if (src) {
-                        img.src = src;
-                        observer.unobserve(img); // Dejar de observar una vez cargado
-                    }
-                }
-            });
-        }, { root: document.getElementById('chat'), rootMargin: '100px' });
+    // Lógica para observar el chat y reemplazar texto con emotes
+    // Esto puede ser complejo y requerir un MutationObserver
+}
 
-        // Esto debería ser llamado cada vez que se añaden nuevos mensajes
-        // O usar MutationObserver para detectar nuevos emotes y observarlos.
-    } catch (e) {
-        window.electronAPI.logError(`[setupEmoteObserver] Error: ${e.message}`);
+function toggleEmotePicker() {
+    const picker = document.getElementById('emote-picker');
+    if (picker) {
+        picker.classList.toggle('visible');
+        if (picker.classList.contains('visible')) {
+            renderEmotePicker();
+        }
     }
 }
 
-let globalEmotes = []; // Placeholder para emotes globales
+function renderEmotePicker() {
+    const grid = document.getElementById('ep-grid');
+    if (!grid) return;
+    grid.innerHTML = ''; // Limpiar
+
+    // Renderizar emotes de todas las fuentes
+    // Ejemplo para Twitch:
+    for (const [name, url] of emotes.twitch.entries()) {
+        const emoteEl = document.createElement('img');
+        emoteEl.src = url;
+        emoteEl.alt = name;
+        emoteEl.title = name;
+        emoteEl.classList.add('emote-picker-emote');
+        emoteEl.onclick = () => insertEmote(name);
+        grid.appendChild(emoteEl);
+    }
+    // ... repetir para bttv, ffz, 7tv ...
+}
+
+function filterEmotePicker(searchTerm) {
+    // Lógica para filtrar emotes en el picker
+}
+
+function insertEmote(emoteName) {
+    const input = document.getElementById('chat-input-field');
+    if (input) {
+        input.value += ` ${emoteName} `;
+        input.focus();
+    }
+}

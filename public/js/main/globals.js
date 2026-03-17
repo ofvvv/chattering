@@ -1,3 +1,4 @@
+
 const MAX_MESSAGES = 300;
 let msgLineCounter = 0;
 let totalMsgCount = 0;

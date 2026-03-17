@@ -1,3 +1,4 @@
+
 function setupInput() {
     try {
         const input = document.getElementById('chat-input-field');

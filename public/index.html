@@ -2,22 +2,14 @@
 <html lang="es" class="win-main">
 <head>
 <meta charset="utf-8"><title>Chattering</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/themes.css">
-<link rel="stylesheet" href="css/main/layout.css">
-<link rel="stylesheet" href="css/main/chat.css">
-<link rel="stylesheet" href="css/main/input.css">
-<link rel="stylesheet" href="css/main/dock.css">
-<link rel="stylesheet" href="css/main/overlays.css">
-<link rel="stylesheet" href="css/main/filters.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div id="toast"></div>
-
+<!-- Iconos de plataforma: SVG inline para compatibilidad en todas las ventanas -->
 <div id="titlebar" ondblclick="return false">
   <div id="titlebar-left">
-    <div id="app-title" style="-webkit-user-select: none; user-select: none;">Chatter<span>ing</span></div>
+    <div id="app-title">Chatter<span>ing</span></div>
     <div id="viewer-count" title="Espectadores en vivo" style="display: none;">
       <svg viewBox="0 0 16 16" fill="currentColor" width="9" height="9"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" fill-rule="evenodd" clip-rule="evenodd"/><circle cx="8" cy="8" r="2"/></svg>
       <span id="viewer-num">0</span>
@@ -30,7 +22,7 @@
         <line x1="2" y1="4" x2="14" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="6" y1="12" x2="10" y2="12"/>
       </svg>
     </button>
-    <button class="win-btn" id="btn-settings" onclick="window.electronAPI.openSettings()" title="Configuración (,) ">
+    <button class="win-btn" id="btn-settings" onclick="window.electronAPI.openSettings()" title="Configuración (,)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
         <circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"/>
       </svg>
@@ -190,15 +182,7 @@
 <script src="js/main/chat-rendering.js"></script>
 <script src="js/main/chat-input.js"></script>
 <script src="js/main/socket-handling.js"></script>
-<!-- El orquestador principal se carga al final -->
 <script src="js/main/main-app.js"></script>
-
-<script>
-  // Llamada segura para inicializar la aplicación
-  document.addEventListener('DOMContentLoaded', () => {
-    init();
-  });
-</script>
 
 </body>
 </html>

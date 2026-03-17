@@ -1,3 +1,4 @@
+
 function renderMessage(msg) {
     try {
         if (!msg || !msg.user || !msg.text) return;
@@ -103,7 +104,7 @@ function processMessageText(text, emotes) {
 // --- Funciones de Utilidad y Filtros ---
 
 function escapeHTML(str) {
-    return str.replace(/[<>"']/g, char => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    return str.replace(/[<>"'']/g, char => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 }
 
 function escapeRegExp(string) {

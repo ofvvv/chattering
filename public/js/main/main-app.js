@@ -1,3 +1,4 @@
+
 let searchActive = false;
 
 function openSearch() {

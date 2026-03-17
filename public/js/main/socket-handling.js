@@ -1,3 +1,4 @@
+
 socket.on('msg', (data) => {
     try {
         renderMessage(data);
