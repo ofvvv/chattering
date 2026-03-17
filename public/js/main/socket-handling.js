@@ -1,5 +1,3 @@
-const SERVER = 'http://localhost:3000'
-const socket = io(SERVER, { transports: ['websocket'], upgrade: false });
 
 socket.on('connect', () => {
     try {
