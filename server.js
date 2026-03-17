@@ -181,6 +181,28 @@ app.post('/api/twitch/token-received', async (req, res) => {
     }
 });
 
+app.post('/api/mod', async (req, res) => {
+    const { platform, username, action, duration, reason } = req.body || {};
+    if (!platform || !username || !action) {
+        return res.status(400).json({ ok: false, error: 'Faltan parámetros: platform, username, action' });
+    }
+
+    try {
+        if (platform === 'TW') {
+            const channel = config.twitchUser;
+            if (!channel) return res.status(400).json({ ok: false, error: 'Canal de Twitch no configurado' });
+            
+            await twitch.mod(channel, username, action, duration, reason);
+            res.json({ ok: true, message: `Acción '${action}' aplicada a '${username}'` });
+        } else {
+            res.status(400).json({ ok: false, error: 'Plataforma no soportada para moderación' });
+        }
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+
 app.post('/api/reconnect', (req, res) => { reconnectAll(); res.json({ ok: true }) })
 
 // Endpoints de Test

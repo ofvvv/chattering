@@ -83,8 +83,12 @@ export function connect(channel) {
 
         client.on('message', (ch, tags, message, self) => {
             try {
-                // Si la opción está desactivada (false) Y el mensaje es propio (self), lo ignoramos.
-                if (config.showOwnMessages === false && self) return
+                if (self) {
+                    console.log(`[Twitch] Received self-message. Config showOwnMessages: ${config.showOwnMessages}`);
+                }
+                if (config.showOwnMessages === false && self) {
+                    return console.log('[Twitch] Ignored self-message due to config.');
+                }
 
                 const user = tags['display-name'] || tags.username || 'unknown'
                 const userId = tags['user-id']
@@ -198,6 +202,38 @@ export async function say(channel, text) {
         return clientRef.say(targetChannel, text)
     } catch (e) {
         console.error('[Twitch] Error sending message:', e.message)
+        throw e
+    }
+}
+
+export async function mod(channel, username, action, duration = 600, reason = '') {
+    try {
+        if (!clientRef || clientRef.readyState() !== 'OPEN') throw new Error('Not connected to Twitch chat.')
+        if (!config.twitchToken) throw new Error('Twitch token is required for moderation.')
+        
+        const targetChannel = channel.startsWith('#') ? channel.toLowerCase() : `#${channel.toLowerCase()}`
+        console.log(`[Twitch] Moderation action: ${action} on ${username} in ${targetChannel}`)
+
+        switch (action) {
+            case 'timeout':
+                return clientRef.timeout(targetChannel, username, duration, reason)
+            case 'ban':
+                return clientRef.ban(targetChannel, username, reason)
+            case 'unban':
+                return clientRef.unban(targetChannel, username)
+            case 'vip':
+                return clientRef.vip(targetChannel, username)
+            case 'unvip':
+                return clientRef.unvip(targetChannel, username)
+            case 'mod':
+                return clientRef.mod(targetChannel, username)
+            case 'unmod':
+                return clientRef.unmod(targetChannel, username)
+            default:
+                throw new Error(`Unsupported moderation action: ${action}`)
+        }
+    } catch (e) {
+        console.error(`[Twitch] Error performing ${action} on ${username}:`, e.message)
         throw e
     }
 }
