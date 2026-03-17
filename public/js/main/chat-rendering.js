@@ -1,201 +1,16 @@
 'use strict'
 
-let userCtxMenu = null
-let emoteCtxMenu = null
-
-function showUserContextMenu(user, userId, plat, event) {
-    closeAllCtxMenus()
-    event.preventDefault()
-    event.stopPropagation()
-
-    const isTwitch = plat === 'TW'
-    const canMod = isTwitch && cfg.twitchUser && cfg.twitchToken
-
-    let modItems = ''
-    if (canMod && user.toLowerCase() !== cfg.twitchUser.toLowerCase()) {
-        modItems = `
-            <div class="ctx-sep"></div>
-            <div class="ctx-item" onclick="modAction('${userId}', '${user}', 'timeout', 600)">🚫 Timeout (10 min)</div>
-            <div class="ctx-item" onclick="modAction('${userId}', '${user}', 'ban')">🔨 Ban</div>
-            <div class="ctx-sep"></div>
-            <div class="ctx-item" onclick="modAction('${userId}', '${user}', 'vip')">💎 VIP</div>
-            <div class="ctx-item" onclick="modAction('${userId}', '${user}', 'unvip')">💔 Un-VIP</div>
-        `
-    }
-
-    const menuHtml = `
-        <div id="user-ctx-menu" class="ctx-menu">
-            <div class="ctx-name">${user}</div>
-            <div class="ctx-item" onclick="startReply('${user}','','')">↪️ Responder</div>
-            <div class="ctx-item" onclick="copyToClipboard('@${user}', 'usuario')">📋 Copiar usuario</div>
-            ${modItems}
-            <div class="ctx-sep"></div>
-            <div class="ctx-item" onclick="closeAllCtxMenus()">✕ Cerrar</div>
-        </div>
-    `
-    document.body.insertAdjacentHTML('beforeend', menuHtml)
-    userCtxMenu = document.getElementById('user-ctx-menu')
-    positionCtxMenu(userCtxMenu, event)
-}
-
-function showEmoteContextMenu(emoteName, emoteUrl, platform, event) {
-    closeAllCtxMenus()
-    event.preventDefault()
-    event.stopPropagation()
-
-    const menuHtml = `
-        <div id="emote-ctx-menu" class="ctx-menu">
-            <div class="ctx-name">${emoteName}</div>
-            <div class="ctx-sep"></div>
-            <div class="ctx-item" onclick="copyToClipboard('${emoteName}', 'emote')">📋 Copiar nombre</div>
-            <div class="ctx-item" onclick="copyToClipboard('${emoteUrl}', 'URL del emote')">🔗 Copiar URL</div>
-            <div class="ctx-item" onclick="window.electronAPI.downloadEmote('${emoteUrl}', '${emoteName}')">⬇️ Descargar</div>
-            <div class="ctx-sep"></div>
-            <div class="ctx-item" onclick="closeAllCtxMenus()">✕ Cerrar</div>
-        </div>
-    `
-    document.body.insertAdjacentHTML('beforeend', menuHtml)
-    emoteCtxMenu = document.getElementById('emote-ctx-menu')
-    positionCtxMenu(emoteCtxMenu, event)
-}
-
-
-function positionCtxMenu(menu, event) {
-    const { clientX: mouseX, clientY: mouseY } = event
-    const { innerWidth, innerHeight } = window
-    menu.style.left = `${Math.min(mouseX, innerWidth - menu.offsetWidth - 5)}px`
-    menu.style.top = `${Math.min(mouseY, innerHeight - menu.offsetHeight - 5)}px`
-}
-
-function closeAllCtxMenus() {
-    if (userCtxMenu) {
-        userCtxMenu.remove()
-        userCtxMenu = null
-    }
-    if (emoteCtxMenu) {
-        emoteCtxMenu.remove()
-        emoteCtxMenu = null
-    }
-}
-
-function copyToClipboard(text, type) {
-    navigator.clipboard.writeText(text).then(() => {
-        showToast(`✓ ${type} copiado`)
-    }).catch(err => {
-        showToast(`❌ Error al copiar`)
-    })
-    closeAllCtxMenus()
-}
-
-// Listener global para cerrar menús contextuales al hacer clic fuera
-document.addEventListener('click', (e) => {
-    if (userCtxMenu && !userCtxMenu.contains(e.target)) {
-        closeAllCtxMenus()
-    }
-    if (emoteCtxMenu && !emoteCtxMenu.contains(e.target)) {
-        closeAllCtxMenus()
-    }
-});
-
-// ── DOCK ──────────────────────────────────────────────────────────────────────
-const dockScroll=document.getElementById('dock-scroll')
-const dockInner=document.getElementById('dock-inner')
-
-let dockAutoScrollTimer = null
-let dockUserInteracted = false
-
-function scheduleDockAutoScroll() {
-    if (dockAutoScrollTimer) clearTimeout(dockAutoScrollTimer)
-    dockAutoScrollTimer = setTimeout(() => {
-        if (!dockUserInteracted) {
-            dockScroll.scrollTop = dockScroll.scrollHeight
-        }
-        dockUserInteracted = false
-    }, 10000)
-}
-
-dockScroll.addEventListener('scroll', () => {
-    dockUserInteracted = true
-    scheduleDockAutoScroll()
-})
-
-dockScroll.addEventListener('wheel', () => {
-    dockUserInteracted = true
-})
-
-function addToDock(type,user,actionText,giftImgUrl,noAnim=false){
-    if(type==='follow'&&cfg.showFollows===false)return
-    if(type==='gift'&&cfg.showGifts===false)return
-    const empty=document.getElementById('dock-empty');if(empty)empty.remove()
-    const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
-    const row=document.createElement('div');row.className=`dock-event dock-event-${type}`
-    if(noAnim)row.style.animation='none'
-    const icon=document.createElement('div');icon.className=`dock-event-icon dock-icon-${type}`
-    if(type==='gift'&&giftImgUrl){const img=document.createElement('img');img.src=giftImgUrl;img.className='dock-gift-img';img.alt='';img.onerror=()=>img.replaceWith(document.createTextNode('🎁'));icon.appendChild(img)}
-    else icon.textContent=type==='follow'?'👤':'🎁'
-    const body=document.createElement('div');body.className='dock-event-body'
-    const uSpan=document.createElement('span');uSpan.className=`dock-user dock-${type}-color`;uSpan.textContent=user
-    const aSpan=document.createElement('span');aSpan.className='dock-action';aSpan.textContent=actionText
-    body.appendChild(uSpan);body.appendChild(aSpan);row.appendChild(icon);row.appendChild(body)
-    dockInner.appendChild(row)
-    const dockEvents=dockInner.querySelectorAll('.dock-event')
-    for(let i=0;i<dockEvents.length-MAX_DOCK;i++)dockEvents[i].remove()
-    if(wasAtBottom)dockScroll.scrollTop=dockScroll.scrollHeight
-    scheduleDockAutoScroll()
-}
-function updateLikeRow(user,uid,count){
-    if(cfg.showLikes===false)return
-    const empty=document.getElementById('dock-empty');if(empty)empty.remove()
-    const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
-    let existingLike = null
-    const likeEvents = dockInner.querySelectorAll('.dock-event-like')
-    likeEvents.forEach(ev => {
-        if(ev.dataset.userId === uid) existingLike = ev
-    })
-    if(existingLike) {
-        const currentCount = parseInt(existingLike.dataset.count || '0')
-        const newCount = currentCount + count
-        existingLike.dataset.count = newCount
-        existingLike.querySelector('.dock-action').textContent = ` ${newCount} ❤`
-        dockInner.appendChild(existingLike)
-    } else {
-        const row=document.createElement('div')
-        row.className='dock-event dock-event-like'
-        row.dataset.userId = uid
-        row.dataset.count = count
-        const icon=document.createElement('div')
-        icon.className='dock-event-icon dock-icon-like'
-        icon.textContent='❤'
-        const body=document.createElement('div')
-        body.className='dock-event-body'
-        const uSpan=document.createElement('span')
-        uSpan.className='dock-user dock-like-color'
-        uSpan.textContent=user
-        const aSpan=document.createElement('span')
-        aSpan.className='dock-action'
-        aSpan.textContent=` ${count} ❤`
-        body.appendChild(uSpan)
-        body.appendChild(aSpan)
-        row.appendChild(icon)
-        row.appendChild(body)
-        dockInner.appendChild(row)
-    }
-    while(dockInner.children.length>MAX_DOCK){
-        const first=dockInner.firstElementChild
-        if(first&&first.id!=='dock-empty')first.remove()
-    }
-    if(wasAtBottom||!dockUserInteracted){dockScroll.scrollTop=dockScroll.scrollHeight;dockUserInteracted=false}
-    scheduleDockAutoScroll()
-}
-
 // ── CHAT ──────────────────────────────────────────────────────────────────────
 const chatDiv = document.getElementById('chat');
 const pausedBadge = document.getElementById('scroll-paused');
-let replyTo = null
 
-const isAtBottom = () => chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight < 60;
+const isAtBottom = () => {
+    if(!chatDiv) return true;
+    return chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight < 60;
+}
 
 function updatePauseBadge() {
+    if(!pausedBadge) return;
     if (!isAtBottom()) {
         pausedBadge.classList.add('visible');
     } else {
@@ -203,29 +18,37 @@ function updatePauseBadge() {
     }
 }
 
-chatDiv.addEventListener('scroll', () => {
-    if (isAtBottom()) {
+if(chatDiv){
+    chatDiv.addEventListener('scroll', () => {
+        if (isAtBottom()) {
+            pausedBadge.classList.remove('visible');
+        }
+    }, { passive: true });
+}
+
+if(pausedBadge){
+    pausedBadge.addEventListener('click', () => {
+        if(!chatDiv) return;
+        chatDiv.scrollTop = chatDiv.scrollHeight;
         pausedBadge.classList.remove('visible');
-    }
-}, { passive: true });
+    });
+}
 
-pausedBadge.addEventListener('click', () => {
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-    pausedBadge.classList.remove('visible');
-});
-
-chatDiv.addEventListener('click', async e => {
-    const link = e.target.closest('.profile-link')
-    if (!link) return
-    e.stopPropagation()
-    if (e.ctrlKey || e.button === 1) {
-        if (link.dataset.url) window.electronAPI.openExternal(link.dataset.url)
-        return
-    }
-    showUserContextMenu(link.dataset.user, link.dataset.userid, link.dataset.plat, e)
-});
+if(chatDiv){
+    chatDiv.addEventListener('click', async e => {
+        const link = e.target.closest('.profile-link')
+        if (!link) return
+        e.stopPropagation()
+        if (e.ctrlKey || e.button === 1) {
+            if (link.dataset.url) window.electronAPI.openExternal(link.dataset.url)
+            return
+        }
+        showUserContextMenu(link.dataset.user, link.dataset.userid, link.dataset.plat, e)
+    });
+}
 
 function appendAndScroll(element) {
+    if(!chatDiv) return;
     const shouldScroll = isAtBottom();
     chatDiv.appendChild(element);
     if (chatDiv.childElementCount > MAX_CHAT_NODES) {
@@ -234,7 +57,7 @@ function appendAndScroll(element) {
     if (shouldScroll) {
         chatDiv.scrollTop = chatDiv.scrollHeight;
     } else {
-        pausedBadge.classList.add('visible');
+        if(pausedBadge) pausedBadge.classList.add('visible');
     }
 }
 
@@ -406,7 +229,8 @@ function startReply(user, text, msgId) {
     document.getElementById('reply-bar').classList.add('open')
     document.getElementById('reply-user').textContent = user
     document.getElementById('reply-text').textContent = text.slice(0,60)+(text.length>60?'…':'')
-    document.getElementById('chat-input-field')?.focus()
+    const chatInputField = document.getElementById('chat-input-field')
+    if(chatInputField) chatInputField.focus()
     closeAllCtxMenus()
 }
 
