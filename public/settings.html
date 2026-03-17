@@ -7,14 +7,14 @@
 <body>
 <div id="titlebar">
   <div id="tb-title">⚙ Configuración — Chattering</div>
-  <button id="tb-close" onclick="window.electronAPI.closeSettings()">✕</button>
+  <button id="tb-close">✕</button>
 </div>
 
 <div id="body">
   <!-- SIDEBAR -->
   <div id="sidebar">
     <div style="padding:8px 8px 4px">
-      <input id="sb-search" type="text" placeholder="🔍 Buscar..." oninput="filterSettings(this.value)"
+      <input id="sb-search" type="text" placeholder="🔍 Buscar..." 
         style="width:100%;background:#111115;border:1px solid #2a2a32;color:#dadada;padding:5px 8px;font-size:11px;border-radius:4px;outline:none;font-family:inherit">
     </div>
     <div class="sb-section">Plataformas</div>
@@ -74,7 +74,7 @@
             <input type="text" id="s-tt" placeholder="usuario de tiktok" style="padding-left:18px">
           </div>
         </div>
-        <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
+        <button class="btn btn-twitch" id="btn-tt-login" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
           <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
         </button>
         <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
@@ -104,7 +104,7 @@
           </div>
         </div>
         <input type="hidden" id="s-tw-token">
-        <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()" style="width:100%">
+        <button class="btn btn-twitch" id="s-tw-oauth-btn" style="width:100%">
           <span id="s-tw-oauth-label">Conectar con Twitch</span>
         </button>
         <div id="s-tw-status" class="hint">Conecta para leer chat y moderar.</div>
@@ -136,7 +136,7 @@
         <div class="section-title">Comportamiento</div>
         <div class="row"><div class="row-label"><div class="label">Mostrar mis propios mensajes</div><div class="sublabel">Muestra los mensajes que envías desde la app</div></div><label class="toggle"><input type="checkbox" id="s-show-own-messages"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Scroll invertido</div><div class="sublabel">Mensajes nuevos arriba</div></div><label class="toggle"><input type="checkbox" id="s-scroll-invert"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-        <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Preview de links</div></div><label class="toggle"><input type="checkbox" id="s-link-previews"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Animación entrada mensajes</div></div><label class="toggle"><input type="checkbox" id="s-msg-anim"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Accesibilidad — forzar colores legibles</div><div class="sublabel">Ajusta nombres con poco contraste</div></div><label class="toggle"><input type="checkbox" id="s-accessibility"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -202,7 +202,7 @@
       <div class="divider"></div>
       <div class="section">
         <div class="section-title">Texto a Voz (TTS)</div>
-        <div class="row"><div class="row-label"><div class="label">Activar TTS</div></div><label class="toggle"><input type="checkbox" id="s-tts-enabled" onchange="updateTtsUI()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Activar TTS</div></div><label class="toggle"><input type="checkbox" id="s-tts-enabled"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div id="tts-opts" style="display:flex;flex-direction:column;gap:8px;opacity:.3;pointer-events:none;transition:opacity .2s">
           <div class="row"><div class="row-label"><div class="label" style="color:#aaa">TikTok</div></div><label class="toggle"><input type="checkbox" id="s-tts-TT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
           <div class="row"><div class="row-label"><div class="label" style="color:#ff6060">YouTube</div></div><label class="toggle"><input type="checkbox" id="s-tts-YT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -240,19 +240,19 @@
       <div class="section">
         <div class="section-title">Fuente y densidad</div>
         <div class="row"><div class="row-label"><div class="label">Tamaño de fuente</div></div>
-          <div class="slider-wrap" style="width:150px"><input type="range" id="s-fontsize" min="10" max="20" step=".5" value="13.5" oninput="document.getElementById('font-size-val').textContent=this.value+'px';previewChange()"><span class="slider-val" id="font-size-val">13.5px</span></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-fontsize" min="10" max="20" step=".5" value="13.5" oninput="document.getElementById('font-size-val').textContent=this.value+'px'"><span class="slider-val" id="font-size-val">13.5px</span></div>
         </div>
-        <div class="row"><div class="row-label"><div class="label">Modo compacto</div><div class="sublabel">Reduce padding y altura de mensajes</div></div><label class="toggle"><input type="checkbox" id="s-compact" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Modo compacto</div><div class="sublabel">Reduce padding y altura de mensajes</div></div><label class="toggle"><input type="checkbox" id="s-compact"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
       <div class="section">
         <div class="section-title">Ventana</div>
-        <div class="row"><div class="row-label"><div class="label">Siempre visible (Always on Top)</div></div><label class="toggle"><input type="checkbox" id="s-always-top" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-        <div class="row"><div class="row-label"><div class="label">Fondo translúcido</div><div class="sublabel">Requiere Always on Top</div></div><label class="toggle"><input type="checkbox" id="s-translucent" onchange="updateTranslucent();previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Siempre visible (Always on Top)</div></div><label class="toggle"><input type="checkbox" id="s-always-top"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Fondo translúcido</div><div class="sublabel">Requiere Always on Top</div></div><label class="toggle"><input type="checkbox" id="s-translucent"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row" id="opacity-row" style="opacity:.3;pointer-events:none"><div class="row-label"><div class="label">Opacidad de la ventana</div></div>
-          <div class="slider-wrap" style="width:150px"><input type="range" id="s-opacity" min="20" max="100" step="5" value="90" oninput="document.getElementById('opacity-val').textContent=this.value+'%';previewChange()"><span class="slider-val" id="opacity-val">90%</span></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-opacity" min="20" max="100" step="5" value="90" oninput="document.getElementById('opacity-val').textContent=this.value+'%'"><span class="slider-val" id="opacity-val">90%</span></div>
         </div>
         <div class="row"><div class="row-label"><div class="label">Posición del dock</div></div>
-          <select id="s-dock-pos" onchange="previewChange()"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
+          <select id="s-dock-pos"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
         </div>
       </div>
     </div>
@@ -279,7 +279,7 @@
       </div>
       <div class="section">
         <div class="section-title">Datos</div>
-        <div class="row"><div class="row-label"><div class="label">Restablecer configuración</div><div class="sublabel">Vuelve al setup inicial. No borra el historial.</div></div><button class="btn btn-danger" onclick="resetConfig()">Restablecer</button></div>
+        <div class="row"><div class="row-label"><div class="label">Restablecer configuración</div><div class="sublabel">Vuelve al setup inicial. No borra el historial.</div></div><button id="btn-reset" class="btn btn-danger">Restablecer</button></div>
       </div>
     </div>
 
@@ -288,404 +288,17 @@
 
 <div id="save-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 10px;">
   <span id="save-status" style="margin-right: auto; font-size: 11px; color: #888;"></span>
-  <button class="btn btn-secondary" onclick="window.electronAPI.closeSettings()">Cancelar</button>
-  <button class="btn btn-primary" onclick="guardar()">Guardar cambios</button>
+  <button id="btn-cancel" class="btn btn-secondary">Cancelar</button>
+  <button id="btn-save" class="btn btn-primary">Guardar cambios</button>
 </div>
 
 <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script>
-const SERVER = 'http://localhost:3000'
-let cfg = {}
-let selectedTheme = 'dark'
-let blockedWords = [], highlights = []
-const socket = io(SERVER);
+<script src="js/settings/settings-helpers.js"></script>
+<script src="js/settings/settings-tags.js"></script>
+<script src="js/settings/settings-form.js"></script>
+<script src="js/settings/settings-ui.js"></script>
+<script src="js/settings/settings-accounts.js"></script>
+<script src="js/settings/settings-main.js"></script>
 
-function filterSettings(q) {
-    const ql = q.toLowerCase().trim()
-    if (!ql) {
-        document.querySelectorAll('.sb-item').forEach(i => { i.style.display=''; i.style.background='' })
-        document.querySelectorAll('.row, .section').forEach(r => r.style.display='')
-        return
-    }
-    document.querySelectorAll('.sb-item').forEach(item => {
-        item.style.display = item.textContent.toLowerCase().includes(ql) ? '' : 'none'
-    })
-    document.querySelectorAll('.row').forEach(row => {
-        const text = row.textContent.toLowerCase()
-        row.style.background = text.includes(ql) ? 'rgba(155,155,245,.08)' : ''
-        row.style.display = ''
-    })
-}
-
-async function previewChange() {
-    const partial = {
-        compact:      document.getElementById('s-compact')?.checked,
-        fontSize:     parseFloat(document.getElementById('s-fontsize')?.value || '13.5'),
-        msgAnimation: document.getElementById('s-msg-anim')?.checked,
-        scrollInvert: document.getElementById('s-scroll-invert')?.checked,
-        alwaysOnTop:  document.getElementById('s-always-top')?.checked,
-        translucent:  document.getElementById('s-translucent')?.checked,
-        windowOpacity: parseInt(document.getElementById('s-opacity')?.value || '90'),
-        showTimestamps: document.getElementById('s-timestamps')?.checked,
-        linkPreviews:   document.getElementById('s-link-previews')?.checked,
-        modHoverMenu:   document.getElementById('s-mod-hover')?.checked,
-        theme:          selectedTheme,
-        dockPosition:   document.getElementById('s-dock-pos')?.value
-    }
-    try { await window.electronAPI.previewSettings(partial) } catch {}
-}
-
-function testSoundPreview(type) {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)()
-        const vol = (parseInt(document.getElementById('s-volume')?.value || '60') / 100) * 0.5
-        const play = (freq, start, dur) => {
-            const osc = ctx.createOscillator()
-            const gain = ctx.createGain()
-            osc.connect(gain); gain.connect(ctx.destination)
-            osc.frequency.value = freq
-            gain.gain.setValueAtTime(vol, ctx.currentTime + start)
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
-            osc.start(ctx.currentTime + start)
-            osc.stop(ctx.currentTime + start + dur + 0.05)
-        }
-        if (type === 'follow')  { play(660, 0, 0.12); play(880, 0.13, 0.1) }
-        else if (type === 'gift') { play(523, 0, 0.1); play(659, 0.09, 0.1); play(784, 0.18, 0.1) }
-        else { play(440, 0, 0.08); play(554, 0.1, 0.12) }
-    } catch {}
-}
-
-async function init() {
-    cfg = (await window.electronAPI.getConfig()) || {}
-    loadForm()
-
-    socket.on('twitch_auth', (data) => {
-        const btn = document.getElementById('s-tw-oauth-btn');
-        const lbl = document.getElementById('s-tw-oauth-label');
-        const status = document.getElementById('s-tw-status');
-
-        if (data.ok && data.token && data.user) {
-            console.log('Twitch auth success from socket', data);
-            
-            document.getElementById('s-tw').value = data.user;
-            document.getElementById('s-tw-token').value = data.token;
-            
-            lbl.textContent = `✓ Conectado como ${data.user}`;
-            btn.className = 'btn btn-twitch connected';
-            status.textContent = '¡Conexión exitosa! Guardando automáticamente...';
-            status.style.color = '#53fc18';
-            
-            guardar();
-
-        } else {
-            console.error('Twitch auth failed from socket', data);
-            lbl.textContent = 'Error de conexión';
-            btn.className = 'btn btn-twitch';
-            status.textContent = data.error || 'No se pudo verificar la cuenta. Intenta de nuevo.';
-            status.style.color = '#ff6060';
-        }
-    });
-}
-
-function loadForm() {
-    set('s-tt', cfg.tiktokUser||'')
-    set('s-yt', cfg.youtubeChannelId||'')
-    set('s-tw', cfg.twitchUser||'')
-
-    const ttBtn = document.getElementById('btn-tt-login')
-    const ttLbl = document.getElementById('tt-btn-label')
-    const ttSt  = document.getElementById('tt-status-msg')
-    if (cfg.tiktokSessionId && cfg.tiktokUser) {
-        ttLbl.textContent = '✓ Conectado como @' + cfg.tiktokUser
-        ttBtn.style.background = '#1a4a1a'
-        ttBtn.style.borderColor = '#53fc18'
-        ttBtn.style.color = '#53fc18'
-        ttSt.textContent = 'Haz clic para reconectar o cambiar cuenta'
-        ttSt.className = 'hint status-ok'
-    } else if (cfg.tiktokUser) {
-        ttLbl.textContent = 'Actualizar conexión a @' + cfg.tiktokUser
-        ttSt.textContent = 'Tu conexión a TikTok es antigua. Por favor revincula.'
-        ttSt.style.color = '#ffaa00'
-    }
-    document.getElementById('s-tw-token').value = cfg.twitchToken||''
-
-    const btn = document.getElementById('s-tw-oauth-btn')
-    const lbl = document.getElementById('s-tw-oauth-label')
-    const st  = document.getElementById('s-tw-status')
-    if (cfg.twitchToken && cfg.twitchUser) {
-        lbl.textContent = '✓ Conectado como ' + (cfg.twitchUser)
-        btn.className = 'btn btn-twitch connected'
-        st.textContent = 'Haz clic para reconectar o cambiar cuenta'
-        st.className = 'hint'
-    } 
-
-    set('s-streamer', cfg.streamerName||'')
-    chk('s-filter-subs', cfg.filterSubsOnly)
-    chk('s-filter-mods', cfg.filterModsOnly)
-    chk('s-hide-bots', cfg.hideBots)
-    chk('s-block-enabled', cfg.blockedWordsEnabled)
-    chk('s-show-own-messages', cfg.showOwnMessages !== false) // Default a true
-    chk('s-scroll-invert', cfg.scrollInvert===true)
-    chk('s-timestamps', cfg.showTimestamps!==false)
-    chk('s-link-previews', cfg.linkPreviews!==false)
-    chk('s-msg-anim', cfg.msgAnimation!==false)
-    chk('s-accessibility', cfg.accessibility===true)
-
-    chk('s-7tv-global', cfg.show7tvGlobal!==false)
-    chk('s-7tv-canal', cfg.show7tvCanal!==false)
-    chk('s-bttv-global', cfg.showBttvGlobal!==false)
-    chk('s-bttv-canal', cfg.showBttvCanal!==false)
-    chk('s-ffz-global', cfg.showFfzGlobal!==false)
-    chk('s-ffz-canal', cfg.showFfzCanal!==false)
-
-    chk('s-mod-hover', cfg.modHoverMenu!==false)
-    chk('s-show-banned', cfg.showBannedMessages===true)
-    chk('s-test-buttons', cfg.showTestButtons===true)
-
-    chk('s-show-follows', cfg.showFollows!==false)
-    chk('s-show-gifts', cfg.showGifts!==false)
-    chk('s-show-likes', cfg.showLikes!==false)
-    chk('s-sounds-enabled', cfg.soundsEnabled===true)
-    chk('s-sound-follow', cfg.soundFollow===true)
-    chk('s-sound-gift', cfg.soundGift===true)
-    chk('s-sound-mention', cfg.soundMention===true)
-    const vol = cfg.soundVolume||60
-    document.getElementById('s-volume').value = vol
-    document.getElementById('vol-val').textContent = vol
-    chk('s-tts-enabled', cfg.ttsEnabled===true)
-    chk('s-tts-TT', cfg.ttsTT===true)
-    chk('s-tts-YT', cfg.ttsYT===true)
-    chk('s-tts-TW', cfg.ttsTW===true)
-    chk('s-tts-noname', cfg.ttsNoName===true)
-    chk('s-tts-no-emoji', cfg.ttsNoEmoji!==false)
-    updateTtsUI()
-
-    const fs = cfg.fontSize||13.5
-    document.getElementById('s-fontsize').value = fs
-    document.getElementById('font-size-val').textContent = fs+'px'
-    chk('s-compact', cfg.compact===true)
-    chk('s-always-top', cfg.alwaysOnTop===true)
-    chk('s-translucent', cfg.translucent===true)
-    const op = cfg.windowOpacity||90
-    document.getElementById('s-opacity').value = op
-    document.getElementById('opacity-val').textContent = op+'%'
-    updateTranslucent()
-    document.getElementById('s-dock-pos').value = cfg.dockPosition||'top'
-
-    selectedTheme = cfg.theme||'dark'
-    setTheme(selectedTheme)
-        
-    chk('s-hw-accel', cfg.disableHWAccel!==true)
-    chk('s-auto-update', cfg.autoUpdateDisabled!==true)
-
-    window.electronAPI.getVersion().then(v => { const el=document.getElementById('app-version'); if(el) el.textContent='v'+v }).catch(()=>{})
-
-    blockedWords = cfg.blockedWords||[]
-    highlights = cfg.customHighlights||[]
-    renderTags('blocked-tags-wrap', blockedWords, false)
-    renderTags('highlight-tags-wrap', highlights, true)
-    makeTagsInput('blocked-tags-wrap', 'blocked-input', blockedWords, false)
-    makeTagsInput('highlight-tags-wrap', 'highlight-input', highlights, true)
-}
-
-function set(id, v) { const el=document.getElementById(id); if(el) el.value=v }
-function chk(id, v) { const el=document.getElementById(id); if(el) el.checked=!!v }
-
-function renderTags(wrapId, arr, isHighlight) {
-    const wrap = document.getElementById(wrapId)
-    wrap.querySelectorAll('.tag-chip').forEach(c=>c.remove())
-    arr.forEach(word => {
-        const chip = document.createElement('span')
-        chip.className = 'tag-chip' + (isHighlight?' hl':'')
-        chip.innerHTML = `${word} <button onclick="removeTag('${wrapId}','${word}',${isHighlight})">✕</button>`
-        wrap.insertBefore(chip, wrap.querySelector('input') || null)
-    })
-}
-
-function removeTag(wrapId, word, isHighlight) {
-    const arr = isHighlight ? highlights : blockedWords
-    const idx = arr.indexOf(word)
-    if(idx>=0) arr.splice(idx,1)
-    renderTags(wrapId, arr, isHighlight)
-}
-
-function makeTagsInput(wrapId, inputId) {
-    const input = document.getElementById(inputId)
-    if(!input) return
-    input.style.display = 'inline'
-    document.getElementById(wrapId).appendChild(input)
-    input.addEventListener('keydown', e => {
-        const isHighlight = wrapId.includes('highlight')
-        const arr = isHighlight ? highlights : blockedWords
-        if((e.key==='Enter'||e.key==',')&&input.value.trim()) {
-            e.preventDefault()
-            const w=input.value.replace(',','').trim()
-            if(w&&!arr.includes(w)) { arr.push(w); renderTags(wrapId,arr,isHighlight) }
-            input.value=''
-        }
-        if(e.key==='Backspace'&&!input.value&&arr.length) {
-            arr.pop(); renderTags(wrapId,arr,isHighlight)
-        }
-    })
-}
-
-function goTo(page, el) {
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
-    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'))
-    document.getElementById('page-'+page).classList.add('active')
-    el.classList.add('active')
-}
-
-function setTheme(t) {
-    selectedTheme = t
-    document.querySelectorAll('.shape-card[id^="theme-"]').forEach(c=>c.classList.remove('active'))
-    const el = document.getElementById('theme-'+t)
-    if(el) el.classList.add('active')
-    previewChange()
-}
-
-function updateTtsUI() {
-    const on = document.getElementById('s-tts-enabled').checked
-    const opts = document.getElementById('tts-opts')
-    opts.style.opacity = on ? '1' : '0.3'
-    opts.style.pointerEvents = on ? 'auto' : 'none'
-}
-
-function updateTranslucent() {
-    const on = document.getElementById('s-translucent').checked
-    const row = document.getElementById('opacity-row')
-    row.style.opacity = on ? '1' : '0.3'
-    row.style.pointerEvents = on ? 'auto' : 'none'
-}
-
-async function guardar() {
-    const statusEl = document.getElementById('save-status')
-    statusEl.textContent = 'Guardando...'
-    const newCfg = {
-        ...cfg,
-        tiktokUser:         document.getElementById('s-tt').value.replace('@','').trim(),
-        youtubeChannelId:   document.getElementById('s-yt').value.trim(),
-        twitchUser:         document.getElementById('s-tw').value.trim() || cfg.twitchUser || '',
-        twitchToken:        document.getElementById('s-tw-token').value.trim(),
-        streamerName:       document.getElementById('s-streamer').value.trim(),
-        filterSubsOnly:     document.getElementById('s-filter-subs').checked,
-        filterModsOnly:     document.getElementById('s-filter-mods').checked,
-        hideBots:           document.getElementById('s-hide-bots').checked,
-        blockedWordsEnabled:document.getElementById('s-block-enabled').checked,
-        blockedWords,
-        customHighlights:   highlights,
-        showOwnMessages:    document.getElementById('s-show-own-messages').checked,
-        scrollInvert:       document.getElementById('s-scroll-invert').checked,
-        showTimestamps:     document.getElementById('s-timestamps').checked,
-        linkPreviews:       document.getElementById('s-link-previews').checked,
-        msgAnimation:       document.getElementById('s-msg-anim').checked,
-        accessibility:      document.getElementById('s-accessibility').checked,
-        show7tvGlobal:      document.getElementById('s-7tv-global').checked,
-        show7tvCanal:       document.getElementById('s-7tv-canal').checked,
-        showBttvGlobal:     document.getElementById('s-bttv-global').checked,
-        showBttvCanal:      document.getElementById('s-bttv-canal').checked,
-        showFfzGlobal:      document.getElementById('s-ffz-global').checked,
-        showFfzCanal:       document.getElementById('s-ffz-canal').checked,
-        modHoverMenu:       document.getElementById('s-mod-hover').checked,
-        showBannedMessages: document.getElementById('s-show-banned').checked,
-        showTestButtons:    document.getElementById('s-test-buttons').checked,
-        showFollows:        document.getElementById('s-show-follows').checked,
-        showGifts:          document.getElementById('s-show-gifts').checked,
-        showLikes:          document.getElementById('s-show-likes').checked,
-        soundsEnabled:      document.getElementById('s-sounds-enabled').checked,
-        soundFollow:        document.getElementById('s-sound-follow').checked,
-        soundGift:          document.getElementById('s-sound-gift').checked,
-        soundMention:       document.getElementById('s-sound-mention').checked,
-        soundVolume:        parseInt(document.getElementById('s-volume').value),
-        ttsEnabled:         document.getElementById('s-tts-enabled').checked,
-        ttsTT:              document.getElementById('s-tts-TT').checked,
-        ttsYT:              document.getElementById('s-tts-YT').checked,
-        ttsTW:              document.getElementById('s-tts-TW').checked,
-        ttsNoName:          document.getElementById('s-tts-noname').checked,
-        ttsNoEmoji:         document.getElementById('s-tts-no-emoji').checked,
-        fontSize:           parseFloat(document.getElementById('s-fontsize').value),
-        compact:            document.getElementById('s-compact').checked,
-        alwaysOnTop:        document.getElementById('s-always-top').checked,
-        translucent:        document.getElementById('s-translucent').checked,
-        windowOpacity:      parseInt(document.getElementById('s-opacity').value),
-        dockPosition:       document.getElementById('s-dock-pos').value,
-        theme:              selectedTheme,
-        disableHWAccel:     !document.getElementById('s-hw-accel').checked,
-        autoUpdateDisabled: !document.getElementById('s-auto-update')?.checked,
-    }
-    const r = await window.electronAPI.saveSettings(newCfg)
-    cfg = newCfg
-    statusEl.textContent = '✓ Guardado'
-    setTimeout(() => statusEl.textContent='', 3000);
-}
-
-async function resetConfig() {
-    if(!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return
-    await window.electronAPI.resetConfig()
-    window.close()
-}
-
-function openLink(url) {
-    window.electronAPI.openExternal(url)
-}
-
-init()
-
-async function loginTiktokSeamless() {
-    const btn = document.getElementById('btn-tt-login');
-    const status = document.getElementById('tt-status-msg');
-    const ttInput = document.getElementById('s-tt');
-
-    btn.disabled = true;
-    status.textContent = "Abriendo ventana segura...";
-    
-    try {
-        const res = await window.electronAPI.loginTiktok();
-        if (res.success && res.sessionId) {
-            cfg.tiktokSessionId = res.sessionId; // Guardar en memoria para que guardar() lo tome
-            const user = res.username;
-            
-            if(user) {
-                cfg.tiktokUser = user;
-                ttInput.value = user;
-                await window.electronAPI.saveSettings(cfg); 
-                
-                btn.style.background = '#1a4a1a';
-                btn.style.color = '#53fc18';
-                document.getElementById('tt-btn-label').textContent = '✓ TikTok Vinculado';
-                status.textContent = 'Sesión guardada correctamente.';
-                status.style.color = '#53fc18';
-            } else {
-                status.textContent = "⚠️ Sesión capturada. Por favor, escribe tu usuario en la caja de arriba y guarda los cambios.";
-                status.style.color = "#ffcc00";
-                ttInput.removeAttribute('readonly');
-                ttInput.focus();
-            }
-        } else {
-            status.textContent = "Error: " + (res.error || "Desconocido");
-            status.style.color = "#ff6060";
-        }
-    } catch (e) {
-        status.textContent = "Error interno: " + e.message;
-        status.style.color = "#ff6060";
-    }
-    btn.disabled = false;
-}
-
-async function settingsLoginTwitch() {
-    const btn = document.getElementById('s-tw-oauth-btn');
-    const lbl = document.getElementById('s-tw-oauth-label');
-    lbl.textContent = 'Esperando conexión...';
-    btn.disabled = true;
-    try {
-        await window.electronAPI.loginTwitch();
-    } catch (e) { 
-        console.error(e); 
-        lbl.textContent = 'Error al iniciar login';
-        btn.disabled = false;
-    }
-}
-
-</script>
 </body>
 </html>
