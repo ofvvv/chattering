@@ -1,4 +1,5 @@
 const SERVER='http://localhost:3000'
+const socket=io(SERVER,{reconnectionDelay:2000,reconnectionAttempts:20})
 let cfg={}
 let totalMsgCount=0,msgLineCounter=0
 const emoteMap={}

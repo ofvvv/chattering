@@ -1,6 +1,3 @@
-
-const socket=io(SERVER,{reconnectionDelay:2000,reconnectionAttempts:20})
-
 socket.on('connect',()=>console.log('[Socket] Conectado'))
 socket.on('connect_error',e=>console.warn('[Socket] Error:',e.message))
 
@@ -17,6 +14,7 @@ socket.on('dock_history',events=>{
 socket.on('likes_init',()=>{
     // Esta función podría usarse para inicializar o limpiar el estado de los likes si fuera necesario
 })
+socket.on('msg',d=>appendMsg(d,true))
 socket.on('status',isLive=>{
     const live=isLive.TT||isLive.YT||isLive.TW
     const s=document.getElementById('status-text')
@@ -49,8 +47,7 @@ function updatePlatformIcon(plat, state) {
 }
 
 socket.on('evento',d=>{
-    if(d.type==='msg'){appendMsg(d,true)}
-    else if(d.type==='like'){updateLikeRow(d.user,d.userId,d.count||1)}
+    if(d.type==='like'){updateLikeRow(d.user,d.userId,d.count||1)}
     else if(d.type==='follow'){
         addToDock('follow',d.user,' te empezó a seguir',null)
         appendEvento(d)

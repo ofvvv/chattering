@@ -231,7 +231,17 @@ function appendAndScroll(element) {
 }
 
 function shouldShowMsg(d) {
-    return true;
+    if(!d||!d.user) return false
+    const userLow=(d.user||'').toLowerCase()
+    if(cfg.hideBots&&KNOWN_BOTS.includes(userLow)) return false
+    if(cfg.blockedWordsEnabled&&cfg.blockedWords?.length){
+        const textLow=(d.text||'').toLowerCase()
+        if(cfg.blockedWords.some(w=>textLow.includes(w))) return false
+    }
+    if(cfg.filterSubsOnly&&!d.badges?.sub) return false
+    if(cfg.filterModsOnly&&!d.badges?.mod) return false
+    if(!chipAllowsMsg(d)) return false
+    return true
 }
 
 function isCustomHighlight(text) {
