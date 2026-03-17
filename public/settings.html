@@ -5,174 +5,298 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="titlebar">
+  <div id="tb-title">⚙ Configuración — Chattering</div>
+  <button id="tb-close" onclick="window.electronAPI.closeSettings()">✕</button>
+</div>
 
 <div id="body">
   <!-- SIDEBAR -->
-  <div id="sidebar" class="main-menu">
+  <div id="sidebar">
     <div style="padding:8px 8px 4px">
-      <input id="search-input" type="text" placeholder="🔍 Buscar..." 
+      <input id="sb-search" type="text" placeholder="🔍 Buscar..." oninput="filterSettings(this.value)"
         style="width:100%;background:#111115;border:1px solid #2a2a32;color:#dadada;padding:5px 8px;font-size:11px;border-radius:4px;outline:none;font-family:inherit">
     </div>
-    <div class="sb-section">Principal</div>
-    <a href="#page-general" class="sb-item active">
-        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 4v5c0 3.5 3 6.5 7 7 4-0.5 7-3.5 7-7V4z"/></svg>
-        General
-    </a>
     <div class="sb-section">Plataformas</div>
-    <a href="#page-cuentas" class="sb-item">
+    <div class="sb-item active" onclick="goTo('cuentas',this)">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 5.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5C3 11 5.24 9 8 9s5 2 5 4.5z"/></svg>
       Cuentas
-    </a>
+    </div>
     <div class="sb-section">Chat</div>
-    <a href="#page-chat" class="sb-item">
+    <div class="sb-item" onclick="goTo('chat',this)">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5l-3 2V3a1 1 0 0 1 1-1z"/></svg>
       Chat
-    </a>
-    <a href="#page-emotes" class="sb-item">
+    </div>
+    <div class="sb-item" onclick="goTo('emotes',this)">
       <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="7" r="1"/><circle cx="10" cy="7" r="1"/><path d="M5.5 10.5s.7 1.5 2.5 1.5 2.5-1.5 2.5-1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Emotes
-    </a>
+    </div>
+    <div class="sb-item" onclick="goTo('mod',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 4v5c0 3.5 3 6.5 7 7 4-0.5 7-3.5 7-7V4z"/></svg>
+      Moderación
+    </div>
+    <div class="sb-section">Notificaciones</div>
+    <div class="sb-item" onclick="goTo('alertas',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5 5 0 0 0-5 5v3l-1.5 2h13L13 9V6a5 5 0 0 0-5-5zm0 14a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/></svg>
+      Alertas &amp; TTS
+    </div>
     <div class="sb-section">Visualización</div>
-    <a href="#page-apariencia" class="sb-item">
+    <div class="sb-item" onclick="goTo('apariencia',this)">
       <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4"/></svg>
       Apariencia
-    </a>
-    <div class="sb-section">Moderación</div>
-    <a href="#page-moderacion" class="sb-item">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>
-      Moderación
-    </a>
+    </div>
+    <div class="sb-section">Sistema</div>
+    <div class="sb-item" onclick="goTo('acerca',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+      Acerca de
+    </div>
+    <div class="sb-item" onclick="goTo('avanzado',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M9.4 1H6.6l-.3 2a5 5 0 0 0-1.3.7L2.7 2.9 1 4.7l1.4 1.8a5 5 0 0 0-.3 1.5H0v2.5l2.1.3c.2.5.4 1 .7 1.4L1.2 14l1.8 1.2 1.8-1.4c.4.3.9.5 1.4.7l.4 2.1h2.8l.3-2c.5-.2 1-.5 1.4-.7l1.8 1.4L14.3 14l-1.5-1.8c.3-.4.5-.9.7-1.4l2.1-.3V8h-2.1a5 5 0 0 0-.7-1.5L14 4.7 12.3 2.9l-1.9 1a5 5 0 0 0-1.3-.8zm-.9 5a2 2 0 1 1-1 3.73A2 2 0 0 1 8.5 6z"/></svg>
+      Avanzado
+    </div>
   </div>
 
   <!-- CONTENT PAGES -->
   <div id="content">
 
-    <!-- GENERAL -->
-    <div class="page active" id="page-general">
-        <div class="page-title">General</div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="alwaysOnTop">
-                Siempre Visible
-            </label>
-        </div>
-    </div>
-
     <!-- CUENTAS -->
-    <div class="page" id="page-cuentas" style="display:none;">
+    <div class="page active" id="page-cuentas">
       <div class="page-title">Cuentas</div>
+      
+      <!-- TIKTOK -->
       <div class="section">
-        <div class="section-title">Twitch</div>
-        <input type="text" id="twitchUser" placeholder="tucanal">
-        <button id="twitch-login-btn">Conectar con Twitch</button>
-        <button id="twitch-logout-btn" style="display:none;">Desconectar</button>
-        <div id="twitch-status" class="hint"></div>
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg> TikTok
+        </div>
+        <div class="row">
+          <div class="row-label"><div class="label">Usuario</div></div>
+          <div style="width:180px;position:relative">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
+            <input type="text" id="s-tt" placeholder="Autodetectado" style="padding-left:18px" readonly title="El usuario se obtiene automáticamente al vincular">
+          </div>
+        </div>
+        <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
+          <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
+        </button>
+        <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
+      </div>
+
+      <!-- YOUTUBE -->
+      <div class="section">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 4px;"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg> YouTube
+        </div>
+        <div class="row">
+          <div class="row-label"><div class="label">Usuario</div></div>
+          <div style="width:180px;position:relative">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
+            <input type="text" id="s-yt" placeholder="usuario" style="padding-left:18px">
+          </div>
+        </div>
+        <div class="hint">Tu handle de YouTube, por ejemplo: <b>@lofi_girl</b></div>
+      </div>
+
+      <!-- TWITCH -->
+      <div class="section">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#9146FF" style="vertical-align: middle; margin-right: 4px;"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg> Twitch
+        </div>
+        <input type="hidden" id="s-tw">
+        <input type="hidden" id="s-tw-token">
+        <button class="btn btn-twitch" id="s-tw-oauth-btn" onclick="settingsLoginTwitch()" style="width:100%">
+          <span id="s-tw-oauth-label">Conectar con Twitch</span>
+        </button>
+        <div id="s-tw-status" class="hint">Conecta para leer chat y moderar.</div>
       </div>
     </div>
 
     <!-- CHAT -->
-    <div class="page" id="page-chat" style="display:none;">
+    <div class="page" id="page-chat">
       <div class="page-title">Chat</div>
-        <div class="setting-item">
-            <label for="fontSize">Tamaño de Fuente: <span id="font-size-value">14</span>px</label>
-            <input type="range" id="fontSize" min="10" max="20" step="0.5">
-        </div>
-        <div class="setting-item">
-            <label for="avatarShape">Forma de Avatar</label>
-            <select id="avatarShape">
-                <option value="circle">Círculo</option>
-                <option value="square">Cuadrado</option>
-                <option value="none">Ninguno</option>
-            </select>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="hideBots">
-                Ocultar Mensajes de Bots
-            </label>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="showTimestamps">
-                Mostrar Marcas de Tiempo
-            </label>
-        </div>
+      <div class="section">
+        <div class="section-title">Identificación</div>
+        <div class="row"><div class="row-label"><div class="label">Tu nombre de usuario</div><div class="sublabel">Para resaltar menciones</div></div><div style="width:160px"><input type="text" id="s-streamer" placeholder="@tucanal"></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Filtros de mensaje</div>
+        <div class="row"><div class="row-label"><div class="label">Solo suscriptores</div></div><label class="toggle"><input type="checkbox" id="s-filter-subs"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Solo moderadores</div></div><label class="toggle"><input type="checkbox" id="s-filter-mods"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Ocultar bots conocidos</div></div><label class="toggle"><input type="checkbox" id="s-hide-bots"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Palabras bloqueadas activo</div></div><label class="toggle"><input type="checkbox" id="s-block-enabled"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div id="blocked-tags-wrap" class="tags-wrap" onclick="document.getElementById('blocked-input').focus()"></div>
+        <input class="tags-input" id="blocked-input" placeholder="Añadir palabra y Enter..." style="display:none">
+      </div>
+      <div class="section">
+        <div class="section-title">Resaltados personalizados</div>
+        <div id="highlight-tags-wrap" class="tags-wrap" onclick="document.getElementById('highlight-input').focus()"></div>
+        <input class="tags-input" id="highlight-input" placeholder="Palabra clave y Enter..." style="display:none">
+      </div>
+      <div class="section">
+        <div class="section-title">Comportamiento</div>
+        <div class="row"><div class="row-label"><div class="label">Pausar scroll al pasar cursor</div></div><label class="toggle"><input type="checkbox" id="s-scroll-pause"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Scroll invertido</div><div class="sublabel">Mensajes nuevos arriba</div></div><label class="toggle"><input type="checkbox" id="s-scroll-invert"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Preview de links</div></div><label class="toggle"><input type="checkbox" id="s-link-previews"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Animación entrada mensajes</div></div><label class="toggle"><input type="checkbox" id="s-msg-anim"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Accesibilidad — forzar colores legibles</div><div class="sublabel">Ajusta nombres con poco contraste</div></div><label class="toggle"><input type="checkbox" id="s-accessibility"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
     </div>
 
     <!-- EMOTES -->
-    <div class="page" id="page-emotes" style="display:none;">
-        <div class="page-title">Emotes</div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="show7tvCanal">
-                Emotes de Canal (7TV)
-            </label>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="showBttvCanal">
-                Emotes de Canal (BTTV)
-            </label>
-        </div>
-    </div>
-
-    <!-- APARIENCIA -->
-    <div class="page" id="page-apariencia" style="display:none;">
-        <div class="page-title">Apariencia</div>
-        <div class="setting-item">
-            <label for="theme">Tema</label>
-            <select id="theme">
-                <option value="dark">Dark</option>
-                <option value="midnight">Midnight</option>
-                <option value="forest">Forest</option>
-                <option value="sakura">Sakura</option>
-            </select>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="compact">
-                Modo Compacto
-            </label>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" id="translucent">
-                Ventana Translúcida (Requiere Reinicio)
-            </label>
-        </div>
-        <div class="setting-item">
-            <label for="windowOpacity">Opacidad de la Ventana: <span id="window-opacity-value">90</span>%</label>
-            <input type="range" id="windowOpacity" min="10" max="100" step="1">
-        </div>
+    <div class="page" id="page-emotes">
+      <div class="page-title">Emotes</div>
+      <div id="emote-status" class="hint" style="color:#555"></div>
+      <div class="emote-group">
+        <div class="eg-title">7TV</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-7tv-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-7tv-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="emote-group">
+        <div class="eg-title">BetterTTV</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-bttv-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-bttv-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="emote-group">
+        <div class="eg-title">FrankerFaceZ</div>
+        <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-ffz-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-ffz-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
     </div>
 
     <!-- MODERACIÓN -->
-    <div class="page" id="page-moderacion" style="display:none;">
-        <div class="page-title">Moderación</div>
-        <div class="setting-item">
-            <label>Palabras Bloqueadas</label>
-            <div id="blocked-words-list" class="tags-input-container"></div>
+    <div class="page" id="page-mod">
+      <div class="page-title">Moderación</div>
+      <div class="section">
+        <div class="section-title">Herramientas de moderación</div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar menú de moderación al hover</div><div class="sublabel">Timeout / ban / responder / copiar</div></div><label class="toggle"><input type="checkbox" id="s-mod-hover"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Marcar (no ocultar) mensajes baneados</div><div class="sublabel">Aparecen en gris en lugar de desaparecer</div></div><label class="toggle"><input type="checkbox" id="s-show-banned"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Botones de mod visibles en pantalla</div><div class="sublabel">Toggle rápido sin abrir configuración</div></div><label class="toggle"><input type="checkbox" id="s-mod-visible"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Botones de prueba</div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar panel de prueba</div></div><label class="toggle"><input type="checkbox" id="s-test-buttons"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="page" id="page-alertas">
+      <div class="page-title">Alertas y TTS</div>
+      <div class="section">
+        <div class="section-title">Eventos del dock</div>
+        <div class="row"><div class="row-label"><div class="label">Seguidos</div></div><label class="toggle"><input type="checkbox" id="s-show-follows"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Regalos / subs</div></div><label class="toggle"><input type="checkbox" id="s-show-gifts"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Likes de TikTok</div></div><label class="toggle"><input type="checkbox" id="s-show-likes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Sonidos</div>
+        <div class="row"><div class="row-label"><div class="label">Activar sonidos</div></div><label class="toggle"><input type="checkbox" id="s-sounds-enabled"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Nuevo seguidor</div></div><label class="toggle"><input type="checkbox" id="s-sound-follow"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Regalo / sub</div></div><label class="toggle"><input type="checkbox" id="s-sound-gift"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Mención</div></div><label class="toggle"><input type="checkbox" id="s-sound-mention"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Volumen</div></div>
+          <div class="slider-wrap" style="width:140px"><input type="range" id="s-volume" min="0" max="100" step="5" value="60" oninput="document.getElementById('vol-val').textContent=this.value"><span class="slider-val" id="vol-val">60</span></div>
         </div>
-        <div class="setting-item">
-            <label>Palabras Resaltadas</label>
-            <div id="highlighted-words-list" class="tags-input-container"></div>
+        <button class="btn btn-secondary" onclick="testSoundPreview('follow')" style="margin-top:4px;font-size:11px;padding:5px 10px">▶ Probar sonido</button>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+        <div class="section-title">Texto a Voz (TTS)</div>
+        <div class="row"><div class="row-label"><div class="label">Activar TTS</div></div><label class="toggle"><input type="checkbox" id="s-tts-enabled" onchange="updateTtsUI()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div id="tts-opts" style="display:flex;flex-direction:column;gap:8px;opacity:.3;pointer-events:none;transition:opacity .2s">
+          <div class="row"><div class="row-label"><div class="label" style="color:#aaa">TikTok</div></div><label class="toggle"><input type="checkbox" id="s-tts-TT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label" style="color:#ff6060">YouTube</div></div><label class="toggle"><input type="checkbox" id="s-tts-YT"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label" style="color:#a87fff">Twitch</div></div><label class="toggle"><input type="checkbox" id="s-tts-TW"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label">Solo leer mensaje</div><div class="sublabel">No pronunciar el nombre del usuario</div></div><label class="toggle"><input type="checkbox" id="s-tts-noname"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+          <div class="row"><div class="row-label"><div class="label">No leer emojis</div><div class="sublabel">Omite emojis al leer mensajes</div></div><label class="toggle"><input type="checkbox" id="s-tts-no-emoji" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         </div>
+      </div>
+    </div>
+
+    <!-- APARIENCIA -->
+    <div class="page" id="page-apariencia">
+      <div class="page-title">Apariencia</div>
+      <div class="section">
+        <div class="section-title">Temas</div>
+        <div class="shape-grid" style="margin-bottom: 10px;">
+          <div class="shape-card" id="theme-dark" onclick="setTheme('dark')">
+            <div class="shape-preview" style="background:#18181b; border:1px solid #2e2e35; border-radius:4px;"></div>
+            <div class="shape-label">Dark</div>
+          </div>
+          <div class="shape-card" id="theme-midnight" onclick="setTheme('midnight')">
+            <div class="shape-preview" style="background:#0a0a14; border:1px solid #1a1a2e; border-radius:4px;"></div>
+            <div class="shape-label">Midnight</div>
+          </div>
+          <div class="shape-card" id="theme-forest" onclick="setTheme('forest')">
+            <div class="shape-preview" style="background:#0f1a15; border:1px solid #1a2e24; border-radius:4px;"></div>
+            <div class="shape-label">Forest</div>
+          </div>
+          <div class="shape-card" id="theme-sakura" onclick="setTheme('sakura')">
+            <div class="shape-preview" style="background:#1a0f15; border:1px solid #2e1a24; border-radius:4px;"></div>
+            <div class="shape-label">Sakura</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Fuente y densidad</div>
+        <div class="row"><div class="row-label"><div class="label">Tamaño de fuente</div></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-fontsize" min="10" max="20" step=".5" value="13.5" oninput="document.getElementById('font-size-val').textContent=this.value+'px';previewChange()"><span class="slider-val" id="font-size-val">13.5px</span></div>
+        </div>
+        <div class="row"><div class="row-label"><div class="label">Modo compacto</div><div class="sublabel">Reduce padding y altura de mensajes</div></div><label class="toggle"><input type="checkbox" id="s-compact" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Ventana</div>
+        <div class="row"><div class="row-label"><div class="label">Siempre visible (Always on Top)</div></div><label class="toggle"><input type="checkbox" id="s-always-top" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row"><div class="row-label"><div class="label">Fondo translúcido</div><div class="sublabel">Requiere Always on Top</div></div><label class="toggle"><input type="checkbox" id="s-translucent" onchange="updateTranslucent();previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+        <div class="row" id="opacity-row" style="opacity:.3;pointer-events:none"><div class="row-label"><div class="label">Opacidad de la ventana</div></div>
+          <div class="slider-wrap" style="width:150px"><input type="range" id="s-opacity" min="20" max="100" step="5" value="90" oninput="document.getElementById('opacity-val').textContent=this.value+'%';previewChange()"><span class="slider-val" id="opacity-val">90%</span></div>
+        </div>
+        <div class="row"><div class="row-label"><div class="label">Posición del dock</div></div>
+          <select id="s-dock-pos" onchange="previewChange()"><option value="top">Arriba</option><option value="bottom">Abajo</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACERCA DE -->
+    <div class="page" id="page-acerca">
+      <div class="page-title">Acerca de</div>
+      <div class="section">
+        <div class="section-title">Versión</div>
+        <div class="row"><div class="row-label"><div class="label">Chattering</div><div class="sublabel">Visor de chat multi-plataforma para streamers</div></div><div id="app-version" style="font-size:13px;font-weight:700;color:#9b9bf5">v3.4.0</div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Actualizaciones</div>
+        <div class="row"><div class="row-label"><div class="label">Buscar actualizaciones automáticamente</div><div class="sublabel">Al iniciar, comprueba en GitHub si hay una nueva versión</div></div><label class="toggle"><input type="checkbox" id="s-auto-update" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+    </div>
+
+    <!-- AVANZADO -->
+    <div class="page" id="page-avanzado">
+      <div class="page-title">Avanzado</div>
+      <div class="section">
+        <div class="section-title">Rendimiento</div>
+        <div class="row"><div class="row-label"><div class="label">Aceleración por GPU</div><div class="sublabel">Desactivar puede ayudar en sistemas con drivers problemáticos (requiere reinicio)</div></div><label class="toggle"><input type="checkbox" id="s-hw-accel" onchange="this.checked=!this.checked;alert('Reinicia la app para aplicar el cambio de aceleración GPU.')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Datos</div>
+        <div class="row"><div class="row-label"><div class="label">Restablecer configuración</div><div class="sublabel">Vuelve al setup inicial. No borra el historial.</div></div><button class="btn btn-danger" onclick="resetConfig()">Restablecer</button></div>
+      </div>
     </div>
 
   </div><!-- /content -->
 </div><!-- /body -->
 
 <div id="save-bar" style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 10px;">
-  <button id="reset-button" class="btn btn-danger">Restaurar</button>
-  <button id="cancel-button">Cancelar</button>
-  <button id="save-button" class="btn btn-primary">Guardar</button>
+  <span id="save-status" style="margin-right: auto; font-size: 11px; color: #888;"></span>
+  <button class="btn btn-secondary" onclick="window.electronAPI.closeSettings()">Cancelar</button>
+  <button class="btn btn-primary" onclick="guardar()">Guardar cambios</button>
 </div>
 
 <script src="js/settings/settings-helpers.js"></script>
 <script src="js/settings/settings-tags.js"></script>
-<script src="js/settings/settings-form.js"></script>
-<script src="js/settings/settings-ui.js"></script>
 <script src="js/settings/settings-accounts.js"></script>
+<script src="js/settings/settings-ui.js"></script>
+<script src="js/settings/settings-form.js"></script>
 <script src="js/settings/settings-main.js"></script>
 
 </body>

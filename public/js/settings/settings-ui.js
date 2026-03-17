@@ -1,104 +1,65 @@
-// Contiene la lógica para la interactividad de la UI en la ventana de configuración.
+let selectedTheme = 'dark';
 
-function setupEventListeners() {
-    try {
-        // Navegación del Menú Lateral
-        document.querySelector('.main-menu').addEventListener('click', (e) => {
-            if (e.target.tagName === 'A') {
-                e.preventDefault();
-                const pageId = e.target.getAttribute('href').substring(1);
-                navigateTo(pageId);
-            }
-        });
-
-        // Botones de Acción Principales
-        document.getElementById('save-button').addEventListener('click', save);
-        document.getElementById('reset-button').addEventListener('click', reset);
-        document.getElementById('cancel-button').addEventListener('click', () => {
-            window.electronAPI.closeSettings();
-        });
-
-        // Búsqueda de Configuración
-        const searchInput = document.getElementById('search-input');
-        searchInput.addEventListener('input', (e) => searchSettings(e.target.value));
-
-        // Listeners para previsualización y actualización de valores en la UI
-        const fontSizeSlider = document.getElementById('fontSize');
-        const fontSizeValue = document.getElementById('font-size-value');
-        fontSizeSlider.addEventListener('input', () => {
-            fontSizeValue.textContent = fontSizeSlider.value;
-        });
-
-        const opacitySlider = document.getElementById('windowOpacity');
-        const opacityValue = document.getElementById('window-opacity-value');
-        opacitySlider.addEventListener('input', () => {
-            opacityValue.textContent = opacitySlider.value;
-            handleOpacityPreview(opacitySlider.value);
-        });
-
-    } catch (e) {
-        window.electronAPI.logError(`[settings-ui:setupEventListeners] ${e.message}`);
+function filterSettings(q) {
+    const ql = q.toLowerCase().trim();
+    if (!ql) {
+        document.querySelectorAll('.sb-item').forEach(i => { i.style.display = ''; i.style.background = ''; });
+        document.querySelectorAll('.row, .section').forEach(r => r.style.display = '');
+        return;
     }
+    document.querySelectorAll('.sb-item').forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(ql) ? '' : 'none';
+    });
+    document.querySelectorAll('.row').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.background = text.includes(ql) ? 'rgba(155,155,245,.08)' : '';
+        row.style.display = '';
+    });
 }
 
-function setupInitialUI() {
-    aplicarConfig(); // Aplicar configuración inicial al cargar
+async function previewChange() {
+    const partial = {
+        compact: document.getElementById('s-compact')?.checked,
+        fontSize: parseFloat(document.getElementById('s-fontsize')?.value || '13.5'),
+        msgAnimation: document.getElementById('s-msg-anim')?.checked,
+        scrollInvert: document.getElementById('s-scroll-invert')?.checked,
+        alwaysOnTop: document.getElementById('s-always-top')?.checked,
+        translucent: document.getElementById('s-translucent')?.checked,
+        windowOpacity: parseInt(document.getElementById('s-opacity')?.value || '90'),
+        showTimestamps: document.getElementById('s-timestamps')?.checked,
+        linkPreviews: document.getElementById('s-link-previews')?.checked,
+        modHoverMenu: document.getElementById('s-mod-hover')?.checked,
+        theme: selectedTheme,
+        dockPosition: document.getElementById('s-dock-pos')?.value
+    };
+    try { await window.electronAPI.previewSettings(partial); } catch {}
 }
 
-function navigateTo(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById(pageId).style.display = 'block';
-
-    document.querySelectorAll('.main-menu a').forEach(a => a.classList.remove('active'));
-    document.querySelector(`.main-menu a[href="#${pageId}"]`).classList.add('active');
+function goTo(page, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    el.classList.add('active');
 }
 
-function searchSettings(term) {
-    // Lógica para la búsqueda (se puede implementar más adelante)
+function setTheme(t) {
+    selectedTheme = t;
+    document.querySelectorAll('.shape-card[id^="theme-"]').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('theme-' + t);
+    if (el) el.classList.add('active');
+    previewChange();
 }
 
-function handleOpacityPreview(value) {
-    try {
-        if (window.electronAPI.previewSettings) {
-            window.electronAPI.previewSettings({ windowOpacity: parseInt(value, 10) });
-        }
-    } catch (e) {
-        window.electronAPI.logError(`[settings-ui:handleOpacityPreview] ${e.message}`);
-    }
+function updateTtsUI() {
+    const on = document.getElementById('s-tts-enabled').checked;
+    const opts = document.getElementById('tts-opts');
+    opts.style.opacity = on ? '1' : '0.3';
+    opts.style.pointerEvents = on ? 'auto' : 'none';
 }
 
-function aplicarConfig() {
-    // Esta función refleja el estado de `cfg` en la UI.
-    // Es una migración directa de la lógica en settings-old.html
-
-    // General
-    document.getElementById('alwaysOnTop').checked = cfg.alwaysOnTop === true;
-
-    // Chat
-    const fontSizeSlider = document.getElementById('fontSize');
-    const fontSizeValue = document.getElementById('font-size-value');
-    fontSizeSlider.value = cfg.fontSize || 13.5;
-    fontSizeValue.textContent = fontSizeSlider.value;
-
-    document.getElementById('avatarShape').value = cfg.avatarShape || 'circle';
-    document.getElementById('hideBots').checked = cfg.hideBots === true;
-    document.getElementById('showTimestamps').checked = cfg.showTimestamps !== false;
-
-    // Emotes
-    document.getElementById('show7tvCanal').checked = cfg.show7tvCanal === true;
-    document.getElementById('showBttvCanal').checked = cfg.showBttvCanal === true;
-
-    // Apariencia
-    document.getElementById('theme').value = cfg.theme || 'dark';
-    document.getElementById('compact').checked = cfg.compact === true;
-    document.getElementById('translucent').checked = cfg.translucent === true;
-    
-    const opacitySlider = document.getElementById('windowOpacity');
-    const opacityValue = document.getElementById('window-opacity-value');
-    opacitySlider.value = cfg.windowOpacity || 90;
-    opacityValue.textContent = opacitySlider.value;
-}
-
-function showInitialContent() {
-    navigateTo('page-general');
+function updateTranslucent() {
+    const on = document.getElementById('s-translucent').checked;
+    const row = document.getElementById('opacity-row');
+    row.style.opacity = on ? '1' : '0.3';
+    row.style.pointerEvents = on ? 'auto' : 'none';
 }

@@ -1,67 +1,62 @@
-// Gestiona la lógica de autenticación para las diferentes plataformas.
+async function loginTiktokSeamless() {
+    const btn = document.getElementById('btn-tt-login');
+    const status = document.getElementById('tt-status-msg');
+    const ttInput = document.getElementById('s-tt');
 
-function handlePlatformAuth() {
-    // --- TWITCH --- //
-    const twitchLoginBtn = document.getElementById('twitch-login-btn');
-    const twitchLogoutBtn = document.getElementById('twitch-logout-btn');
-    const twitchStatus = document.getElementById('twitch-status');
-    const twitchUserInput = document.getElementById('twitchUser');
-
-    // Función para actualizar la UI de Twitch
-    const updateTwitchUI = () => {
-        if (cfg.twitchToken && cfg.twitchLogin) {
-            twitchLoginBtn.style.display = 'none';
-            twitchLogoutBtn.style.display = 'inline-block';
-            twitchStatus.textContent = `Conectado como ${cfg.twitchLogin}.`;
-            twitchStatus.style.color = '#53fc18';
-            twitchUserInput.value = cfg.twitchLogin;
-        } else {
-            twitchLoginBtn.style.display = 'inline-block';
-            twitchLogoutBtn.style.display = 'none';
-            twitchStatus.textContent = 'No conectado.';
-            twitchStatus.style.color = '#888';
-            twitchUserInput.value = cfg.twitchLogin || '';
-        }
-    };
-
-    updateTwitchUI(); // Estado inicial
-
-    // Listener para Iniciar Sesión con Twitch
-    twitchLoginBtn.addEventListener('click', async () => {
-        twitchStatus.textContent = 'Esperando autorización en el navegador...';
-        twitchStatus.style.color = '#f1c40f';
-        twitchLoginBtn.disabled = true;
-
-        try {
-            const result = await window.electronAPI.loginTwitch();
-            if (result && result.success) {
-                cfg.twitchToken = result.token;
-                cfg.twitchLogin = result.login;
-                await window.electronAPI.saveSettings(cfg); // Guardar la nueva config
-                updateTwitchUI(); // Actualizar la UI
+    btn.disabled = true;
+    status.textContent = "Abriendo ventana segura...";
+    
+    try {
+        const res = await window.electronAPI.loginTiktok();
+        if (res.success && res.sessionId) {
+            cfg.tiktokSessionId = res.sessionId; // Guardar en memoria para que guardar() lo tome
+            const user = res.username;
+            
+            if(user) {
+                cfg.tiktokUser = user;
+                ttInput.value = user;
+                await window.electronAPI.saveSettings(cfg); 
+                
+                btn.style.background = '#1a4a1a';
+                btn.style.color = '#53fc18';
+                document.getElementById('tt-btn-label').textContent = '✓ TikTok Vinculado';
+                status.textContent = 'Sesión guardada correctamente.';
+                status.style.color = '#53fc18';
             } else {
-                twitchStatus.textContent = result.error || 'Inicio de sesión cancelado.';
-                twitchStatus.style.color = '#e74c3c';
+                status.textContent = "⚠️ Sesión capturada. Por favor, escribe tu usuario en la caja de arriba y guarda los cambios.";
+                status.style.color = "#ffcc00";
+                ttInput.removeAttribute('readonly');
+                ttInput.focus();
             }
-        } catch (e) {
-            window.electronAPI.logError(`[settings-accounts:login] ${e.message}`);
-            twitchStatus.textContent = 'Error crítico durante el inicio de sesión.';
-            twitchStatus.style.color = '#e74c3c';
+        } else {
+            status.textContent = "Error: " + (res.error || "Desconocido");
+            status.style.color = "#ff6060";
         }
-        twitchLoginBtn.disabled = false;
-    });
+    } catch (e) {
+        status.textContent = "Error interno: " + e.message;
+        status.style.color = "#ff6060";
+    }
+    btn.disabled = false;
+}
 
-    // Listener para Cerrar Sesión de Twitch
-    twitchLogoutBtn.addEventListener('click', async () => {
-        if (confirm('¿Seguro que quieres desconectar tu cuenta de Twitch?')) {
-            cfg.twitchToken = null;
-            cfg.twitchLogin = get('twitchUser'); // Conservar el nombre de usuario por si acaso
-            try {
-                await window.electronAPI.saveSettings(cfg);
-                updateTwitchUI();
-            } catch (e) {
-                window.electronAPI.logError(`[settings-accounts:logout] ${e.message}`);
-            }
+async function settingsLoginTwitch() {
+    const btn = document.getElementById('s-tw-oauth-btn');
+    const lbl = document.getElementById('s-tw-oauth-label');
+    lbl.textContent = 'Esperando conexión...';
+    try {
+        const result = await window.electronAPI.loginTwitch();
+        if (result?.polling) {
+            const poll = setInterval(async () => {
+                const r = await fetch(`${SERVER}/api/twitch/auth-status`);
+                const d = await r.json();
+                if (d.token) {
+                    clearInterval(poll);
+                    document.getElementById('s-tw-token').value = d.token;
+                    document.getElementById('s-tw').value = d.login;
+                    lbl.textContent = '✓ Conectado: ' + d.login;
+                    btn.classList.add('connected');
+                }
+            }, 1000);
         }
-    });
+    } catch (e) { console.error(e); }
 }

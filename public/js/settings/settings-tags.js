@@ -1,65 +1,44 @@
-// Lógica para la gestión de las etiquetas (palabras bloqueadas/resaltadas).
+let blockedWords = [];
+let highlights = [];
 
-function loadTags(containerId, tags) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = ''; // Limpiar antes de añadir
-    (tags || []).forEach(tag => {
-        container.appendChild(createTagElement(tag));
+function renderTags(wrapId, arr, isHighlight) {
+    const wrap = document.getElementById(wrapId);
+    wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
+    arr.forEach(word => {
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip' + (isHighlight ? ' hl' : '');
+        chip.innerHTML = `${word} <button onclick="removeTag('${wrapId}', '${word}', ${isHighlight})">✕</button>`;
+        wrap.insertBefore(chip, wrap.querySelector('input') || null);
     });
 }
 
-function createTagElement(tag) {
-    const span = document.createElement('span');
-    span.className = 'tag';
-    span.textContent = tag;
-    
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '×';
-    removeBtn.onclick = () => span.remove();
-    
-    span.appendChild(removeBtn);
-    return span;
+function removeTag(wrapId, word, isHighlight) {
+    const arr = isHighlight ? highlights : blockedWords;
+    const idx = arr.indexOf(word);
+    if (idx >= 0) arr.splice(idx, 1);
+    renderTags(wrapId, arr, isHighlight);
 }
 
-function getTags(containerId) {
-    const tags = [];
-    document.querySelectorAll(`#${containerId} .tag`).forEach(tagEl => {
-        // El texto de la etiqueta es el contenido del nodo de texto hijo del span
-        tags.push(tagEl.firstChild.textContent.trim());
-    });
-    return tags;
-}
-
-function setupTagInputs() {
-    document.querySelectorAll('.tags-input-container').forEach(container => {
-        const inputId = container.id + '-input';
-        let input = document.getElementById(inputId);
-        
-        if (!input) {
-            input = document.createElement('input');
-            input.id = inputId;
-            input.type = 'text';
-            input.className = 'tag-input'; // Asegúrate de que los estilos se apliquen
-            input.placeholder = 'Añadir y pulsar Enter';
-            container.insertAdjacentElement('afterend', input);
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const value = input.value.trim();
-                    if (value) {
-                        const existingTags = getTags(container.id);
-                        if (!existingTags.includes(value)) {
-                            container.appendChild(createTagElement(value));
-                        }
-                        input.value = ''; // Limpiar input
-                    }
-                }
-            });
+function makeTagsInput(wrapId, inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.style.display = 'inline';
+    document.getElementById(wrapId).appendChild(input);
+    input.addEventListener('keydown', e => {
+        const isHighlight = wrapId.includes('highlight');
+        const arr = isHighlight ? highlights : blockedWords;
+        if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
+            e.preventDefault();
+            const w = input.value.replace(',', '').trim();
+            if (w && !arr.includes(w)) {
+                arr.push(w);
+                renderTags(wrapId, arr, isHighlight);
+            }
+            input.value = '';
+        }
+        if (e.key === 'Backspace' && !input.value && arr.length) {
+            arr.pop();
+            renderTags(wrapId, arr, isHighlight);
         }
     });
 }
-
-// Inicializar los campos de entrada de etiquetas cuando el DOM esté listo.
-document.addEventListener('DOMContentLoaded', setupTagInputs);

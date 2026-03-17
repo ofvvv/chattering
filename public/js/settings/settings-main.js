@@ -1,62 +1,77 @@
-// ==========================================================================
-// ATENCIÓN: Este es el script principal de la ventana de configuración.
-// v5.0.0 - Migración desde settings-old.html
-// ==========================================================================
-
+const SERVER = 'http://localhost:3000';
 let cfg = {};
 
 async function init() {
-    try {
-        cfg = await window.electronAPI.getConfig() || {};
-        loadForm(cfg);
-        setupEventListeners();
-        setupInitialUI();
-        handlePlatformAuth();
-        showInitialContent();
-    } catch (e) {
-        window.electronAPI.logError(`[settings-init] CRITICAL: ${e.message}`);
-        alert('Error fatal al cargar la configuración. Revise los logs.');
-    }
+    cfg = (await window.electronAPI.getConfig()) || {};
+    loadForm();
 }
 
-async function save() {
-    try {
-        const newConfig = collectFormData();
-        const updatedConfig = { ...cfg, ...newConfig };
-
-        await window.electronAPI.saveSettings(updatedConfig);
-        
-        // Mostramos una notificación (toast) como en la versión antigua
-        if (window.electronAPI.showToast) {
-            window.electronAPI.showToast('✓ Configuración guardada');
-        }
-
-        setTimeout(() => {
-            window.electronAPI.closeSettings();
-        }, 200);
-
-    } catch (e) {
-        window.electronAPI.logError(`[settings-save] ERROR: ${e.message}`);
-        alert(`Hubo un error al guardar: ${e.message}.`);
-    }
-}
-
-async function reset() {
-    if (confirm('¿Volver al setup inicial? Se borrará la configuración.')) {
-        try {
-            await window.electronAPI.resetConfig();
-        } catch (e) {
-            window.electronAPI.logError(`[settings-reset] ${e.message}`);
-            alert('Hubo un error al restaurar la configuración.');
-        }
-    }
-}
-
-// Listener para aplicar cambios guardados desde otras ventanas
-window.electronAPI.on('settings-saved', (newCfg) => {
+async function guardar() {
+    const statusEl = document.getElementById('save-status');
+    statusEl.textContent = 'Guardando...';
+    const newCfg = {
+        ...cfg,
+        tiktokUser: document.getElementById('s-tt').value.replace('@', '').trim(),
+        youtubeChannelId: document.getElementById('s-yt').value.trim(),
+        twitchUser: document.getElementById('s-tw').value.trim() || cfg.twitchUser || '',
+        twitchToken: document.getElementById('s-tw-token').value.trim(),
+        streamerName: document.getElementById('s-streamer').value.trim(),
+        filterSubsOnly: document.getElementById('s-filter-subs').checked,
+        filterModsOnly: document.getElementById('s-filter-mods').checked,
+        hideBots: document.getElementById('s-hide-bots').checked,
+        blockedWordsEnabled: document.getElementById('s-block-enabled').checked,
+        blockedWords,
+        customHighlights: highlights,
+        scrollPauseOnHover: document.getElementById('s-scroll-pause').checked,
+        scrollInvert: document.getElementById('s-scroll-invert').checked,
+        showTimestamps: document.getElementById('s-timestamps').checked,
+        linkPreviews: document.getElementById('s-link-previews').checked,
+        msgAnimation: document.getElementById('s-msg-anim').checked,
+        accessibility: document.getElementById('s-accessibility').checked,
+        show7tvGlobal: document.getElementById('s-7tv-global').checked,
+        show7tvCanal: document.getElementById('s-7tv-canal').checked,
+        showBttvGlobal: document.getElementById('s-bttv-global').checked,
+        showBttvCanal: document.getElementById('s-bttv-canal').checked,
+        showFfzGlobal: document.getElementById('s-ffz-global').checked,
+        showFfzCanal: document.getElementById('s-ffz-canal').checked,
+        lazyEmotes: document.getElementById('s-lazy-emotes').checked,
+        modHoverMenu: document.getElementById('s-mod-hover').checked,
+        showBannedMessages: document.getElementById('s-show-banned').checked,
+        modButtonsVisible: document.getElementById('s-mod-visible').checked,
+        showTestButtons: document.getElementById('s-test-buttons').checked,
+        showFollows: document.getElementById('s-show-follows').checked,
+        showGifts: document.getElementById('s-show-gifts').checked,
+        showLikes: document.getElementById('s-show-likes').checked,
+        soundsEnabled: document.getElementById('s-sounds-enabled').checked,
+        soundFollow: document.getElementById('s-sound-follow').checked,
+        soundGift: document.getElementById('s-sound-gift').checked,
+        soundMention: document.getElementById('s-sound-mention').checked,
+        soundVolume: parseInt(document.getElementById('s-volume').value),
+        ttsEnabled: document.getElementById('s-tts-enabled').checked,
+        ttsTT: document.getElementById('s-tts-TT').checked,
+        ttsYT: document.getElementById('s-tts-YT').checked,
+        ttsTW: document.getElementById('s-tts-TW').checked,
+        ttsNoName: document.getElementById('s-tts-noname').checked,
+        ttsNoEmoji: document.getElementById('s-tts-no-emoji').checked,
+        fontSize: parseFloat(document.getElementById('s-fontsize').value),
+        compact: document.getElementById('s-compact').checked,
+        alwaysOnTop: document.getElementById('s-always-top').checked,
+        translucent: document.getElementById('s-translucent').checked,
+        windowOpacity: parseInt(document.getElementById('s-opacity').value),
+        dockPosition: document.getElementById('s-dock-pos').value,
+        theme: selectedTheme,
+        disableHWAccel: !document.getElementById('s-hw-accel').checked,
+        autoUpdateDisabled: !document.getElementById('s-auto-update')?.checked,
+    };
+    const r = await window.electronAPI.saveSettings(newCfg);
     cfg = newCfg;
-    // Aquí podríamos llamar a funciones para actualizar la UI si es necesario
-    // por ahora, lo mantenemos simple como en la versión anterior.
-});
+    statusEl.textContent = '✓ Guardado — reconectando plataformas...';
+}
 
-document.addEventListener('DOMContentLoaded', init);
+async function resetConfig() {
+    if (!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return;
+    await window.electronAPI.resetConfig();
+    window.close();
+}
+
+init();
