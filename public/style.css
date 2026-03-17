@@ -633,3 +633,91 @@
   --bg-rgb: 26, 15, 21;
   --bg2-rgb: 36, 21, 28;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ESTILO CHATTERINO PARA LA BARRA DE INPUT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Contenedor principal de la barra de input */
+.win-main #chat-input-bar {
+  background: transparent;
+  border-top: 1px solid var(--border); /* Mantenemos un separador superior */
+  padding: 0; /* Eliminamos el padding para un control total */
+  gap: 0;
+}
+
+/* Campo de texto principal */
+.win-main #chat-input-field {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 8px 12px; /* Más padding vertical para un área de tipeo cómoda */
+  font-size: 13px; /* Aumentamos un poco el tamaño de la fuente */
+  color: var(--text);
+  border-bottom: 1px solid transparent; /* Borde inferior sutil para enfoque */
+  transition: border-color 0.2s;
+}
+
+/* Efecto de enfoque en el campo de texto */
+.win-main #chat-input-field:focus {
+  border-color: transparent; /* El borde no cambia al enfocar */
+  box-shadow: none; /* Sin sombra de enfoque */
+}
+
+/* Contenedor del campo de texto y autocompletado */
+.win-main #chat-input-bar > div:first-of-type {
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+}
+
+/* Selector de plataforma */
+.win-main #chat-plat-sel {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 8px 10px;
+  color: var(--text2);
+  font-weight: 700;
+  height: 100%;
+  -webkit-appearance: none;
+   appearance: none;
+}
+
+.win-main #chat-plat-sel:hover {
+    background: var(--bg2);
+}
+
+/* Botón del selector de emotes */
+.win-main #emote-picker-btn {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--text2);
+  width: 36px;
+  height: 100%;
+  font-size: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.win-main #emote-picker-btn:hover {
+  background: var(--bg2);
+  color: var(--accent);
+}
+
+/* Botón de enviar */
+.win-main #chat-send-btn {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--text2);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 0 12px;
+  height: 100%;
+  border-left: 1px solid var(--border);
+}
+
+.win-main #chat-send-btn:hover {
+  background: var(--accent);
+  color: #000;
+}

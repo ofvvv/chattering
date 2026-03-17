@@ -1,3 +1,20 @@
+let searchActive = false;
+
+function openSearch() {
+    searchActive = true;
+    document.getElementById('search-bar')?.classList.add('visible');
+    document.getElementById('search-input')?.focus();
+    console.warn('Funcionalidad de búsqueda aún no implementada.');
+}
+
+function closeSearch() {
+    searchActive = false;
+    document.getElementById('search-bar')?.classList.remove('visible');
+}
+
+function searchNext() {
+    console.warn('Funcionalidad de búsqueda aún no implementada.');
+}
 
 // ── HOTKEYS ───────────────────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{

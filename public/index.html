@@ -10,14 +10,10 @@
 
 <div id="titlebar" ondblclick="return false">
   <div id="titlebar-left">
-    <div id="app-title">Chatter<span>ing</span></div>
+    <div id="app-title" style="-webkit-user-select: none; user-select: none;">Chatter<span>ing</span></div>
     <div id="viewer-count" title="Espectadores en vivo" style="display: none;">
       <svg viewBox="0 0 16 16" fill="currentColor" width="9" height="9"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" fill-rule="evenodd" clip-rule="evenodd"/><circle cx="8" cy="8" r="2"/></svg>
       <span id="viewer-num">0</span>
-    </div>
-    <div id="conn-status" style="margin-left: 10px; display: flex; align-items: center; gap: 5px;">
-      <div id="conn-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: #f39c12;"></div>
-      <div id="conn-status-text" style="font-size: 10px; color: #aaa;">Conectando...</div>
     </div>
   </div>
   <div id="tb-drag-zone" style="-webkit-app-region:drag;flex:1;height:100%;cursor:move"></div>
