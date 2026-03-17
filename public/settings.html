@@ -13,8 +13,13 @@
       <input id="search-input" type="text" placeholder="🔍 Buscar..." 
         style="width:100%;background:#111115;border:1px solid #2a2a32;color:#dadada;padding:5px 8px;font-size:11px;border-radius:4px;outline:none;font-family:inherit">
     </div>
+    <div class="sb-section">Principal</div>
+    <a href="#page-general" class="sb-item active">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 4v5c0 3.5 3 6.5 7 7 4-0.5 7-3.5 7-7V4z"/></svg>
+        General
+    </a>
     <div class="sb-section">Plataformas</div>
-    <a href="#page-cuentas" class="sb-item active">
+    <a href="#page-cuentas" class="sb-item">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 5.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5C3 11 5.24 9 8 9s5 2 5 4.5z"/></svg>
       Cuentas
     </a>
@@ -37,8 +42,14 @@
   <!-- CONTENT PAGES -->
   <div id="content">
 
+    <!-- GENERAL -->
+    <div class="page active" id="page-general">
+        <div class="page-title">General</div>
+        <p>Ajustes generales de la aplicación.</p>
+    </div>
+
     <!-- CUENTAS -->
-    <div class="page active" id="page-cuentas">
+    <div class="page" id="page-cuentas" style="display:none;">
       <div class="page-title">Cuentas</div>
       <div class="section">
         <div class="section-title">Twitch</div>
@@ -92,6 +103,7 @@
 </div>
 
 <script src="js/settings/settings-helpers.js"></script>
+<script src="js/settings/settings-tags.js"></script>
 <script src="js/settings/settings-form.js"></script>
 <script src="js/settings/settings-ui.js"></script>
 <script src="js/settings/settings-accounts.js"></script>
