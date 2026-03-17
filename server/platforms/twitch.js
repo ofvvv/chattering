@@ -83,6 +83,9 @@ export function connect(channel) {
 
         client.on('message', (ch, tags, message, self) => {
             try {
+                // Si la opción está desactivada (false) Y el mensaje es propio (self), lo ignoramos.
+                if (config.showOwnMessages === false && self) return
+
                 const user = tags['display-name'] || tags.username || 'unknown'
                 const userId = tags['user-id']
                 if (!userId) return

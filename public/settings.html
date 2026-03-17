@@ -134,6 +134,7 @@
       </div>
       <div class="section">
         <div class="section-title">Comportamiento</div>
+        <div class="row"><div class="row-label"><div class="label">Mostrar mis propios mensajes</div><div class="sublabel">Muestra los mensajes que envías desde la app</div></div><label class="toggle"><input type="checkbox" id="s-show-own-messages"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Scroll invertido</div><div class="sublabel">Mensajes nuevos arriba</div></div><label class="toggle"><input type="checkbox" id="s-scroll-invert"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Mostrar timestamps</div></div><label class="toggle"><input type="checkbox" id="s-timestamps" onchange="previewChange()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="row"><div class="row-label"><div class="label">Preview de links</div></div><label class="toggle"><input type="checkbox" id="s-link-previews"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
@@ -423,6 +424,7 @@ function loadForm() {
     chk('s-filter-mods', cfg.filterModsOnly)
     chk('s-hide-bots', cfg.hideBots)
     chk('s-block-enabled', cfg.blockedWordsEnabled)
+    chk('s-show-own-messages', cfg.showOwnMessages !== false) // Default a true
     chk('s-scroll-invert', cfg.scrollInvert===true)
     chk('s-timestamps', cfg.showTimestamps!==false)
     chk('s-link-previews', cfg.linkPreviews!==false)
@@ -515,7 +517,7 @@ function makeTagsInput(wrapId, inputId) {
     input.addEventListener('keydown', e => {
         const isHighlight = wrapId.includes('highlight')
         const arr = isHighlight ? highlights : blockedWords
-        if((e.key==='Enter'||e.key===',')&&input.value.trim()) {
+        if((e.key==='Enter'||e.key==',')&&input.value.trim()) {
             e.preventDefault()
             const w=input.value.replace(',','').trim()
             if(w&&!arr.includes(w)) { arr.push(w); renderTags(wrapId,arr,isHighlight) }
@@ -572,6 +574,7 @@ async function guardar() {
         blockedWordsEnabled:document.getElementById('s-block-enabled').checked,
         blockedWords,
         customHighlights:   highlights,
+        showOwnMessages:    document.getElementById('s-show-own-messages').checked,
         scrollInvert:       document.getElementById('s-scroll-invert').checked,
         showTimestamps:     document.getElementById('s-timestamps').checked,
         linkPreviews:       document.getElementById('s-link-previews').checked,
