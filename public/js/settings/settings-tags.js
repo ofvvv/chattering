@@ -1,45 +1,66 @@
-function renderTags(wrapId, arr, isHighlight) {
-    const wrap = document.getElementById(wrapId);
-    wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
-    arr.forEach(word => {
-        const chip = document.createElement('span');
-        chip.className = 'tag-chip' + (isHighlight ? ' hl' : '');
-        chip.innerHTML = `${word} <button class="remove-tag-btn">✕</button>`;
-        chip.querySelector('.remove-tag-btn').addEventListener('click', () => removeTag(wrapId, word, isHighlight));
-        wrap.insertBefore(chip, wrap.querySelector('.tags-input') || null);
-    });
+function loadTags(containerId, tags) {
+    try {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        tags.forEach(tag => {
+            const tagEl = createTagElement(tag);
+            container.appendChild(tagEl);
+        });
+    } catch (e) {
+        window.electronAPI.logError(`[settings-loadTags] ${e.message}`);
+    }
 }
 
-function removeTag(wrapId, word, isHighlight) {
-    const arr = isHighlight ? highlights : blockedWords;
-    const idx = arr.indexOf(word);
-    if (idx >= 0) arr.splice(idx, 1);
-    renderTags(wrapId, arr, isHighlight);
+function createTagElement(tag) {
+    try {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = tag;
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '×';
+        removeBtn.onclick = () => span.remove();
+        span.appendChild(removeBtn);
+        return span;
+    } catch (e) {
+        window.electronAPI.logError(`[settings-createTagElement] ${e.message}`);
+        return document.createElement('span'); // Devuelve un elemento vacío en caso de error
+    }
 }
 
-function initTagsInput(wrapId, inputId, isHighlight) {
-    const input = document.getElementById(inputId);
-    const wrap = document.getElementById(wrapId);
-    if (!input) return;
-
-    // Mover el input al final del contenedor y mostrarlo
-    input.style.display = 'inline';
-    wrap.appendChild(input);
-
-    input.addEventListener('keydown', e => {
-        const arr = isHighlight ? highlights : blockedWords;
-        if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
-            e.preventDefault();
-            const w = input.value.replace(',','').trim();
-            if (w && !arr.includes(w)) { 
-                arr.push(w); 
-                renderTags(wrapId, arr, isHighlight);
-            } 
-            input.value = '';
-        }
-        if (e.key === 'Backspace' && !input.value && arr.length) {
-            arr.pop();
-            renderTags(wrapId, arr, isHighlight);
-        }
-    });
+function getTags(containerId) {
+    try {
+        const tags = [];
+        document.querySelectorAll(`#${containerId} .tag`).forEach(tagEl => {
+            tags.push(tagEl.textContent.slice(0, -1)); // Quita el botón '×'
+        });
+        return tags;
+    } catch (e) {
+        window.electronAPI.logError(`[settings-getTags] ${e.message}`);
+        return []; // Devuelve un array vacío en caso de error
+    }
 }
+
+function setupTagInputs() {
+    try {
+        document.querySelectorAll('.tag-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const containerId = input.dataset.target;
+                    const container = document.getElementById(containerId);
+                    const value = input.value.trim();
+                    if (value && container) {
+                        container.appendChild(createTagElement(value));
+                        input.value = '';
+                    }
+                }
+            });
+        });
+    } catch (e) {
+        window.electronAPI.logError(`[settings-setupTagInputs] ${e.message}`);
+    }
+}
+
+// Inicializar al cargar el script
+setupTagInputs();

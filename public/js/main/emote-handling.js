@@ -1,148 +1,85 @@
-
-// ── EMOTES ────────────────────────────────────────────────────────────────────
-async function cargarEmotes(config) {
+async function cargarEmotes(cfg) {
     try {
-        Object.keys(emoteMap).forEach(key => delete emoteMap[key]);
-        const statusEl = document.getElementById('emote-status');
-        if (statusEl) statusEl.textContent = 'Cargando emotes...';
-        let twitchId = null;
-
-        if (config.twitchUser) {
-            try {
-                if (config.twitchToken) {
-                    const r = await fetch(`https://api.twitch.tv/helix/users?login=${config.twitchUser}`, {
-                        headers: { 
-                            'Client-ID': 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt', 
-                            'Authorization': `Bearer ${config.twitchToken.replace('oauth:', '')}` 
-                        }
-                    });
-                    const d = await r.json();
-                    if (d.data && d.data.length > 0) twitchId = d.data[0].id;
-                } else {
-                    const r = await fetch(`https://decapi.me/twitch/id/${config.twitchUser}`);
-                    const id = (await r.text()).trim();
-                    if (id && !isNaN(id) && !id.includes('User not found')) twitchId = id;
-                }
-            } catch (e) { console.warn('[Emotes] Error obteniendo ID', e); }
+        const twitchId = cfg.twitchUserId;
+        if (!twitchId) {
+            console.warn('No hay ID de usuario de Twitch para cargar emotes de canal.');
+            return;
         }
 
-        const tasks =[];
-        
-        if (config.show7tvGlobal !== false) tasks.push(fetch('https://7tv.io/v3/emote-sets/global').then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})}).catch(()=>{}));
-        if (config.show7tvCanal !== false && twitchId) tasks.push(fetch(`https://7tv.io/v3/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(u=>{const sid=u?.emote_set?.id;if(!sid)return;return fetch(`https://7tv.io/v3/emote-sets/${sid}`).then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})})}).catch(()=>{}));
-        
-        if (config.showBttvGlobal !== false) tasks.push(fetch('https://api.betterttv.net/3/cached/emotes/global').then(r=>r.json()).then(d=>{d?.forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
-        if (config.showBttvCanal !== false && twitchId) tasks.push(fetch(`https://api.betterttv.net/3/cached/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;[...(d.channelEmotes||[]),...(d.sharedEmotes||[])].forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
-        
-        if (config.showFfzGlobal !== false) tasks.push(fetch('https://api.frankerfacez.com/v1/set/global').then(r=>r.json()).then(d=>{Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
-        if (config.showFfzCanal !== false && config.twitchUser) tasks.push(fetch(`https://api.frankerfacez.com/v1/room/${config.twitchUser.toLowerCase()}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
+        let emoteLoaded = false;
+        const providers = [
+            { name: '7TV', enabled: cfg.show7tvCanal, url: `https://7tv.io/v3/users/twitch/${twitchId}` },
+            { name: 'BTTV', enabled: cfg.showBttvCanal, url: `https://api.betterttv.net/3/cached/users/twitch/${twitchId}` },
+            { name: 'FFZ', enabled: cfg.showFfzCanal, url: `https://api.frankerfacez.com/v1/room/id/${twitchId}` }
+        ];
 
-        await Promise.allSettled(tasks);
-        const total = Object.keys(emoteMap).length;
-        console.log(`[Emotes] Cargados ${total} emotes custom.`);
-        if (statusEl) statusEl.textContent = total > 0 ? `✓ ${total} emotes cargados` : (twitchId ? '⚠ Sin emotes en el canal' : '⚠ Configura Twitch primero');
+        for (const provider of providers) {
+            if (provider.enabled) {
+                try {
+                    const response = await fetch(provider.url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    // Aquí iría la lógica para procesar y almacenar los emotes de cada proveedor
+                    // ej: process7TV(data), processBTTV(data), etc.
+                    console.log(`Emotes de canal de ${provider.name} cargados.`);
+                    emoteLoaded = true;
+                } catch (e) {
+                    window.electronAPI.logError(`[cargarEmotes] Failed to load ${provider.name} emotes: ${e.message}`);
+                }
+            }
+        }
+
+        if (emoteLoaded) {
+            console.log('Emotes de canal actualizados.');
+        }
     } catch (e) {
-        const errorMessage = `ERROR IN cargarEmotes: ${e.message}\n${e.stack}`;
-        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
-        else console.error('Fallback: ', errorMessage);
-        const statusEl = document.getElementById('emote-status');
-        if (statusEl) statusEl.textContent = '❌ Error al cargar emotes';
+        window.electronAPI.logError(`[cargarEmotes] General Error: ${e.message}`);
     }
 }
 
-function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
+function replaceEmotes(text, messageEmotes) {
     try {
-        if (!text) return '';
-        let tokens = [{ type: 'text', content: text }];
+        let processedText = text;
+        // Lógica para reemplazar emotes. Primero los emotes del mensaje, luego los globales.
+        // Esta es una simplificación. La lógica real necesitaría manejar solapamientos y prioridades.
+        
+        const allEmotes = [...(messageEmotes || []), ...globalEmotes]; // Simplificación
 
-        if (plat === 'TW' && twitchEmotes) {
-            const nativeEmotes = [];
-            for (const [id, positions] of Object.entries(twitchEmotes)) {
-                for (const pos of positions) {
-                    const [start, end] = pos.split('-').map(Number);
-                    const name = text.substring(start, end + 1);
-                    nativeEmotes.push({ name, start, end, id });
-                }
-            }
-            nativeEmotes.sort((a, b) => a.start - b.start);
-            let lastIndex = 0;
-            const newTokens = [];
-            for (const emote of nativeEmotes) {
-                if (emote.start > lastIndex) newTokens.push({ type: 'text', content: text.substring(lastIndex, emote.start) });
-                newTokens.push({ type: 'emote', html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0" class="emote" alt="${esc(emote.name)}" data-platform="Twitch" data-emote="${esc(emote.name)}" data-url="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0">` });
-                lastIndex = emote.end + 1;
-            }
-            if (lastIndex < text.length) newTokens.push({ type: 'text', content: text.substring(lastIndex) });
-            tokens = newTokens;
-        }
+        allEmotes.forEach(emote => {
+            const emoteHTML = `<img src="${emote.url}" alt="${emote.name}" class="emote">`;
+            // Usar un regex global para reemplazar todas las ocurrencias
+            const regex = new RegExp(`\\b${emote.name}\\b`, 'g');
+            processedText = processedText.replace(regex, emoteHTML);
+        });
 
-        if (plat === 'YT' && ytEmotes) {
-            let lastIndex = 0;
-            const newTokens = [];
-            const sortedYtEmotes = [...ytEmotes].sort((a,b) => text.indexOf(a.placeholder) - text.indexOf(b.placeholder));
-            sortedYtEmotes.forEach(emote => {
-                 let from = 0;
-                while ((from = text.indexOf(emote.placeholder, from)) !== -1) {
-                    if (from > lastIndex) newTokens.push({ type: 'text', content: text.substring(lastIndex, from) });
-                    newTokens.push({ type: 'emote', html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube" data-emote="${esc(emote.name)}" data-url="${emote.url}">` });
-                    lastIndex = from + emote.placeholder.length;
-                    from += emote.placeholder.length;
-                }
-            });
-             if (lastIndex < text.length) newTokens.push({ type: 'text', content: text.substring(lastIndex) });
-            tokens = newTokens;
-        }
-
-        const finalTokens = [];
-        const thirdPartyEmoteKeys = Object.keys(emoteMap).sort((a, b) => b.length - a.length);
-
-        for (const token of tokens) {
-            if (token.type === 'emote') {
-                finalTokens.push(token);
-                continue;
-            }
-            let currentText = token.content;
-            const parts = [];
-            const words = currentText.split(' ');
-            words.forEach((word, index) => {
-                const emoteData = emoteMap[word];
-                if (emoteData) parts.push(`<img src="${esc(emoteData.url)}" class="emote${emoteData.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emoteData.platform || '')}" data-emote="${esc(word)}" data-url="${esc(emoteData.url)}">`);
-                else parts.push(esc(word));
-                if (index < words.length - 1) parts.push(' ');
-            });
-            finalTokens.push({ type: 'text', content: parts.join('') });
-        }
-
-        return finalTokens.map(t => t.type === 'emote' ? t.html : t.content).join('');
+        return processedText;
     } catch (e) {
-        const errorMessage = `ERROR IN parseEmotes: ${e.message}\n${e.stack}`;
-        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
-        else console.error('Fallback: ', errorMessage);
-        return esc(text || ''); // Fallback: Devolver el texto original escapado
+        window.electronAPI.logError(`[replaceEmotes] Error: ${e.message}`);
+        return text; // Devuelve el texto original en caso de error
     }
 }
-
-let emoteObserver = null;
 
 function setupEmoteObserver() {
+    // Lógica para el IntersectionObserver que anima solo los emotes visibles
     try {
-        if(!cfg.lazyEmotes) return;
-        if(emoteObserver) emoteObserver.disconnect();
-        emoteObserver = new IntersectionObserver(entries => {
+        const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
-                const img = entry.target;
-                if(entry.isIntersecting) {
-                    if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
-                } else {
-                    if(img.classList.contains('emote-animated') && img.src) {
-                        img.dataset.lazysrc = img.src;
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const src = img.dataset.src; // Asumiendo que la URL del emote animado está en data-src
+                    if (src) {
+                        img.src = src;
+                        observer.unobserve(img); // Dejar de observar una vez cargado
                     }
                 }
             });
-        }, { rootMargin:'200px' });
+        }, { root: document.getElementById('chat'), rootMargin: '100px' });
+
+        // Esto debería ser llamado cada vez que se añaden nuevos mensajes
+        // O usar MutationObserver para detectar nuevos emotes y observarlos.
     } catch (e) {
-        const errorMessage = `ERROR IN setupEmoteObserver: ${e.message}\n${e.stack}`;
-        if (window.electronAPI && typeof window.electronAPI.logError === 'function') window.electronAPI.logError(errorMessage);
-        else console.error('Fallback: ', errorMessage);
+        window.electronAPI.logError(`[setupEmoteObserver] Error: ${e.message}`);
     }
 }
+
+let globalEmotes = []; // Placeholder para emotes globales

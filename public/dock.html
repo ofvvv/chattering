@@ -146,80 +146,104 @@ body {
 
 <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
-const SERVER = 'http://localhost:3000'
-const MAX_DOCK = 20
-const dockLikeCount = new Map()
+  try {
+    const SERVER = 'http://localhost:3000'
+    const MAX_DOCK = 20
+    const dockLikeCount = new Map()
 
-// Redock: notify main window to re-attach dock
-async function redockWindow() {
-  await window.electronAPI.redockDock()
-  window.close()
-}
+    async function redockWindow() {
+      try {
+        await window.electronAPI.redockDock()
+        window.close()
+      } catch (e) {
+        console.error('Failed to redock', e)
+        window.electronAPI.logError(`[dock-redockWindow] ${e.message}`);
+      }
+    }
 
-// Add event to dock
-function addToDock(type, user, text, img = null, silent = false) {
-  const inner = document.getElementById('dock-inner')
-  const empty = document.getElementById('dock-empty')
-  if (empty) empty.remove()
-  
-  const item = document.createElement('div')
-  item.className = `dock-item ${type}`
-  
-  const icon = type === 'follow' ? '👤' : '🎁'
-  let html = `<span class="dock-icon">${icon}</span>`
-  html += `<span class="dock-user">${user}</span>`
-  html += `<span class="dock-text">${text}</span>`
-  if (img) html += `<img src="${img}" class="dock-gift-img" alt="">`
-  
-  item.innerHTML = html
-  inner.insertBefore(item, inner.firstChild)
-  
-  // Limit items
-  while (inner.children.length > MAX_DOCK) {
-    inner.removeChild(inner.lastChild)
+    function addToDock(type, user, text, img = null, silent = false) {
+      try {
+        const inner = document.getElementById('dock-inner')
+        const empty = document.getElementById('dock-empty')
+        if (empty) empty.remove()
+        
+        const item = document.createElement('div')
+        item.className = `dock-item ${type}`
+        
+        const icon = type === 'follow' ? '👤' : '🎁'
+        let html = `<span class="dock-icon">${icon}</span>`
+        html += `<span class="dock-user">${user}</span>`
+        html += `<span class="dock-text">${text}</span>`
+        if (img) html += `<img src="${img}" class="dock-gift-img" alt="">`
+        
+        item.innerHTML = html
+        inner.insertBefore(item, inner.firstChild)
+        
+        while (inner.children.length > MAX_DOCK) {
+          inner.removeChild(inner.lastChild)
+        }
+      } catch (e) {
+        window.electronAPI.logError(`[dock-addToDock] ${e.message}`);
+      }
+    }
+
+    function updateLikeRow(user, userId, count) {
+      try {
+        const current = dockLikeCount.get(userId) || 0
+        dockLikeCount.set(userId, current + count)
+        
+        let total = 0
+        dockLikeCount.forEach(v => total += v)
+        document.getElementById('dock-like-count').textContent = total
+      } catch (e) {
+        window.electronAPI.logError(`[dock-updateLikeRow] ${e.message}`);
+      }
+    }
+
+    const socket = io(SERVER, { reconnectionDelay: 2000, reconnectionAttempts: 20 })
+
+    socket.on('connect', () => console.log('[Dock] Socket conectado'))
+
+    socket.on('dock_history', events => {
+      try {
+        events.forEach(d => {
+          if (d.type === 'follow') addToDock('follow', d.user || d.username, ' te empezó a seguir', null, true)
+          else if (d.type === 'gift') addToDock('gift', d.user || d.username, ` envió ${d.text}`, null, true)
+        })
+      } catch (e) {
+        window.electronAPI.logError(`[dock-dock_history] ${e.message}`);
+      }
+    })
+
+    socket.on('evento', d => {
+      try {
+        if (d.type === 'like') {
+          updateLikeRow(d.user, d.userId, d.count || 1)
+        }
+        else if (d.type === 'follow') {
+          addToDock('follow', d.user, ' te empezó a seguir', null)
+        }
+        else if (d.type === 'gift' && d.plat !== 'TW') {
+          addToDock('gift', d.user, ` envió ${d.text}${d.count > 1 ? ` x${d.count}` : ''}`, d.giftImg || null)
+        }
+        else if (d.type === 'sub' || d.type === 'resub' || (d.type === 'gift' && d.plat === 'TW')) {
+          addToDock('gift', d.user, ` ${d.type === 'resub' ? 'resub' : 'se suscribió'}`, null)
+        }
+      } catch (e) {
+        window.electronAPI.logError(`[dock-evento] ${e.message}`);
+      }
+    })
+
+    socket.on('likes_init', () => {})
+
+    console.log('[Dock] Ventana de eventos inicializada')
+  } catch (e) {
+    console.error('Critical error in dock.html', e);
+    // Intentar loguear el error si la API está disponible
+    if (window.electronAPI && window.electronAPI.logError) {
+      window.electronAPI.logError(`[dock.html-critical] ${e.message}\n${e.stack}`);
+    }
   }
-}
-
-// Update like counter
-function updateLikeRow(user, userId, count) {
-  const current = dockLikeCount.get(userId) || 0
-  dockLikeCount.set(userId, current + count)
-  
-  let total = 0
-  dockLikeCount.forEach(v => total += v)
-  document.getElementById('dock-like-count').textContent = total
-}
-
-// Socket connection
-const socket = io(SERVER, { reconnectionDelay: 2000, reconnectionAttempts: 20 })
-
-socket.on('connect', () => console.log('[Dock] Socket conectado'))
-
-socket.on('dock_history', events => {
-  events.forEach(d => {
-    if (d.type === 'follow') addToDock('follow', d.user || d.username, ' te empezó a seguir', null, true)
-    else if (d.type === 'gift') addToDock('gift', d.user || d.username, ` envió ${d.text}`, null, true)
-  })
-})
-
-socket.on('evento', d => {
-  if (d.type === 'like') {
-    updateLikeRow(d.user, d.userId, d.count || 1)
-  }
-  else if (d.type === 'follow') {
-    addToDock('follow', d.user, ' te empezó a seguir', null)
-  }
-  else if (d.type === 'gift' && d.plat !== 'TW') {
-    addToDock('gift', d.user, ` envió ${d.text}${d.count > 1 ? ` x${d.count}` : ''}`, d.giftImg || null)
-  }
-  else if (d.type === 'sub' || d.type === 'resub' || (d.type === 'gift' && d.plat === 'TW')) {
-    addToDock('gift', d.user, ` ${d.type === 'resub' ? 'resub' : 'se suscribió'}`, null)
-  }
-})
-
-socket.on('likes_init', () => {})
-
-console.log('[Dock] Ventana de eventos inicializada')
 </script>
 
 </body>

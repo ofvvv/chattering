@@ -60,6 +60,7 @@
     </div>
 
     <script>
+      try {
         let tempTiktokSessionId = null;
 
         async function loginTiktokSeamlessSetup() {
@@ -73,7 +74,7 @@
             try {
                 const res = await window.electronAPI.loginTiktok();
                 if (res.success && res.sessionId) {
-                    tempTiktokSessionId = res.sessionId; // Guardar en memoria
+                    tempTiktokSessionId = res.sessionId;
                     const username = res.username;
                     
                     if (username) {
@@ -95,8 +96,10 @@
             } catch (e) { 
                 lbl.textContent = '🔗 Vincular cuenta de TikTok'; 
                 alert("Error interno: " + e.message);
+                window.electronAPI.logError(`[setup-loginTiktok] ${e.message}`);
+            } finally {
+                btn.disabled = false;
             }
-            btn.disabled = false;
         }
 
         async function loginTwitchSetup() {
@@ -119,15 +122,17 @@
                             btn.innerHTML = '✓ Twitch: ' + d.login;
                         }
                     } catch (err) {
-                        console.warn("Esperando al servidor local...", err.message);
+                        // Silently ignore poll errors, they are expected if the server is not ready
                     }
                 }, 1500);
             } catch(e) {
                 console.error("Error Twitch:", e);
                 alert("Error al abrir Twitch: " + e.message);
                 btn.innerHTML = 'Conectar con Twitch';
+                window.electronAPI.logError(`[setup-loginTwitch] ${e.message}`);
+            } finally {
+              btn.disabled = false;
             }
-            btn.disabled = false;
         }
 
         async function guardarYContinuar(skip = false) {
@@ -135,24 +140,35 @@
             btn.textContent = 'Iniciando...';
             btn.disabled = true;
 
-            const ttUser = document.getElementById('setup-tt').value.trim();
-            const twUser = document.getElementById('tw-user').value.trim();
-            const currentCfg = await window.electronAPI.getConfig() || {};
-            
-            const config = {
-                ...currentCfg,
-                tiktokSessionId:  tempTiktokSessionId || currentCfg.tiktokSessionId,
-                tiktokUser:       skip ? '' : ttUser,
-                youtubeChannelId: skip ? '' : document.getElementById('yt-channel').value.trim().replace('@', ''),
-                twitchUser:       skip ? '' : twUser,
-                twitchToken:      skip ? '' : document.getElementById('tw-token').value.trim(),
-                streamerName:     twUser || ttUser || '',
-                fontSize: 13.5, showTimestamps: true, showFollows: true, showGifts: true, showLikes: true
-            };
-            
-            await window.electronAPI.saveConfig(config);
-            window.electronAPI.setupComplete(); 
+            try {
+              const ttUser = document.getElementById('setup-tt').value.trim();
+              const twUser = document.getElementById('tw-user').value.trim();
+              const currentCfg = await window.electronAPI.getConfig() || {};
+              
+              const config = {
+                  ...currentCfg,
+                  tiktokSessionId:  tempTiktokSessionId || currentCfg.tiktokSessionId,
+                  tiktokUser:       skip ? '' : ttUser,
+                  youtubeChannelId: skip ? '' : document.getElementById('yt-channel').value.trim().replace('@', ''),
+                  twitchUser:       skip ? '' : twUser,
+                  twitchToken:      skip ? '' : document.getElementById('tw-token').value.trim(),
+                  streamerName:     twUser || ttUser || '',
+                  fontSize: 13.5, showTimestamps: true, showFollows: true, showGifts: true, showLikes: true
+              };
+              
+              await window.electronAPI.saveConfig(config);
+              window.electronAPI.setupComplete();
+            } catch (e) {
+              alert('Error crítico al guardar la configuración: ' + e.message);
+              window.electronAPI.logError(`[setup-guardarYContinuar] ${e.message}`);
+              btn.textContent = 'Guardar y Empezar →';
+              btn.disabled = false;
+            }
         }
+      } catch (e) {
+        alert('Error crítico en la ventana de configuración inicial: ' + e.message);
+        if (window.electronAPI) window.electronAPI.logError(`[setup.html-critical] ${e.message}`);
+      }
     </script>
 </body>
 </html>

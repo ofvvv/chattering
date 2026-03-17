@@ -1,82 +1,80 @@
-'use strict'
+const SERVER = 'http://localhost:3000'
+const socket = io(SERVER, { transports: ['websocket'], upgrade: false });
 
-let socket = null;
-let port = 3000; // Default port
-
-function connectAll() {
-    if (socket) {
-        socket.disconnect();
+socket.on('connect', () => {
+    try {
+        document.getElementById('conn-status-dot').style.backgroundColor = '#2ecc71';
+        document.getElementById('conn-status-text').textContent = 'Conectado';
+        socket.emit('join', { room: 'stream' });
+        clearChat();
+    } catch (e) {
+        window.electronAPI.logError(`[socket-connect] ${e.message}`);
     }
+});
 
-    socket = io(`http://localhost:${port}`);
+socket.on('disconnect', () => {
+    try {
+        document.getElementById('conn-status-dot').style.backgroundColor = '#e74c3c';
+        document.getElementById('conn-status-text').textContent = 'Desconectado';
+    } catch (e) {
+        window.electronAPI.logError(`[socket-disconnect] ${e.message}`);
+    }
+});
 
-    socket.on('connect', () => {
-        console.log('[Socket]', `Connected to server on port ${port}`);
-        showToast('Conectado al servidor local');
-    });
+socket.on('connect_error', (err) => {
+    try {
+        document.getElementById('conn-status-dot').style.backgroundColor = '#f39c12';
+        document.getElementById('conn-status-text').textContent = 'Error de conexión';
+        window.electronAPI.logError(`[socket-connect_error] ${err.message}`);
+    } catch (e) {
+        window.electronAPI.logError(`[socket-connect_error-handler] ${e.message}`);
+    }
+});
 
-    socket.on('connect_error', (err) => {
-        console.error('[Socket]', 'Connection error:', err.message);
-        showToast('Error de conexión con el servidor');
-    });
+socket.on('chat_message', (data) => {
+    try {
+        renderMessage(data);
+    } catch (e) {
+        window.electronAPI.logError(`[socket-chat_message] Render Error: ${e.message}`);
+    }
+});
 
-    socket.on('disconnect', (reason) => {
-        console.log('[Socket]', 'Disconnected:', reason);
-        showToast('Desconectado del servidor local');
-    });
-
-    // Listener principal de mensajes
-    socket.on('msg', (data) => {
-        addChatMessage(data);
-    });
-
-    // Listener para el historial de chat al conectar
-    socket.on('history', (history) => {
-        chat.innerHTML = '';
-        history.forEach(msg => addChatMessage(msg));
-        scrollToBottom(true);
-    });
-
-    // Listener para estados de conexión de plataformas (TT, YT, TW)
-    socket.on('platform_states', (states) => {
-        for (const plat in states) {
-            updatePlatformStatus(plat, states[plat]);
+socket.on('stream_event', (data) => {
+    try {
+        renderEvent(data);
+        if (cfg.soundsEnabled && data.sound) {
+            playSound(data.sound);
         }
-    });
-    
-    socket.on('platform_state', ({ plat, state }) => {
-        updatePlatformStatus(plat, state);
-    });
+    } catch (e) {
+        window.electronAPI.logError(`[socket-stream_event] Render/Sound Error: ${e.message}`);
+    }
+});
 
-     // Listener para el número de espectadores
-    socket.on('status', (liveStatus) => {
-        // Esta es una implementación básica, asumimos que quieres sumar los espectadores
-        // de todas las plataformas o mostrar el de la principal.
-        // Por ahora, solo actualizamos el estado general.
-        const isLive = Object.values(liveStatus).some(status => status);
-        const statusText = document.getElementById('status-text');
-        statusText.textContent = isLive ? 'LIVE' : 'OFFLINE';
-        statusText.style.color = isLive ? '#ff4040' : '';
-    });
+socket.on('user_banned', (data) => {
+    try {
+        handleUserBan(data.userId, data.platform);
+    } catch (e) {
+        window.electronAPI.logError(`[socket-user_banned] ${e.message}`);
+    }
+});
 
-    window.electronAPI.onPortReady((p) => {
-        if (p && port !== p) {
-            console.log(`[Port] Port updated from ${port} to ${p}. Reconnecting...`);
-            port = p;
-            connectAll();
+socket.on('message_deleted', (data) => {
+    try {
+        handleMessageDelete(data.messageId);
+    } catch (e) {
+        window.electronAPI.logError(`[socket-message_deleted] ${e.message}`);
+    }
+});
+
+function clearChat() {
+    try {
+        const chat = document.getElementById('chat');
+        if (chat) {
+            chat.innerHTML = '';
+            msgLineCounter = 0;
+            totalMsgCount = 0;
         }
-    });
-}
-
-function updatePlatformStatus(plat, status) {
-    const icon = document.querySelector(`.plat-status-icon[data-plat="${plat}"]`);
-    if (icon) {
-        icon.classList.remove('connected', 'disconnected', 'live');
-        icon.classList.add(status); // status puede ser 'connected', 'disconnected', 'live'
-        
-        let statusTooltip = `Desconectado de ${plat}`;
-        if (status === 'connected') statusTooltip = `Conectado a ${plat}`;
-        if (status === 'live') statusTooltip = `En vivo en ${plat}`;
-        icon.title = statusTooltip;
+    } catch (e) {
+        window.electronAPI.logError(`[clearChat] ${e.message}`);
     }
 }

@@ -1,51 +1,49 @@
-const SERVER = 'http://localhost:3000';
 let cfg = {};
-let blockedWords = [], highlights = [];
-
-// Los manejadores de socket y la lógica de cuentas estarán en su propio archivo,
-// pero la instancia del socket se crea aquí para ser exportada si es necesario.
-const socket = io(SERVER);
 
 async function init() {
-    // 1. Obtener la configuración
-    cfg = (await window.electronAPI.getConfig()) || {};
-
-    // 2. Cargar los datos en el formulario (esta función estará en settings-form.js)
-    loadForm();
-
-    // 3. Inicializar manejadores de eventos de la UI (estarán en settings-ui.js)
-    initUIEventListeners();
-
-    // 4. Inicializar manejadores de autenticación (estarán en settings-accounts.js)
-    initAccountListeners();
-
-    // 5. Obtener versión de la app
-    window.electronAPI.getVersion().then(v => { 
-        const el = document.getElementById('app-version'); 
-        if(el) el.textContent = 'v' + v 
-    }).catch(() => {});
+    try {
+        cfg = await window.electronAPI.getConfig() || {};
+        loadForm(cfg);
+        setupEventListeners();
+        setupInitialUI();
+        showInitialContent();
+        handlePlatformAuth();
+    } catch (e) {
+        window.electronAPI.logError(`[settings-init] CRITICAL: ${e.message}`);
+        alert('Error fatal al cargar la configuración. Revise los logs.');
+    }
 }
 
-async function guardar() {
-    const statusEl = document.getElementById('save-status');
-    statusEl.textContent = 'Guardando...';
+async function save() {
+    try {
+        const newConfig = collectFormData();
+        const updatedConfig = { ...cfg, ...newConfig };
 
-    // La función que recolecta todos los datos del form estará en settings-form.js
-    const newCfg = collectFormData();
+        await window.electronAPI.saveSettings(updatedConfig);
+        
+        // Cerrar la ventana después de un pequeño retraso para asegurar que se guarda
+        setTimeout(() => {
+            window.electronAPI.closeSettings();
+        }, 200);
 
-    // Guardamos la nueva configuración
-    await window.electronAPI.saveSettings(newCfg);
-    cfg = newCfg; // Actualizamos la config en memoria
-
-    statusEl.textContent = '✓ Guardado';
-    setTimeout(() => statusEl.textContent = '', 3000);
+    } catch (e) {
+        window.electronAPI.logError(`[settings-save] ${e.message}`);
+        alert('Hubo un error al guardar la configuración.');
+    }
 }
 
-async function resetConfig() {
-    if (!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return;
-    await window.electronAPI.resetConfig();
-    window.close(); // Se cierra la ventana de configuración
+async function reset() {
+    try {
+        if (confirm('¿Está seguro de que desea restaurar toda la configuración a los valores de fábrica? Esta acción es irreversible.')) {
+            await window.electronAPI.resetConfig();
+            alert('La configuración ha sido restaurada. La aplicación se reiniciará en la pantalla de configuración inicial.');
+            // La ventana principal se recargará automáticamente por el proceso principal
+            window.electronAPI.closeSettings();
+        }
+    } catch (e) {
+        window.electronAPI.logError(`[settings-reset] ${e.message}`);
+        alert('Hubo un error al restaurar la configuración.');
+    }
 }
 
-// Arrancamos la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', init);
