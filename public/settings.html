@@ -359,17 +359,29 @@ async function init() {
     loadForm()
 
     socket.on('twitch_auth', (data) => {
-        if (data.ok && data.token) {
+        const btn = document.getElementById('s-tw-oauth-btn');
+        const lbl = document.getElementById('s-tw-oauth-label');
+        const status = document.getElementById('s-tw-status');
+
+        if (data.ok && data.token && data.user) {
             console.log('Twitch auth success from socket', data);
-            const btn = document.getElementById('s-tw-oauth-btn');
-            const lbl = document.getElementById('s-tw-oauth-label');
-            const status = document.getElementById('s-tw-status');
+            
+            document.getElementById('s-tw').value = data.user;
             document.getElementById('s-tw-token').value = data.token;
             
-            lbl.textContent = '✓ Conectado';
+            lbl.textContent = `✓ Conectado como ${data.user}`;
             btn.className = 'btn btn-twitch connected';
-            status.textContent = 'Autenticación completada. Guarda los cambios.';
+            status.textContent = '¡Conexión exitosa! Guardando automáticamente...';
             status.style.color = '#53fc18';
+            
+            guardar();
+
+        } else {
+            console.error('Twitch auth failed from socket', data);
+            lbl.textContent = 'Error de conexión';
+            btn.className = 'btn btn-twitch';
+            status.textContent = data.error || 'No se pudo verificar la cuenta. Intenta de nuevo.';
+            status.style.color = '#ff6060';
         }
     });
 }

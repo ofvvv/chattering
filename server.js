@@ -152,12 +152,32 @@ app.post('/api/send-message', async (req, res) => {
 
 app.post('/api/twitch/token-received', async (req, res) => {
     const { token } = req.body;
-    if (token) {
-        io.emit('twitch_auth', { ok: true, token });
-        console.log('[Auth] Token de Twitch recibido y emitido.');
+    if (!token) {
+        return res.status(400).json({ ok: false, error: 'No se recibió el token' });
+    }
+
+    try {
+        const cleanToken = token.replace('oauth:', '');
+        const userData = await fetchJson('https://api.twitch.tv/helix/users', {
+            'Client-ID': TWITCH_CLIENT_ID,
+            'Authorization': `Bearer ${cleanToken}`
+        });
+
+        const user = userData?.data?.[0];
+        if (!user || !user.login) {
+            io.emit('twitch_auth', { ok: false, error: 'No se pudo obtener el usuario de Twitch.' });
+            return res.status(500).json({ ok: false, error: 'Failed to fetch user from Twitch' });
+        }
+
+        const authData = { ok: true, token, user: user.login };
+        io.emit('twitch_auth', authData);
+        console.log(`[Auth] Token y usuario de Twitch (${user.login}) recibidos y emitidos.`);
         res.json({ ok: true });
-    } else {
-        res.status(400).json({ ok: false, error: 'No se recibió el token' });
+
+    } catch (e) {
+        console.error('[Auth] Error al validar token de Twitch:', e.message);
+        io.emit('twitch_auth', { ok: false, error: 'Error al validar el token con Twitch.' });
+        res.status(500).json({ ok: false, error: e.message });
     }
 });
 
