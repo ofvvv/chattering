@@ -1,34 +1,39 @@
-# Plataformas de chat
+# Plataformas de Chat
 
-Cada plataforma vive en `server/platforms/<nombre>.js` y sigue la misma interfaz: `init(deps)`, `connect(config)`, `disconnect()`.
+Cada plataforma de chat está encapsulada en su propio módulo en `server/platforms/<nombre>.js`. Todas siguen la misma interfaz simple: `init(deps)`, `connect(config)` y `disconnect()`.
 
-## Dependencias inyectadas (deps)
-El servidor construye un objeto y lo pasa a cada `init(deps)`:
-- **emitMsg(d)** — Envía un mensaje de chat al cliente.
-- **emitEvento(d)** — Envía un evento (seguidor, regalo, sub, etc.) al cliente.
-- **updateStatus(plat, isLive)** — Actualiza el estado “en directo” de la plataforma.
-- **procesarUsuario(userId, username, platform)** — Registra usuario en SQLite.
-- **config** — Objeto de configuración global.
+## Dependencias Inyectadas (deps)
 
-## Twitch (twitch.js)
-- Usa **tmi.js** para conectarse al chat por IRC.
-- Con token OAuth puede escribir mensajes y ejecutar comandos de mod (`/timeout`, `/ban`).
-- Badges: **server/badges.js** (Helix API + CDN).
-- Emotes: Los emotes nativos se procesan mediante tags IRC. Los de 7TV/BTTV/FFZ se cargan desde el frontend (`index.html`).
+Antes de inicializar cualquier plataforma, el `server.js` construye un objeto de dependencias que les permite comunicarse de vuelta con el servidor y el cliente. Este objeto se pasa a la función `init(deps)` de cada plataforma.
 
-## TikTok (tiktok.js)
-- Usa **tiktok-live-connector** (WebcastPushConnection).
-- **Seamless Login:** Para evitar límites de API y bloqueos, `main.js` abre una ventana oculta donde el usuario inicia sesión. La app extrae la cookie `sessionid` y el `@usuario` inyectando JS en la página, y se lo pasa a la librería.
-- Si el streamer está offline, la librería reintenta la conexión silenciosamente cada 60 segundos sin mostrar errores en la UI.
+- **`emitMsg(data)`**: Envía un mensaje de chat al frontend (cliente).
+- **`emitEvento(data)`**: Envía un evento (seguidor, regalo, etc.) al frontend.
+- **`updateStatus(platform, isLive)`**: Actualiza el estado "en directo" de la plataforma en la UI.
+- **`config`**: El objeto de configuración global de la aplicación.
 
-## YouTube (youtube.js)
-- Usa **youtube-chat** (LiveChat).
-- Extrae el ID del directo a partir del `@handle` del canal.
-- **Emotes:** Extrae las URLs de las imágenes de los emotes nativos de YouTube y las envía al frontend en un array `ytEmotes` para su renderizado.
-- Si el streamer está offline, reintenta silenciosamente.
+## Twitch (`twitch.js`)
 
-## Añadir una nueva plataforma
-1. Crear `server/platforms/nuevaplataforma.js`.
-2. Exportar `init(deps)`, `connect(config)`, `disconnect()`.
-3. En `server.js`: requerir el archivo, pasarlo a `init` y conectarlo en `reconnectAll()`.
-4. Añadir la clave en `config.json` y en la UI (`settings.html`).
+- **Librería**: Utiliza **tmi.js** para conectarse al chat de Twitch a través de su puerta de enlace IRC.
+- **Autenticación**: Requiere un token OAuth que se obtiene mediante un flujo de autorización en el navegador. Con este token, la aplicación puede actuar en nombre del usuario.
+- **Capacidades**: Además de leer el chat, puede enviar mensajes y ejecutar un **amplio rango de comandos** de moderación y gestión, como `/ban`, `/timeout`, `/mod`, `/slow`, `/clear`, etc.
+- **Badges y Emotes**: Los badges de usuario se obtienen a través de la API de Twitch. Los emotes nativos se procesan a través de los tags de IRC, mientras que los emotes de terceros (7TV, BTTV, FFZ) son gestionados por el frontend.
+
+## TikTok (`tiktok.js`)
+
+- **Librería**: Utiliza **tiktok-live-connector** para conectarse al servicio de Webcast de TikTok.
+- **Autenticación**: Implementa un método de **"Login Silencioso"** (`loginTiktokSeamless`). Desde la configuración, se abre una ventana de Electron oculta donde el usuario inicia sesión en TikTok. La aplicación intercepta la cookie `sessionid` de esa sesión, lo que permite una conexión estable y evita los bloqueos de la API pública.
+- **Reconexión**: Si el streamer no está en vivo, la librería reintenta la conexión automáticamente a intervalos regulares sin notificar al usuario, para conectarse tan pronto como comience la transmisión.
+
+## YouTube (`youtube.js`)
+
+- **Librería**: Utiliza **youtube-chat** para monitorear el chat de una transmisión en vivo.
+- **Conexión**: Identifica automáticamente el ID del directo activo a partir del `@handle` del canal del usuario.
+- **Emotes**: Es capaz de extraer los emotes personalizados de YouTube directamente del chat y enviar las URLs de las imágenes al frontend dentro del payload del mensaje (`ytEmotes`), permitiendo su renderizado nativo.
+- **Reconexión**: Al igual que TikTok, si no hay un directo activo, reintenta la conexión de forma silenciosa en segundo plano.
+
+## Cómo Añadir una Nueva Plataforma
+
+1.  Crear el nuevo archivo de script en `server/platforms/nuevaplataforma.js`.
+2.  En ese archivo, exportar las tres funciones requeridas: `init(deps)`, `connect(config)` y `disconnect()`.
+3.  En `server.js`, importar el nuevo archivo y añadirlo al ciclo de vida de la aplicación (en `initPlatforms` y `reconnectAll`).
+4.  Actualizar la configuración (`config.json`) y la interfaz de usuario (`settings.html`) para incluir las opciones de la nueva plataforma.
