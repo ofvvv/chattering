@@ -5,9 +5,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="toast"></div>
-
+<!-- Iconos de plataforma: SVG inline para compatibilidad en todas las ventanas -->
 <div id="titlebar" ondblclick="return false">
   <div id="titlebar-left">
     <div id="app-title">Chatter<span>ing</span></div>
@@ -18,14 +16,15 @@
   </div>
   <div id="tb-drag-zone" style="-webkit-app-region:drag;flex:1;height:100%;cursor:move"></div>
   <div id="titlebar-controls">
-    <button class="win-btn" id="btn-search" onclick="toggleSearchBar()" title="Buscar (Ctrl+F)">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="5"/><line x1="11" y1="11" x2="14" y2="14"/></svg>
-    </button>
     <button class="win-btn" id="btn-filter" onclick="toggleFilterBar()" title="Filtros">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="6" y1="12" x2="10" y2="12"/></svg>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="2" y1="4" x2="14" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="6" y1="12" x2="10" y2="12"/>
+      </svg>
     </button>
     <button class="win-btn" id="btn-settings" onclick="window.electronAPI.openSettings()" title="Configuración (,)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"/></svg>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"/>
+      </svg>
     </button>
     <button class="win-btn" onclick="window.electronAPI.minimize()">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="3" y1="8" x2="13" y2="8"/></svg>
@@ -39,171 +38,1475 @@
   </div>
 </div>
 
+<!-- FILTER BAR -->
 <div id="filter-bar">
   <button class="fchip fc-subs" id="fc-subs" onclick="toggleFilter('subs')">⭐ Subs</button>
   <button class="fchip fc-mods" id="fc-mods" onclick="toggleFilter('mods')">🛡 Mods</button>
   <button class="fchip fc-bots" id="fc-bots" onclick="toggleFilter('bots')">🤖 Sin bots</button>
   <button class="fchip fc-first" id="fc-first" onclick="toggleFilter('first')">🌟 First</button>
   <div style="width:1px;background:#1e1e24;margin:0 2px;align-self:stretch"></div>
-  <button class="fchip fc-plat" id="fc-TT" onclick="toggleFilter('TT')"><svg viewBox="0 0 18 18" width="10" height="10"><rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/></svg> TT</button>
-  <button class="fchip fc-plat" id="fc-YT" onclick="toggleFilter('YT')"><svg viewBox="0 0 18 18" width="10" height="10"><rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/></svg> YT</button>
-  <button class="fchip fc-plat" id="fc-TW" onclick="toggleFilter('TW')"><svg viewBox="0 0 18 18" width="10" height="10"><rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/></svg> TW</button>
-  <button class="fchip" id="fc-clear" onclick="clearFilters()">✕</button>
+  <button class="fchip fc-plat" id="fc-TT" onclick="toggleFilter('TT')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/></svg> TT</button>
+  <button class="fchip fc-plat" id="fc-YT" onclick="toggleFilter('YT')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/></svg> YT</button>
+  <button class="fchip fc-plat" id="fc-TW" onclick="toggleFilter('TW')"><svg viewBox="0 0 18 18" width="10" height="10" style="display:inline;vertical-align:middle"><rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/></svg> TW</button>
+  <button class="fchip" id="fc-clear" onclick="clearFilters()" style="color:#333;margin-left:auto">✕</button>
 </div>
 
+<!-- SEARCH BAR -->
 <div id="search-bar">
   <input id="search-input" type="text" placeholder="Buscar mensajes..." autocomplete="off">
   <span id="search-count"></span>
-  <button id="search-close" onclick="toggleSearchBar()">✕</button>
+  <button id="search-close" onclick="closeSearch()">✕</button>
 </div>
 
-<div id="skeleton-overlay"><div id="sk-container"><div class="sk-line"></div><div class="sk-line"></div><div class="sk-line"></div><div class="sk-line"></div><div class="sk-line"></div></div></div>
+<!-- SKELETON -->
+<div id="skeleton-overlay">
+  <div id="sk-container">
+    <div class="sk-line sk-wide"></div><div class="sk-line sk-medium"></div>
+    <div class="sk-line sk-short"></div><div class="sk-line sk-wide"></div>
+    <div class="sk-line sk-medium"></div><div class="sk-line sk-short"></div>
+  </div>
+</div>
 
+<!-- LINK PREVIEW -->
 <div id="link-preview"><img id="lp-img" alt=""><div id="lp-title"></div><div id="lp-desc"></div><div id="lp-domain"></div></div>
+
+<!-- EMOTE TOOLTIP -->
 <div id="emote-tooltip"><img id="et-img" alt=""><div id="et-name"></div><div id="et-platform"></div></div>
 
+<!-- EMOTE CONTEXT MENU -->
 <div id="emote-ctx">
-  <div class="ctx-name" id="ctx-emote-name">Emote</div><div class="ctx-sep"></div>
+  <div class="ctx-name" id="ctx-emote-name">Emote</div>
+  <div class="ctx-sep"></div>
   <div class="ctx-item" onclick="ctxCopyName()">📋 Copiar nombre</div>
   <div class="ctx-item" onclick="ctxCopyUrl()">🔗 Copiar link</div>
-  <div class="ctx-item" onclick="ctxDownload()">⬇ Descargar</div><div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxDownload()">⬇ Descargar</div>
+  <div class="ctx-sep"></div>
   <div class="ctx-item" onclick="closeEmoteCtx()">✕ Cerrar</div>
 </div>
 
+<!-- CHANGELOG -->
 <div id="changelog-overlay">
     <div id="changelog-box">
         <div id="changelog-header">
-            <div><div id="changelog-title">✨ Novedades</div><div id="changelog-version"></div></div>
+            <div>
+                <div id="changelog-title">✨ Novedades</div>
+                <div id="changelog-version"></div>
+            </div>
             <button id="changelog-close-btn" onclick="closeChangelog()">✕</button>
         </div>
-        <ul id="changelog-body"></ul>
+        <div id="changelog-body"></div>
     </div>
 </div>
 
+
+<!-- MAIN LAYOUT -->
 <div id="main-layout">
+  <!-- DOCK (events) -->
   <div id="top-dock">
     <div id="dock-resize-handle"></div>
-    <div id="dock-scroll"><div id="dock-inner"><div id="dock-empty">Sin eventos aún</div></div></div>
+    <div id="dock-scroll">
+      <div id="dock-inner">
+        <div id="dock-empty" class="dock-empty">Sin eventos aún</div>
+      </div>
+    </div>
+    <div id="dock-like-row">
+      <span class="dock-like-color" style="font-size:14px">❤</span>
+      <span id="dock-like-user" class="dock-user dock-like-color"></span>
+      <span id="dock-like-action" class="dock-action"></span>
+    </div>
   </div>
 
+  <!-- CHAT AREA -->
   <div id="chat-wrap">
     <div id="chat"></div>
     <div id="scroll-paused">▼ nuevos mensajes</div>
   </div>
 </div>
 
+<!-- REPLY BAR -->
 <div id="reply-bar">
-  <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M1 8l6-6v3.5c5 0 8 2 8 7.5-1.5-3.5-5-4.5-8-4.5V12L1 8z"/></svg>
+  <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink:0;color:#9b9bf5"><path d="M1 8l6-6v3.5c5 0 8 2 8 7.5-1.5-3.5-5-4.5-8-4.5V12L1 8z"/></svg>
   <div id="reply-preview">Respondiendo a <span id="reply-user"></span>: <span id="reply-text"></span></div>
   <button id="reply-cancel" onclick="cancelReply()" title="Cancelar respuesta">✕</button>
 </div>
 
-<div id="emote-picker"><input id="ep-search" type="text" placeholder="Buscar emote..." oninput="filterEmotePicker(this.value)"><div id="ep-grid"></div></div>
+<!-- EMOTE PICKER (attached to chat input) -->
+<div id="emote-picker">
+  <input id="ep-search" type="text" placeholder="Buscar emote..." oninput="filterEmotePicker(this.value)">
+  <div id="ep-grid"></div>
+</div>
 
 <div id="test-panel">
   <div id="test-panel-label">Test</div>
-  <button class="test-btn" onclick="te('follow')">+ Follow</button>
-  <button class="test-btn" onclick="te('gift')">+ Gift</button>
-  <button class="test-btn" onclick="te('msg')">+ Msg</button>
-  <button class="test-btn" onclick="te('like')">+ Like</button>
+  <button class="test-btn" style="background:#9b9bf5;color:#000" onclick="te('follow')">+ Follow</button>
+  <button class="test-btn" style="background:#ffcc00;color:#000" onclick="te('gift')">+ Gift</button>
+  <button class="test-btn" style="background:#333;color:#fff" onclick="te('msg')">+ Msg</button>
+  <button class="test-btn" style="background:#ff2b54;color:#fff" onclick="te('like')">+ Like</button>
 </div>
 
+<!-- CHAT INPUT (above status bar) -->
 <div id="chat-input-bar">
-  <select id="chat-plat-sel"><option value="TW">Twitch</option></select>
+  <select id="chat-plat-sel">
+    <option value="TW">Twitch</option>
+  </select>
   <div style="flex:1;position:relative">
-    <input id="chat-input-field" type="text" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off">
+    <input id="chat-input-field" type="text" placeholder="Escribe un mensaje... (:emote  /comando)" maxlength="500" autocomplete="off">
     <div id="chat-autocomplete"></div>
   </div>
-  <button id="emote-picker-btn" title="Emotes" onclick="toggleEmotePicker()">😀</button>
+  <button id="emote-picker-btn" title="Emotes" onclick="toggleEmotePicker()" style="background:#1a1a1e;border:1px solid #2e2e35;color:#888;border-radius:3px;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">😀</button>
   <button id="chat-send-btn" onclick="sendChatMsg()">↵</button>
 </div>
 
 <div id="bottom-dock">
   <div id="platform-icons">
-    <div class="plat-status-icon" data-plat="TT" title="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg></div>
-    <div class="plat-status-icon" data-plat="YT" title="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z" fill="#FF0000"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg></div>
-    <div class="plat-status-icon" data-plat="TW" title="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg></div>
+    <div class="plat-status-icon" data-plat="TT" title="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg>
+    </div>
+    <div class="plat-status-icon" data-plat="YT" title="YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z" fill="#FF0000"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg>
+    </div>
+    <div class="plat-status-icon" data-plat="TW" title="Twitch">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg>
+    </div>
   </div>
   <div id="status-text" style="margin-left:auto">NOT LIVE</div>
 </div>
 
 <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
-const d=document,SERVER='http://localhost:3000',MAX_CHAT_NODES=150,MAX_DOCK=20;
-let cfg={},msgLineCounter=0,currentReply={};
-const emoteMap={},KNOWN_BOTS=['nightbot','streamelements','fossabot','moobot','wizebot','botrix','streamlabs','sery_bot'];
-const TC=['#FF0000','#0000FF','#00FF00','#B22222','#FF7F50','#9ACD32','#FF4500','#2E8B57','#DAA520','#D2691E','#5F9EA0','#1E90FF','#FF69B4','#8A2BE2','#00FF7F'];
+const SERVER='http://localhost:3000'
+let cfg={},totalMsgCount=0,msgLineCounter=0
+const emoteMap={}
+const dockLikeCount=new Map(),MAX_DOCK=20
+const MAX_CHAT_NODES=150
+const TC=['#FF0000','#0000FF','#00FF00','#B22222','#FF7F50','#9ACD32','#FF4500','#2E8B57','#DAA520','#D2691E','#5F9EA0','#1E90FF','#FF69B4','#8A2BE2','#00FF7F']
+const KNOWN_BOTS=['nightbot','streamelements','fossabot','moobot','wizebot','botrix','streamlabs','sery_bot','stay_hydrated_bot']
 
-const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return TC[Math.abs(h)%TC.length]};
-const platIconSvg=p=>{const i={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>'};return i[p]||i.TT};
-const esc=s=>String(s||'').replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c]);
-const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank');
-const nextBg=()=>(++msgLineCounter)%2===0?'linea-bg-even':'linea-bg-odd';
+const getColor=s=>{if(!s)return TC[0];let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5)-h);return TC[Math.abs(h)%TC.length]}
+const platIconSvg=spl=>{const icons={TT:'<rect width="18" height="18" rx="3" fill="#010101"/><path d="M12.1 4a3.2 3.2 0 01-2.5-2.8H7.7V11a1.9 1.9 0 01-1.9 1.7 1.9 1.9 0 01-1.9-1.9 1.9 1.9 0 011.9-1.9l.5.07V6.6a4.2 4.2 0 00-.5-.03A4.2 4.2 0 001.6 10.8a4.2 4.2 0 004.2 4.2 4.2 4.2 0 004.2-4.2V6.1a5.4 5.4 0 003.2 1V4.7a3.2 3.2 0 01-1.1-.7z" fill="#fff"/>',YT:'<rect width="18" height="18" rx="3" fill="#FF0000"/><polygon points="7.5,6.5 7.5,11.5 12,9" fill="#fff"/>',TW:'<rect width="18" height="18" rx="3" fill="#9147FF"/><path d="M4 2L3 4.8V14.6h3.8V16.5l2-1.9h2.8l4.4-4.4V2H4zm10.4 8.6L12 13H9.4L7.4 15V13H4.6V3.4H14.4V10.6zM11.4 5.4V9H10V5.4h1.4zm-3.4 0V9H6.6V5.4H8z" fill="#fff"/>'};return icons[spl]||icons.TT}
+const esc=s=>String(s??'').replace(/[&<>"'`]/g,c=>>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c])
+const openLink=url=>window.electronAPI?.openExternal(url)||window.open(url,'_blank')
+const nextBg=even=>{msgLineCounter++;return msgLineCounter%2===0?'linea-bg-even':'linea-bg-odd'}
 
-// SOUND
-let audioCtx=null;const getAudioCtx=()=>(audioCtx||(audioCtx=new(window.AudioContext||window.webkitAudioContext)),audioCtx);function playTone(f=440,d=0.15,v=0.4,t='sine'){if(!cfg.soundsEnabled)return;try{const c=getAudioCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type=t;const V=(cfg.soundVolume||60)/100*v;g.gain.setValueAtTime(V,c.currentTime);g.gain.exponentialRampToValueAtTime(1e-3,c.currentTime+d);o.start();o.stop(c.currentTime+d)}catch(e){}}function playFollow(){playTone(660,0.12,0.35);setTimeout(()=>playTone(880,0.1,0.25),120)}function playGift(){[523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,0.1,0.3),i*80))}function playMention(){playTone(440,0.08,0.2);setTimeout(()=>playTone(554,0.12,0.3),100)}
+// ── SOUND ─────────────────────────────────────────────────────────────────────
+let audioCtx = null
+function getAudioCtx() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx }
+function playTone(freq=440, dur=0.15, vol=0.4, type='sine') {
+    if(!cfg.soundsEnabled) return
+    try {
+        const ctx=getAudioCtx(), osc=ctx.createOscillator(), gain=ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.frequency.value=freq; osc.type=type
+        const v=(cfg.soundVolume||60)/100*vol
+        gain.gain.setValueAtTime(v, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+dur)
+        osc.start(); osc.stop(ctx.currentTime+dur)
+    } catch(e){}
+}
+function playFollow()  { playTone(660,0.12,0.35); setTimeout(()=>playTone(880,0.1,0.25),120) }
+function playGift()    { [523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,0.1,0.3),i*80)) }
+function playMention() { playTone(440,0.08,0.2); setTimeout(()=>playTone(554,0.12,0.3),100) }
+function testSound(type) {
+    const prev=cfg.soundsEnabled; cfg.soundsEnabled=true
+    if(type==='follow') playFollow()
+    else if(type==='gift') playGift()
+    else playMention()
+    cfg.soundsEnabled=prev
+}
 
-// UI FEEDBACK
-function showToast(m,t=''){const e=d.getElementById('toast');e.textContent=m;e.className=`show${t?' toast-'+t:''}`;clearTimeout(e._t);e._t=setTimeout(()=>e.className='',3000)}
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg,type=''){
+    const t=document.getElementById('toast')
+    t.textContent=msg; t.className=`show${type?' toast-'+type:''}`
+    clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000)
+}
 
-// CHANGELOG
-async function checkChangelog(){try{const v=await window.electronAPI.getVersion(),l=await window.electronAPI.getLastSeenVersion();if(v!==l){const n=await window.electronAPI.getChangelog();d.getElementById('changelog-version').textContent=`v${v}`;d.getElementById('changelog-body').innerHTML=n.map(i=>`<li>${esc(i)}</li>`).join('');d.getElementById('changelog-overlay').classList.add('open')}}catch(e){console.warn('Changelog fetch failed',e)}}async function closeChangelog(){d.getElementById('changelog-overlay').classList.remove('open');const v=await window.electronAPI.getVersion();await window.electronAPI.setLastSeenVersion(v)}
+// ── CHANGELOG ─────────────────────────────────────────────────────────────────
+async function checkChangelog() {
+    const version = await window.electronAPI.getVersion()
+    const lastSeen = await window.electronAPI.getLastSeenVersion()
+    document.getElementById('changelog-version').textContent=`Chattering v${version}`
+    if(lastSeen !== version) {
+        document.getElementById('changelog-overlay').classList.add('open')
+    }
+}
+async function closeChangelog() {
+    document.getElementById('changelog-overlay').classList.remove('open')
+    const version = await window.electronAPI.getVersion()
+    await window.electronAPI.setLastSeenVersion(version)
+}
 
-// FILTERS & SEARCH
-const activeFilters=new Set();function toggleFilterBar(){d.getElementById('filter-bar').classList.toggle('open')}function toggleFilter(t){activeFilters.has(t)?activeFilters.delete(t):activeFilters.add(t);d.getElementById('fc-'+t)?.classList.toggle('active',activeFilters.has(t));updateFilterButton();applySearchFilter()}function clearFilters(){activeFilters.clear();d.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));updateFilterButton();applySearchFilter()}function updateFilterButton(){d.getElementById('btn-filter')?.classList.toggle('has-filters',activeFilters.size>0)}function syncFilterChips(){d.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));activeFilters.forEach(f=>d.getElementById('fc-'+f)?.classList.add('active'));updateFilterButton()}
-const searchInput=d.getElementById('search-input');function toggleSearchBar(){const b=d.getElementById('search-bar');b.classList.toggle('open');if(b.classList.contains('open')){searchInput.focus();searchInput.select()}else{searchInput.value='';applySearchFilter()}}searchInput.addEventListener('input',()=>applySearchFilter());function applySearchFilter(){const q=searchInput.value.toLowerCase();const c=d.getElementById('search-count');let n=0;d.querySelectorAll('#chat > .linea').forEach(e=>{const v=chipAllowsMsg(e.dataset)&&(!q||e.textContent.toLowerCase().includes(q));e.style.display=v?'':'none';if(v)n++});c.textContent=q?`${n} res.`:'';}
-function chipAllowsMsg(dset){if(!dset)return!0;if(activeFilters.size===0)return!0;const data={user:dset.user,plat:dset.plat,badges:{sub:dset.sub==='true',mod:dset.mod==='true'},isFirst:dset.first==='true'};if(activeFilters.has('bots')&&KNOWN_BOTS.includes(data.user.toLowerCase()))return!1;const p=['TT','YT','TW'].filter(p=>activeFilters.has(p));if(p.length>0&&!p.includes(data.plat))return!1;const r=['subs','mods','first'].filter(r=>activeFilters.has(r));if(r.length>0){let h=!1;if(activeFilters.has('subs')&&data.badges.sub)h=!0;if(activeFilters.has('mods')&&data.badges.mod)h=!0;if(activeFilters.has('first')&&data.isFirst)h=!0;if(!h)return!1}return!0}
+// ── FILTER CHIPS (multi-select) ──────────────────────────────────────────────
+const activeFilters = new Set()
 
-// LAYOUT & DOCK
-function setDockPosition(p){d.getElementById('main-layout').classList.toggle('dock-bottom',p==='bottom')}function setDockHeight(h){d.getElementById('top-dock').style.height=h+'px'}function initDockResize(){const h=d.getElementById('dock-resize-handle'),o=d.getElementById('top-dock');if(!h||!o)return;let g=!1,y=0,H=0;h.addEventListener('mousedown',e=>{g=!0;y=e.clientY;H=o.offsetHeight;d.body.style.cursor='ns-resize';e.preventDefault()});d.addEventListener('mousemove',e=>{if(!g)return;const b=d.getElementById('main-layout').classList.contains('dock-bottom'),t=b?y-e.clientY:e.clientY-y;const nH=Math.max(40,Math.min(300,H+t));setDockHeight(nH);cfg.dockHeight=nH});d.addEventListener('mouseup',()=>g=!(d.body.style.cursor=''))}
+function toggleFilterBar() {
+    const bar = document.getElementById('filter-bar')
+    bar.classList.toggle('open')
+}
+function toggleFilter(type) {
+    if(activeFilters.has(type)) activeFilters.delete(type)
+    else activeFilters.add(type)
+    document.getElementById('fc-'+type)?.classList.toggle('active', activeFilters.has(type))
+    updateFilterButton()
+}
+function clearFilters() {
+    activeFilters.clear()
+    document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'))
+    updateFilterButton()
+}
+function updateFilterButton() {
+    document.getElementById('btn-filter')?.classList.toggle('has-filters', activeFilters.size > 0)
+}
+function syncFilterChips() {
+    document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'))
+    activeFilters.forEach(f=>document.getElementById('fc-'+f)?.classList.add('active'))
+    updateFilterButton()
+}
+function chipAllowsMsg(d) {
+    if(activeFilters.size === 0) return true;
 
-// EMOTES
-async function cargarEmotes(c){Object.keys(emoteMap).forEach(k=>delete emoteMap[k]);let t=null;if(c.twitchUser)try{if(c.twitchToken){const r=await fetch(`https://api.twitch.tv/helix/users?login=${c.twitchUser}`,{headers:{'Client-ID':'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt','Authorization':`Bearer ${c.twitchToken.replace('oauth:','')}`}});const j=await r.json();if(j.data&&j.data.length>0)t=j.data[0].id}else{const r=await fetch(`https://decapi.me/twitch/id/${c.twitchUser}`);const i=(await r.text()).trim();if(i&&!isNaN(i)&&!i.includes('User not found'))t=i}}catch(e){}const s=[];if(c.show7tvGlobal!==!1)s.push(fetch('https://7tv.io/v3/emote-sets/global').then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,p:'7TV'}})}).catch(()=>{}));if(c.show7tvCanal!==!1&&t)s.push(fetch(`https://7tv.io/v3/users/twitch/${t}`).then(r=>r.ok?r.json():null).then(u=>{const i=u?.emote_set?.id;if(!i)return;return fetch(`https://7tv.io/v3/emote-sets/${i}`).then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,p:'7TV'}})})}).catch(()=>{}));if(c.showBttvGlobal!==!1)s.push(fetch('https://api.betterttv.net/3/cached/emotes/global').then(r=>r.json()).then(d=>{d?.forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:!1,p:'BTTV'}})}).catch(()=>{}));if(c.showBttvCanal!==!1&&t)s.push(fetch(`https://api.betterttv.net/3/cached/users/twitch/${t}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;[...(d.channelEmotes||[]),...(d.sharedEmotes||[])].forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:!1,p:'BTTV'}})}).catch(()=>{}));if(c.showFfzGlobal!==!1)s.push(fetch('https://api.frankerfacez.com/v1/set/global').then(r=>r.json()).then(d=>{Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[1]||Object.values(e.urls)[0]}`,zw:!1,p:'FFZ'}})})}).catch(()=>{}));if(c.showFfzCanal!==!1&&c.twitchUser)s.push(fetch(`https://api.frankerfacez.com/v1/room/${c.twitchUser.toLowerCase()}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[1]||Object.values(e.urls)[0]}`,zw:!1,p:'FFZ'}})})}).catch(()=>{}));await Promise.allSettled(s);console.log(`[Emotes] Cargados ${Object.keys(emoteMap).length} emotes`)}
-function parseEmotes(t,e,p,y){if(!t)return'';let o=[{type:'text',content:t}];if(p==='TW'&&e){const n=[];for(const[i,s]of Object.entries(e))for(const a of s){const[l,c]=a.split('-').map(Number),d=t.substring(l,c+1);n.push({name:d,start:l,end:c,id:i})}n.sort((a,b)=>a.start-b.start);let i=0;const s=[];for(const a of n){a.start>i&&s.push({type:'text',content:t.substring(i,a.start)});s.push({type:'emote',html:`<img src="https://static-cdn.jtvnw.net/emoticons/v2/${a.id}/default/dark/2.0" class="emote" alt="${esc(a.name)}" data-platform="Twitch" data-emote="${esc(a.name)}" data-url="https://static-cdn.jtvnw.net/emoticons/v2/${a.id}/default/dark/2.0">`});i=a.end+1}i<t.length&&s.push({type:'text',content:t.substring(i)});o=s}if(p==='YT'&&y){let n=0;const i=[];[...y].sort((a,b)=>t.indexOf(a.placeholder)-t.indexOf(b.placeholder)).forEach(s=>{let a=0;while((a=t.indexOf(s.placeholder,a))!==-1){a>n&&i.push({type:'text',content:t.substring(n,a)});i.push({type:'emote',html:`<img src="${s.url}" class="emote" alt="${esc(s.name)}" data-platform="YouTube" data-emote="${esc(s.name)}" data-url="${s.url}">`});n=a+s.placeholder.length;a+=s.placeholder.length}});n<t.length&&i.push({type:'text',content:t.substring(n)});o=i}const n=[];Object.keys(emoteMap).sort((a,b)=>b.length-a.length);for(const s of o){if(s.type==='emote'){n.push(s);continue}let a=s.content;const r=Object.keys(emoteMap).filter(k=>a.includes(k)).sort((k1,k2)=>k2.length-k1.length);r.forEach(k=>{const d=emoteMap[k];const h=new RegExp(`\\b${k}\\b`,'g');a=a.replace(h,`<img src="${esc(d.url)}" class="emote${d.zw?' zw':''}" alt="${esc(k)}" data-platform="${esc(d.p||'')}" data-emote="${esc(k)}" data-url="${esc(d.url)}">`)});n.push({type:'text',content:a})}return n.map(t=>t.type==='emote'?t.html:esc(t.content)).join('').replace(/https?:\/\/[\\w-.~:/?#[\\]@!$&'()*+,;=]+/g,m=>`<a href="#" class="chat-link" onclick="openLink('${esc(m)}')" data-href="${esc(m)}">${m}</a>`)}
+    if(activeFilters.has('bots') && KNOWN_BOTS.includes((d.user||'').toLowerCase())) return false;
 
-// EMOTE UI
-const etTip=d.getElementById('emote-tooltip'),etImg=d.getElementById('et-img'),etName=d.getElementById('et-name'),etPlat=d.getElementById('et-platform');let etTimer=null,currentCtxEmote=null;d.addEventListener('mouseover',e=>{const t=e.target.closest('img.emote');if(!t)return clearTimeout(etTimer);etTip.classList.remove('visible');clearTimeout(etTimer);etTimer=setTimeout(()=>{etImg.src=t.dataset.url||t.src;etName.textContent=t.dataset.emote||t.alt;etPlat.textContent=t.dataset.platform||'';const r=t.getBoundingClientRect();etTip.style.left=Math.min(r.left+r.width/2-etTip.offsetWidth/2,window.innerWidth-etTip.offsetWidth-5)+'px';etTip.style.top=r.top-etTip.offsetHeight-5+'px';etTip.classList.add('visible')},400)});d.addEventListener('mouseout',e=>{if(e.target.closest('img.emote'))clearTimeout(etTimer);setTimeout(()=>etTip.classList.remove('visible'),200)});const emoteCtx=d.getElementById('emote-ctx');d.addEventListener('contextmenu',e=>{const t=e.target.closest('img.emote');if(!t)return;e.preventDefault();currentCtxEmote={name:t.dataset.emote||t.alt,url:t.dataset.url||t.src};d.getElementById('ctx-emote-name').textContent=currentCtxEmote.name;emoteCtx.style.left=Math.min(e.clientX,window.innerWidth-170)+'px';emoteCtx.style.top=Math.min(e.clientY,window.innerHeight-150)+'px';emoteCtx.classList.add('open')});d.addEventListener('click',e=>{if(!e.target.closest('#emote-ctx'))closeEmoteCtx()});function closeEmoteCtx(){emoteCtx.classList.remove('open')}function ctxCopyName(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.name);closeEmoteCtx();showToast('📋 Nombre copiado')}function ctxCopyUrl(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.url);closeEmoteCtx();showToast('🔗 Link copiado')}function ctxDownload(){if(!currentCtxEmote)return;const a=d.createElement('a');a.href=currentCtxEmote.url;a.download=currentCtxEmote.name+'.webp';a.target='_blank';a.click();closeEmoteCtx()}
-const epGrid=d.getElementById('ep-grid'),epicker=d.getElementById('emote-picker');function toggleEmotePicker(){const o=epicker.classList.toggle('open');if(o){filterEmotePicker(d.getElementById('ep-search').value)}else{acPopup.classList.remove('open')}}function filterEmotePicker(f){const l=f.toLowerCase();epGrid.innerHTML='';Object.entries(emoteMap).filter(([n])=>n.toLowerCase().includes(l)).slice(0,100).forEach(([n,e])=>{const i=d.createElement('div');i.className='ep-item';i.title=n;i.innerHTML=`<img src="${e.url}" alt="${n}" loading="lazy">`;i.onclick=()=>{insertEmote(n);epicker.classList.remove('open')};epGrid.appendChild(i)})}d.addEventListener('click',e=>{if(!e.target.closest('#emote-picker')&&!e.target.closest('#emote-picker-btn'))epicker.classList.remove('open')})
+    const platFilters = ['TT','YT','TW'].filter(p => activeFilters.has(p));
+    if(platFilters.length > 0 && !platFilters.includes(d.plat)) return false;
 
-// LINK PREVIEW
-const lpDiv=d.getElementById('link-preview'),lpTitle=d.getElementById('lp-title'),lpDesc=d.getElementById('lp-desc'),lpImg=d.getElementById('lp-img'),lpDomain=d.getElementById('lp-domain');let lpTimer=null,lpCache={};d.addEventListener('mouseover',e=>{const l=e.target.closest('a.chat-link');if(!l||cfg.linkPreviews===!1)return;const u=l.dataset.href;if(!u)return;clearTimeout(lpTimer);lpTimer=setTimeout(async()=>{if(lpCache[u])return showPreview(lpCache[u],l);try{const r=await window.electronAPI.getLinkPreview(u);lpCache[u]=r;showPreview(r,l)}catch(e){lpCache[u]={error:!0}}},600)});d.addEventListener('mouseout',e=>{if(e.target.closest('a.chat-link'))clearTimeout(lpTimer);lpDiv.classList.remove('visible')});function showPreview(p,el){if(!p||p.error||!p.title&&!p.description&&!p.image)return;lpTitle.textContent=p.title||'';lpDesc.textContent=p.description||'';if(p.image){lpImg.src=p.image;lpImg.style.display='block';lpImg.onerror=()=>lpImg.style.display='none'}else lpImg.style.display='none';try{lpDomain.textContent=(new URL(p.url||el.dataset.href)).hostname}catch{lpDomain.textContent=el.dataset.href||''}lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible');requestAnimationFrame(()=>{const r=el.getBoundingClientRect(),h=lpDiv.offsetHeight;const t=r.top>h+10?r.top-h-6:r.bottom+6;lpDiv.style.left=Math.max(4,Math.min(r.left,window.innerWidth-294))+'px';lpDiv.style.top=t+'px';lpDiv.style.opacity=1})}
+    const roleFilters = ['subs', 'mods', 'first'].filter(r => activeFilters.has(r));
+    if(roleFilters.length > 0) {
+        let hasRole = false;
+        if(activeFilters.has('subs') && d.badges?.sub) hasRole = true;
+        if(activeFilters.has('mods') && d.badges?.mod) hasRole = true;
+        if(activeFilters.has('first') && d.isFirst) hasRole = true;
+        
+        if(!hasRole) return false;
+    }
 
-// SETTINGS
-window.electronAPI.on('settings-saved',c=>{cfg=c;aplicarConfig();syncFilterChips();showToast('✓ Configuración guardada');if(c.show7tvGlobal!==void 0)cargarEmotes(c)});
-window.electronAPI.on('settings-preview',p=>{aplicarConfig({...cfg,...p})});
-function aplicarConfig(c=cfg){const h=d.getElementById('chat');if(h)h.style.fontSize=(c.fontSize||13.5)+'px';d.getElementById('test-panel')?.classList.toggle('visible',c.showTestButtons===!0);setDockPosition(c.dockPosition||'top');setDockHeight(c.dockHeight||82);d.body.classList.toggle('compact',c.compact===!0);d.body.classList.remove('av-none','av-square','av-squircle','av-circle');d.body.classList.add('av-'+(c.avatarShape||'circle'));d.body.classList.toggle('accessibility',c.accessibility===!0);d.body.classList.toggle('no-anim',c.msgAnimation===!1);if(h)h.classList.toggle('scroll-invert',c.scrollInvert===!0);d.body.classList.toggle('translucent',c.translucent===!0);if(c.translucent)d.body.style.setProperty('--translucent-opacity',(c.windowOpacity||90)/100);d.body.classList.remove('theme-midnight','theme-forest','theme-sakura');const t=c.theme||'dark';if(t&&t!=='dark')d.body.classList.add('theme-'+t);window.electronAPI?.setAlwaysOnTop(c.alwaysOnTop===!0);const b=d.getElementById('chat-input-bar');if(b){const hasToken=!!(c.twitchToken);b.classList.toggle('disabled',!hasToken);const f=d.getElementById('chat-input-field');if(f)f.placeholder=hasToken?'Escribe un mensaje...':'Conecta una plataforma en ⚙'}}
+    return true;
+}
 
-// CHAT & DOCK
-const chatDiv=d.getElementById('chat'),pausedBadge=d.getElementById('scroll-paused'),dockScroll=d.getElementById('dock-scroll'),dockInner=d.getElementById('dock-inner');let isPaused=!1;const isAtBottom=()=>chatDiv.scrollHeight-chatDiv.scrollTop-chatDiv.clientHeight<60;chatDiv.addEventListener('scroll',()=>isAtBottom()?pausedBadge.classList.remove('visible'):cfg.scrollPauseOnHover||pausedBadge.classList.add('visible'),{passive:!0});chatDiv.addEventListener('mouseenter',()=>isPaused=cfg.scrollPauseOnHover);chatDiv.addEventListener('mouseleave',()=>isPaused=!1);pausedBadge.addEventListener('click',()=>{chatDiv.scrollTop=chatDiv.scrollHeight;pausedBadge.classList.remove('visible')});function appendAndScroll(e,force=!1){const s=isAtBottom();chatDiv.appendChild(e);if(d.querySelectorAll('#chat > .linea').length>MAX_CHAT_NODES)chatDiv.firstChild.remove();if(force||s&&!isPaused)chatDiv.scrollTop=chatDiv.scrollHeight;else if(!s)pausedBadge.classList.add('visible')}
-function addToDock(t,u,a,g,n=!1){if(t==='follow'&&cfg.showFollows===!1)return;if(t==='gift'&&cfg.showGifts===!1)return;const e=d.getElementById('dock-empty');e&&e.remove();const o=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10,r=d.createElement('div');r.className=`dock-event dock-event-${t}`;n&&(r.style.animation='none');const i=d.createElement('div');i.className=`dock-event-icon dock-icon-${t}`;if(t==='gift'&&g){const m=d.createElement('img');m.src=g;m.className='dock-gift-img';m.alt='';m.onerror=()=>m.replaceWith(d.createTextNode('🎁'));i.appendChild(m)}else i.textContent=t==='follow'?'👤':'🎁';const c=d.createElement('div');c.className='dock-event-body';const s=d.createElement('span');s.className=`dock-user dock-${t}-color`;s.textContent=u;const p=d.createElement('span');p.className='dock-action';p.textContent=a;c.appendChild(s);c.appendChild(p);r.appendChild(i);r.appendChild(c);dockInner.appendChild(r);const l=dockInner.querySelectorAll('.dock-event');for(let f=0;f<l.length-MAX_DOCK;f++)l[f].remove();o&&(dockScroll.scrollTop=dockScroll.scrollHeight)}
-function updateLikeRow(u,i,c){if(cfg.showLikes===!1)return;const e=d.getElementById('dock-empty');e&&e.remove();const o=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10;let l=null;d.querySelectorAll('.dock-event-like').forEach(e=>{e.dataset.userId===i&&(l=e)});if(l){const n=parseInt(l.dataset.count||'0')+c;l.dataset.count=n;l.querySelector('.dock-action').textContent=` ${n} ❤`;dockInner.appendChild(l)}else{const r=d.createElement('div');r.className='dock-event dock-event-like';r.dataset.userId=i;r.dataset.count=c;const t=d.createElement('div');t.className='dock-event-icon dock-icon-like';t.textContent='❤';const a=d.createElement('div');a.className='dock-event-body';const s=d.createElement('span');s.className='dock-user dock-like-color';s.textContent=u;const p=d.createElement('span');p.className='dock-action';p.textContent=` ${c} ❤`;a.appendChild(s);a.appendChild(p);r.appendChild(t);r.appendChild(a);dockInner.appendChild(r)}while(dockInner.children.length>MAX_DOCK){const f=dockInner.firstElementChild;f&&f.id!=='dock-empty'&&f.remove()}o&&(dockScroll.scrollTop=dockScroll.scrollHeight)}
-function shouldShowMsg(d){if(!d||!d.user)return!1;const u=d.user.toLowerCase();if(cfg.hideBots&&KNOWN_BOTS.includes(u))return!1;if(cfg.blockedWordsEnabled&&cfg.blockedWords?.length&&cfg.blockedWords.some(w=>d.text.toLowerCase().includes(w)))return!1;if(cfg.filterSubsOnly&&!d.badges?.sub)return!1;if(cfg.filterModsOnly&&!d.badges?.mod)return!1;if(!chipAllowsMsg({user:d.user,plat:d.plat,badges:d.badges,isFirst:d.isFirst}))return!1;return!0}
-function isCustomHighlight(t){if(!cfg.customHighlights?.length)return!1;const l=(t||'').toLowerCase();return cfg.customHighlights.some(w=>l.includes(w))}
-function crearMsgChat(d,a=!1){if(!shouldShowMsg(d))return null;const e=document.createElement('div'),t=cfg.streamerName||'',n=t&&d.text?.toLowerCase().includes(t.toLowerCase()),s=isCustomHighlight(d.text),i=nextBg();d.isFirst?e.className=`linea first-chatter ${i}`:n?e.className=`linea mention-highlight ${i}`:s?e.className=`linea custom-highlight ${i}`:e.className=`linea ${i}`;if(a&&!cfg.noAnim)e.classList.add('linea-new');e.dataset.plat=d.plat;e.dataset.user=d.user;e.dataset.uid=d.userId||'';e.dataset.sub=d.badges?.sub?'true':'false';e.dataset.mod=d.badges?.mod?'true':'false';e.dataset.first=d.isFirst?'true':'false';const o=new Date,l=`${String(o.getHours()).padStart(2,'0')}:${String(o.getMinutes()).padStart(2,'0')}`,c=esc(d.user),r=esc(d.userId),p=esc(d.avatar??''),m=esc(d.plat),g=getColor(d.user),h=d.plat==='TT'?`https://www.tiktok.com/@${c}`:d.plat==='TW'?`https://www.twitch.tv/${c.toLowerCase()}`:`https://www.youtube.com/channel/${r}`;let v='';if(cfg.showTimestamps!==!1)v+=`<span class="timestamp">${l}</span>`;v+=`<span class="plat-icon bg-${m}" title="${m}"><svg viewBox="0 0 18 18">${platIconSvg(m)}</svg></span>`;v+=`<span class="profile-link" data-url="${esc(h)}">`;if(d.avatar&&cfg.avatarShape!=='none')v+=`<img src="${p}" class="avatar" alt="">`;if(d.badgeUrls?.length){d.badgeUrls.forEach(b=>{v+=`<img src="${esc(b.url)}" class="badge-img" title="${esc(b.name)}" alt="${esc(b.name)}">`})}else{if(d.badges?.mod)v+='<span class="badge-icon" title="Mod">🛡️</span>';if(d.badges?.sub)v+='<span class="badge-icon" title="Sub">⭐</span>'}v+=`<span class="user" style="color:${g}">${c}</span></span>`;v+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text,d.twitchEmotes,d.plat,d.ytEmotes)}</span>`;e.innerHTML=v;if(d.plat==='TW'&&cfg.modHoverMenu!==!1){const u=document.createElement('div');u.className='mod-hover-menu';const f=esc(d.userId||''),k=esc(d.user||''),E=esc((d.text||'').slice(0,80).replace(/'/g,"\\'"));u.innerHTML=`<button class="mhm-btn reply" title="Responder" onclick="startReply('${k}','${E}','${f}')">↩</button><button class="mhm-btn ban" title="Ban" onclick="modAction('${f}','${k}','ban')">🚫</button>`;e.appendChild(u)}n&&a&&(showToast(`💬 Mención de ${d.user}`,'mention'),cfg.soundsEnabled&&cfg.soundMention&&playMention());s&&a&&showToast(`🌟 ${d.user}: ${d.text?.slice(0,40)}`);return e}
-function crearEventoChat(d){const b=nextBg(),e=document.createElement('div');if(d.type==='follow'){e.className=`linea-event linea-event-follow ${b}`;const s=document.createElement('span');s.className='linea-event-text';s.textContent=`👤 ${d.user} te empezó a seguir`;e.appendChild(s);return e}if(d.type==='gift'&&d.plat!=='TW'){e.className=`linea-event linea-event-gift ${b}`;if(d.giftImg){const i=document.createElement('img');i.src=d.giftImg;i.className='gift-chat-img';i.alt='';i.onerror=()=>i.remove();e.appendChild(i)}const s=document.createElement('span');s.className='linea-event-text';s.textContent=`${d.user} envió ${d.text}${d.count>1?` x${d.count}`:''}`;e.appendChild(s);return e}return null}
-function appendMsg(d,a=!0){const e=crearMsgChat(d,a);if(e){appendAndScroll(e);a&&speakMsg(d)}}function appendEvento(d){const e=crearEventoChat(d);e&&appendAndScroll(e)}
+// ── LAYOUT ────────────────────────────────────────────────────────────────────
+function setDockPosition(pos) {
+    document.getElementById('main-layout').classList.toggle('dock-bottom',pos==='bottom')
+    const dockTop = document.getElementById('layout-dock-top');
+    const dockBottom = document.getElementById('layout-dock-bottom');
+    if (dockTop) dockTop.classList.toggle('active',pos==='top');
+    if (dockBottom) dockBottom.classList.toggle('active',pos==='bottom');
+    cfg.dockPosition=pos;
+}
+function setDockHeight(h) {
+    document.getElementById('top-dock').style.height=h+'px';
+    const dockHeightSlider = document.getElementById('s-dock-height');
+    const dockHeightVal = document.getElementById('dock-height-val');
+    if (dockHeightSlider) dockHeightSlider.value=h;
+    if (dockHeightVal) dockHeightVal.textContent=h+'px';
+    cfg.dockHeight=h;
+}
+;(function initDockResize(){
+    const handle=document.getElementById('dock-resize-handle'),dock=document.getElementById('top-dock')
+    if (!handle || !dock) return;
+    let dragging=false,startY=0,startH=0
+    handle.addEventListener('mousedown',e=>{dragging=true;startY=e.clientY;startH=dock.offsetHeight;document.body.style.cursor='ns-resize';e.preventDefault()})
+    document.addEventListener('mousemove',e=>{
+        if(!dragging)return
+        const isBottom=document.getElementById('main-layout').classList.contains('dock-bottom')
+        const delta=isBottom?startY-e.clientY:e.clientY-startY
+        setDockHeight(Math.max(40,Math.min(240,startH+delta)))
+    })
+    document.addEventListener('mouseup',()=>{dragging=false;document.body.style.cursor=''})})()
 
-// CHAT INPUT & ACTIONS
-const chatInput=d.getElementById('chat-input-field'),acPopup=d.getElementById('chat-autocomplete');function sendChatMsg(){const t=chatInput.value.trim();if(!t)return;const p=d.getElementById('chat-plat-sel').value,c=t.startsWith('/');window.electronAPI.sendMessage({text:t,platform:p,replyTo:currentReply.user,isCommand:c});chatInput.value='';cancelReply()}chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){sendChatMsg();e.preventDefault()}if(e.key==='Escape')cancelReply()});function startReply(u,t,i){currentReply={user:u,text:t,id:i};d.getElementById('reply-bar').classList.add('open');d.getElementById('reply-user').textContent=u;d.getElementById('reply-text').textContent=t;chatInput.focus()}function cancelReply(){currentReply={};d.getElementById('reply-bar').classList.remove('open')}function insertEmote(e){const s=chatInput.selectionStart,t=chatInput.selectionEnd;chatInput.value=chatInput.value.slice(0,s)+' '+e+' '+chatInput.value.slice(t);chatInput.focus();chatInput.selectionEnd=s+e.length+2}
-async function modAction(u,n,a,t){if(!confirm(`¿${a==='ban'?'Banear permanentemente a':`Timeout (600s) a`} ${n}?`))return;const r=await window.electronAPI.modAction({userId:u,action:a,duration:t||600});if(r.ok){showToast(`✔️ ${n} ${a==='ban'?'baneado':'en timeout'}`);if(!cfg.showBannedMessages)d.querySelectorAll(`[data-uid="${u}"]`).forEach(e=>e.remove());else d.querySelectorAll(`[data-uid="${u}"]`).forEach(e=>e.classList.add('banned-msg'))}else showToast(`❌ Error: ${r.error}`)}
+// ── EMOTES ────────────────────────────────────────────────────────────────────
+async function cargarEmotes(config) {
+    Object.keys(emoteMap).forEach(key => delete emoteMap[key]);
+    const statusEl = document.getElementById('emote-status');
+    if (statusEl) statusEl.textContent = 'Cargando emotes...';
+    let twitchId = null;
 
-// TTS
-function speakMsg(d){if(!cfg.ttsEnabled)return;const platEnabled=d.plat==='TT'?cfg.ttsTT:d.plat==='YT'?cfg.ttsYT:cfg.ttsTW;if(!platEnabled)return;let text=cfg.ttsNoName?'':d.user+' dice: ';text+=d.text;if(cfg.ttsNoEmoji)text=text.replace(/\\p{Emoji_Presentation}|\\p{Extended_Pictographic}/gu,'');const utterance=new SpeechSynthesisUtterance(text);speechSynthesis.speak(utterance)}
+    if (config.twitchUser) {
+        try {
+            if (config.twitchToken) {
+                const r = await fetch(`https://api.twitch.tv/helix/users?login=${config.twitchUser}`, {
+                    headers: { 
+                        'Client-ID': 'w2q6ngvevmf1gkuu1ngiqwmyzqmjrt', 
+                        'Authorization': `Bearer ${config.twitchToken.replace('oauth:', '')}` 
+                    }
+                });
+                const d = await r.json();
+                if (d.data && d.data.length > 0) twitchId = d.data[0].id;
+            } else {
+                const r = await fetch(`https://decapi.me/twitch/id/${config.twitchUser}`);
+                const id = (await r.text()).trim();
+                if (id && !isNaN(id) && !id.includes('User not found')) twitchId = id;
+            }
+        } catch (e) { console.warn('[Emotes] Error obteniendo ID', e); }
+    }
 
-// SKELETON
-function showSkeleton(){const s=d.getElementById('skeleton-overlay'),c=d.getElementById('sk-container');s.style.display='block';c.innerHTML='';for(let i=0;i<10;i++)c.innerHTML+=`<div class="sk-line" style="width:${60+Math.random()*30}%"></div>`}function hideSkeleton(){d.getElementById('skeleton-overlay').style.display='none'}
+    const tasks =[];
+    
+    if (config.show7tvGlobal !== false) tasks.push(fetch('https://7tv.io/v3/emote-sets/global').then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})}).catch(()=>{}));
+    if (config.show7tvCanal !== false && twitchId) tasks.push(fetch(`https://7tv.io/v3/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(u=>{const sid=u?.emote_set?.id;if(!sid)return;return fetch(`https://7tv.io/v3/emote-sets/${sid}`).then(r=>r.json()).then(d=>{d?.emotes?.forEach(e=>{emoteMap[e.name]={url:`https://cdn.7tv.app/emote/${e.id}/2x.webp`,zw:(e.flags&256)!==0,platform:'7TV',id:e.id}})})}).catch(()=>{}));
+    
+    if (config.showBttvGlobal !== false) tasks.push(fetch('https://api.betterttv.net/3/cached/emotes/global').then(r=>r.json()).then(d=>{d?.forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
+    if (config.showBttvCanal !== false && twitchId) tasks.push(fetch(`https://api.betterttv.net/3/cached/users/twitch/${twitchId}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;[...(d.channelEmotes||[]),...(d.sharedEmotes||[])].forEach(e=>{emoteMap[e.code]={url:`https://cdn.betterttv.net/emote/${e.id}/2x`,zw:false,platform:'BTTV',id:e.id}})}).catch(()=>{}));
+    
+    if (config.showFfzGlobal !== false) tasks.push(fetch('https://api.frankerfacez.com/v1/set/global').then(r=>r.json()).then(d=>{Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
+    if (config.showFfzCanal !== false && config.twitchUser) tasks.push(fetch(`https://api.frankerfacez.com/v1/room/${config.twitchUser.toLowerCase()}`).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;Object.values(d?.sets||{}).forEach(s=>{s.emoticons?.forEach(e=>{emoteMap[e.name]={url:`https:${Object.values(e.urls)[0]}`,zw:false,platform:'FFZ',id:e.id}})})}).catch(()=>{}));
 
-// SOCKET.IO
-const socket=io(SERVER,{reconnectionDelay:2e3,reconnectionAttempts:20});socket.on('connect',()=>console.log('[Socket] Conectado'));socket.on('connect_error',e=>console.warn('[Socket] Error:',e.message));socket.on('history',m=>{chatDiv.innerHTML='';msgLineCounter=0;m.forEach(d=>appendMsg(d,!1));applySearchFilter();hideSkeleton()});socket.on('dock_history',e=>{e.forEach(d=>{if(d.type==='follow')addToDock('follow',d.user||d.username,' te empezó a seguir',d.avatar,!0);else if(d.type==='gift')addToDock('gift',d.user||d.username,` envió ${d.text}`,d.giftImg||null,!0)})});socket.on('msg',d=>appendMsg(d));socket.on('status',s=>{const l=s.TT||s.YT||s.TW,t=d.getElementById('status-text');t.textContent=l?'LIVE':'NOT LIVE';t.classList.toggle('text-live',l)});socket.on('platform_states',s=>{Object.keys(s).forEach(p=>updatePlatformIcon(p,s[p]))});socket.on('platform_state',({plat:p,state:s})=>updatePlatformIcon(p,s));function updatePlatformIcon(p,s){const i=d.querySelector(`.plat-status-icon[data-plat="${p}"]`);if(!i)return;i.classList.remove('state-loading','state-error','state-connected','state-disconnected');i.classList.add(`state-${s}`);const t={loading:'Conectando...',connected:'Conectado',error:'Error',disconnected:'Desconectado'},n={TT:'TikTok',YT:'YouTube',TW:'Twitch'};i.title=`${n[p]}: ${t[s]||s}`}socket.on('evento',d=>{if(d.type==='like')return updateLikeRow(d.user,d.userId,d.count||1);if(d.type==='follow'){addToDock('follow',d.user,' te empezó a seguir',d.avatar);appendEvento(d);showToast(`👤 ${d.user} te siguió`,'follow');if(cfg.soundsEnabled&&cfg.soundFollow)playFollow()}else if(d.type==='gift'&&d.plat!=='TW'){addToDock('gift',d.user,` envió ${d.text}`,d.giftImg||null);appendEvento(d);showToast(`🎁 ${d.user} envió ${d.text} x${d.count||1}`,'gift');if(cfg.soundsEnabled&&cfg.soundGift)playGift()}})
+    await Promise.allSettled(tasks);
+    const total = Object.keys(emoteMap).length;
+    console.log(`[Emotes] Cargados ${total} emotes custom.`);
+    if (statusEl) statusEl.textContent = total > 0 ? `✓ ${total} emotes cargados` : (twitchId ? '⚠ Sin emotes en el canal' : '⚠ Configura Twitch primero');
+}
 
-function te(t){const b={follow:{user:'TestFollow',type:'follow',avatar:'https://via.placeholder.com/40'},gift:{user:'DonadorTest',text:'Rosa',type:'gift',count:3,giftImg:'https://via.placeholder.com/40'},msg:{user:'TestUser',text:'hola kappa',plat:'TT',type:'msg',avatar:'https://via.placeholder.com/40'},like:{user:'LikeUser',count:50,type:'like',userId:'123'}};socket.emit(b[t].type==='msg'?'msg':'evento',b[t])}
+function parseEmotes(text, twitchEmotes, plat, ytEmotes) {
+    if (!text) return '';
 
-// SHORTCUTS
-d.addEventListener('keydown',e=>{if(e.key===','&&e.target.tagName!=='INPUT')window.electronAPI.openSettings();if(e.ctrlKey&&e.key==='f'){e.preventDefault();toggleSearchBar()}})
+    // 1. Tokenize by space to handle words and emotes
+    let tokens = [{ type: 'text', content: text }];
 
-// INIT
-async function init(){showSkeleton();try{cfg=await window.electronAPI.getConfig()||{};aplicarConfig();initDockResize();await cargarEmotes(cfg);await checkChangelog();syncFilterChips()}catch(e){console.error('[INIT]',e);hideSkeleton()}socket.on('twitch_auth',d=>{if(d.ok&&d.login){showToast(`✓ Twitch: conectado como ${d.login}`)}else if(d.ok){showToast('✓ Token de Twitch actualizado')}})}
-d.addEventListener('DOMContentLoaded',init);
+    // 2. PRIORIDAD NATIVA: Parsear emotes nativos de Twitch
+    if (plat === 'TW' && twitchEmotes) {
+        const nativeEmotes = [];
+        for (const [id, positions] of Object.entries(twitchEmotes)) {
+            for (const pos of positions) {
+                const [start, end] = pos.split('-').map(Number);
+                const name = text.substring(start, end + 1);
+                nativeEmotes.push({ name, start, end, id });
+            }
+        }
+        // Ordenar por posición de inicio para procesar en orden
+        nativeEmotes.sort((a, b) => a.start - b.start);
+
+        let lastIndex = 0;
+        const newTokens = [];
+        for (const emote of nativeEmotes) {
+            if (emote.start > lastIndex) {
+                newTokens.push({ type: 'text', content: text.substring(lastIndex, emote.start) });
+            }
+            newTokens.push({ type: 'emote', html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0" class="emote" alt="${esc(emote.name)}" data-platform="Twitch" data-emote="${esc(emote.name)}" data-url="https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/2.0">` });
+            lastIndex = emote.end + 1;
+        }
+        if (lastIndex < text.length) {
+            newTokens.push({ type: 'text', content: text.substring(lastIndex) });
+        }
+        tokens = newTokens;
+    }
+
+    // 3. Parsear emotes de YouTube (si los hay)
+    if (plat === 'YT' && ytEmotes) {
+        // Similar al de Twitch, pero con la data de YT
+        let lastIndex = 0;
+        const newTokens = [];
+        const sortedYtEmotes = [...ytEmotes].sort((a,b) => text.indexOf(a.placeholder) - text.indexOf(b.placeholder));
+        sortedYtEmotes.forEach(emote => {
+             let from = 0;
+            while ((from = text.indexOf(emote.placeholder, from)) !== -1) {
+                if (from > lastIndex) {
+                    newTokens.push({ type: 'text', content: text.substring(lastIndex, from) });
+                }
+                newTokens.push({ type: 'emote', html: `<img src="${emote.url}" class="emote" alt="${esc(emote.name)}" data-platform="YouTube" data-emote="${esc(emote.name)}" data-url="${emote.url}">` });
+                lastIndex = from + emote.placeholder.length;
+                from += emote.placeholder.length;
+            }
+        });
+         if (lastIndex < text.length) {
+            newTokens.push({ type: 'text', content: text.substring(lastIndex) });
+        }
+        tokens = newTokens;
+    }
+
+    // 4. Parsear emotes de terceros (7TV, BTTV, FFZ) SOLO en los tokens de texto restantes
+    const finalTokens = [];
+    const thirdPartyEmoteKeys = Object.keys(emoteMap).sort((a, b) => b.length - a.length);
+
+    for (const token of tokens) {
+        if (token.type === 'emote') {
+            finalTokens.push(token);
+            continue;
+        }
+
+        let currentText = token.content;
+        const parts = [];
+        const words = currentText.split(' ');
+        
+        words.forEach((word, index) => {
+            const emoteData = emoteMap[word];
+            if (emoteData) {
+                parts.push(`<img src="${esc(emoteData.url)}" class="emote${emoteData.zw ? ' zw' : ''}" alt="${esc(word)}" data-platform="${esc(emoteData.platform || '')}" data-emote="${esc(word)}" data-url="${esc(emoteData.url)}">`);
+            } else {
+                parts.push(esc(word));
+            }
+            if (index < words.length - 1) {
+                parts.push(' '); // Re-add space
+            }
+        });
+        
+        finalTokens.push({ type: 'text', content: parts.join('') });
+    }
+
+    // 5. Unir todos los tokens en el string final
+    return finalTokens.map(t => t.type === 'emote' ? t.html : t.content).join('');
+}
+
+
+// ── EMOTE TOOLTIP + CONTEXT MENU ─────────────────────────────────────────────
+const etTip=document.getElementById('emote-tooltip')
+const etImg=document.getElementById('et-img'),etName=document.getElementById('et-name'),etPlat=document.getElementById('et-platform')
+let etTimer=null, currentCtxEmote=null
+
+document.addEventListener('mouseover',e=>{
+    const img=e.target.closest('img.emote')
+    if(!img){clearTimeout(etTimer);etTip.classList.remove('visible');return}
+    clearTimeout(etTimer)
+    etTimer=setTimeout(()=>{
+        etImg.src=img.dataset.url||img.src
+        etName.textContent=img.dataset.emote||img.alt
+        etPlat.textContent=img.dataset.platform||''
+        const r=img.getBoundingClientRect()
+        etTip.style.left=Math.min(r.left+r.width/2-40,window.innerWidth-130)+'px'
+        etTip.style.top=(r.top-90)+'px'
+        etTip.classList.add('visible')
+    },400)
+})
+document.addEventListener('mouseout',e=>{
+    if(!e.target.closest('img.emote')){clearTimeout(etTimer);etTip.classList.remove('visible')}
+})
+
+const emoteCtx=document.getElementById('emote-ctx')
+document.addEventListener('contextmenu',e=>{
+    const img=e.target.closest('img.emote')
+    if(!img)return
+    e.preventDefault()
+    currentCtxEmote={name:img.dataset.emote||img.alt,url:img.dataset.url||img.src,platform:img.dataset.platform}
+    document.getElementById('ctx-emote-name').textContent=currentCtxEmote.name
+    emoteCtx.style.left=Math.min(e.clientX,window.innerWidth-170)+'px'
+    emoteCtx.style.top=Math.min(e.clientY,window.innerHeight-150)+'px'
+    emoteCtx.classList.add('open')
+})
+document.addEventListener('click',e=>{if(!e.target.closest('#emote-ctx'))closeEmoteCtx()})
+
+function closeEmoteCtx(){emoteCtx.classList.remove('open')}
+function ctxCopyName(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.name);closeEmoteCtx();showToast('📋 Nombre copiado')}
+function ctxCopyUrl(){if(currentCtxEmote)navigator.clipboard.writeText(currentCtxEmote.url);closeEmoteCtx();showToast('🔗 Link copiado')}
+function ctxDownload(){
+    if(!currentCtxEmote)return
+    const a=document.createElement('a');a.href=currentCtxEmote.url;a.download=currentCtxEmote.name;a.target='_blank';a.click()
+    closeEmoteCtx()
+}
+
+// ── LINK PREVIEW ─────────────────────────────────────────────────────────────
+const lpDiv=document.getElementById('link-preview')
+const lpTitle=document.getElementById('lp-title'),lpDesc=document.getElementById('lp-desc')
+const lpImg=document.getElementById('lp-img'),lpDomain=document.getElementById('lp-domain')
+let lpTimer=null, lpCache={}
+
+document.addEventListener('mouseover',e=>{
+    const link=e.target.closest('a.chat-link')
+    if(!link||cfg.linkPreviews===false){lpDiv.classList.remove('visible');return}
+    const url=link.dataset.href
+    if(!url)return
+    clearTimeout(lpTimer)
+    lpTimer=setTimeout(async()=>{
+        if(lpCache[url]){showPreview(lpCache[url],link);return}
+        try{
+            const r=await fetch(`${SERVER}/api/preview_html?url=${encodeURIComponent(url)}`)
+            const d=await r.json()
+            lpCache[url]=d
+            showPreview(d,link)
+        }catch{}
+    },600)
+})
+document.addEventListener('mouseout',e=>{
+    if(!e.target.closest('a.chat-link')){clearTimeout(lpTimer);lpDiv.classList.remove('visible')}
+})
+function showPreview(d,el){
+    if(!d||d.error||((!d.title)&&(!d.description)&&(!d.image))){return}
+    lpTitle.textContent=d.title||''
+    lpDesc.textContent=d.description||''
+    if(d.image){lpImg.src=d.image;lpImg.style.display='block';lpImg.onerror=()=>img.style.display='none'}}else{lpImg.style.display='none'}
+    try{lpDomain.textContent=new URL(d.url||el.dataset.href||'').hostname}catch{lpDomain.textContent=el.dataset.href||''}
+    lpDiv.style.opacity='0';lpDiv.style.left='-999px';lpDiv.style.top='-999px';lpDiv.classList.add('visible')
+    requestAnimationFrame(()=>{
+        const r=el.getBoundingClientRect(),h=lpDiv.offsetHeight||120
+        const top=r.top>h+10?r.top-h-6:r.bottom+6
+        lpDiv.style.left=Math.max(4,Math.min(r.left,window.innerWidth-294))+'px'
+        lpDiv.style.top=top+'px'
+        lpDiv.style.opacity=''
+    })
+}
+
+// ── TAGS INPUT (blocked words + highlights) ───────────────────────────────────
+function makeTagsInput(containerId, inputId, chipClass='') {
+    const container=document.getElementById(containerId)
+    const input=document.getElementById(inputId)
+    const chips=[]
+
+    function render() {
+        container.querySelectorAll('.tag-chip').forEach(c=>c.remove())
+        chips.forEach((word,i)=>{
+            const chip=document.createElement('span')
+            chip.className=`tag-chip${chipClass?' '+chipClass:''}`
+            chip.innerHTML=`${esc(word)} <button onclick="removeTag(this)">×</button>`
+            chip.dataset.word=word
+            chip.querySelector('button').addEventListener('click',()=>{chips.splice(i,1);render()})
+            container.insertBefore(chip,input)
+        })
+    }
+    input.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===','){
+            e.preventDefault()
+            const v=input.value.trim().toLowerCase()
+            if(v&&!chips.includes(v)){chips.push(v);render()}
+            input.value=''
+        } else if(e.key==='Backspace'&&!input.value&&chips.length){
+            chips.pop();render()
+        }
+    })
+    return {
+        get:()=>[...chips],
+        set:(arr)=>{chips.length=0;(arr||[]).forEach(w=>chips.push(w));render()}
+    }
+}
+
+const blockedTags   = { get:()=>cfg.blockedWords||[], set:()=>{} }
+const highlightTags = { get:()=>cfg.customHighlights||[], set:()=>{} }
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+let searchActive=false, searchResults=[], searchIndex=0
+
+function openSearch() {
+    searchActive=true
+    document.getElementById('search-bar').classList.add('open')
+    document.getElementById('search-input').focus()
+}
+function closeSearch() {
+    searchActive=false
+    document.getElementById('search-bar').classList.remove('open')
+    document.getElementById('search-input').value=''
+    clearSearchHighlights()
+    document.getElementById('search-count').textContent=''
+}
+function clearSearchHighlights() {
+    document.querySelectorAll('.search-match,.search-match-current').forEach(el=>{
+        el.classList.remove('search-match','search-match-current')
+    })
+    searchResults=[]
+}
+function runSearch(query) {
+    clearSearchHighlights()
+    if(!query.trim()){document.getElementById('search-count').textContent='';return}
+    const q=query.trim().toLowerCase()
+    let userFilter=null, typeFilter=null, text=q
+    const fromM=q.match(/from:(\S+)/)
+    if(fromM){userFilter=fromM[1];text=text.replace(fromM[0],'').trim()}
+    const isM=q.match(/is:(\S+)/)
+    if(isM){typeFilter=isM[1];text=text.replace(isM[0],'').trim()}
+
+    const lines=[...document.querySelectorAll('#chat .linea')]
+    lines.forEach(line=>{
+        let match=true
+        const lineUser=(line.querySelector('.user')?.textContent||'').toLowerCase()
+        const lineText=(line.querySelector('.text')?.textContent||'').toLowerCase()
+        const isSub=line.dataset.sub==='true'
+        const isMod=line.dataset.mod==='true'
+        if(userFilter&&!lineUser.includes(userFilter)) match=false
+        if(typeFilter==='sub'&&!isSub) match=false
+        if(typeFilter==='mod'&&!isMod) match=false
+        if(text&&!lineText.includes(text)&&!lineUser.includes(text)) match=false
+        if(match){line.classList.add('search-match');searchResults.push(line)}
+    })
+    searchIndex=0
+    if(searchResults.length){
+        searchResults[0].classList.add('search-match-current')
+        searchResults[0].scrollIntoView({block:'nearest'})
+    }
+    document.getElementById('search-count').textContent=searchResults.length?`${searchIndex+1}/${searchResults.length}`:'0 resultados'
+}
+function searchNext() {
+    if(!searchResults.length)return
+    searchResults[searchIndex].classList.remove('search-match-current')
+    searchIndex=(searchIndex+1)%searchResults.length
+    searchResults[searchIndex].classList.add('search-match-current')
+    searchResults[searchIndex].scrollIntoView({block:'nearest'})
+    document.getElementById('search-count').textContent=`${searchIndex+1}/${searchResults.length}`
+}
+
+// ── HOTKEYS ───────────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+    const tag=document.activeElement?.tagName
+    const inInput=tag==='INPUT'||tag==='TEXTAREA'
+
+    if(e.ctrlKey&&e.key==='f'){e.preventDefault();openSearch();return}
+    if(e.ctrlKey&&e.key==='l'){e.preventDefault();document.getElementById('chat').innerHTML='';msgLineCounter=0;totalMsgCount=0;return}
+    if(e.key==='F5'){e.preventDefault();location.reload();return}
+    if(e.key==='Escape'&&document.querySelector('.popup-open')){/* handled in popup.html */}
+    if(e.key===','&&!inInput){e.preventDefault();window.electronAPI.openSettings();return}
+
+    if(e.key==='Escape'){
+        if(searchActive){closeSearch();return}
+        if(emoteCtx.classList.contains('open')){closeEmoteCtx();return}
+        if(document.getElementById('filter-bar')?.classList.contains('open')){document.getElementById('filter-bar').classList.remove('open');return}
+        lpDiv.classList.remove('visible')
+        return
+    }
+    if(e.key==='Enter'&&searchActive&&!inInput){searchNext();return}
+    if(e.key==='F3'||((e.key==='g')&&e.ctrlKey)){e.preventDefault();searchNext()}
+})
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+window.electronAPI.on('settings-saved', newCfg => {
+    cfg = newCfg
+    aplicarConfig()
+    syncFilterChips()
+    showToast('✓ Configuración guardada')
+    if(newCfg.show7tvGlobal!==undefined) cargarEmotes(newCfg)
+})
+async function resetConfig(){
+    if(!confirm('¿Volver al setup inicial? Se borrará la configuración.'))return
+    await window.electronAPI.resetConfig()
+}
+function aplicarConfig(){
+    const chat=document.getElementById('chat')
+    if(chat) chat.style.fontSize=(cfg.fontSize||13.5)+'px'
+    document.getElementById('test-panel')?.classList.toggle('visible',cfg.showTestButtons===true)
+    setDockPosition(cfg.dockPosition||'top')
+    setDockHeight(cfg.dockHeight||82)
+
+    document.body.classList.toggle('compact', cfg.compact===true)
+    document.body.classList.remove('av-none','av-square','av-squircle','av-circle')
+    document.body.classList.add('av-'+(cfg.avatarShape||'none'))
+    document.body.classList.toggle('accessibility', cfg.accessibility===true)
+    document.body.classList.toggle('no-anim', cfg.msgAnimation===false)
+    if(chat) chat.classList.toggle('scroll-invert', cfg.scrollInvert===true)
+    document.body.classList.toggle('translucent', cfg.translucent===true)
+    if(cfg.translucent) {
+        const op = (cfg.windowOpacity||90)/100
+        document.body.style.setProperty('--translucent-opacity', op)
+    }
+
+    // Aplicar tema
+    document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sakura');
+    const theme = cfg.theme || 'dark';
+    if (theme && theme !== 'dark') {
+        document.body.classList.add('theme-' + theme);
+    }
+
+    window.electronAPI?.setAlwaysOnTop(cfg.alwaysOnTop===true)
+
+    const bar=document.getElementById('chat-input-bar')
+    if(bar){
+        const hasAny=!!(cfg.twitchToken||cfg.tiktokUser||cfg.youtubeChannelId)
+        bar.classList.toggle('disabled', !hasAny)
+        const field=document.getElementById('chat-input-field')
+        if(field) field.placeholder=cfg.twitchToken?'Escribe un mensaje... (:emote /cmd)':'Conecta una plataforma en ⚙ para escribir'
+    }
+}
+
+// ── DOCK ──────────────────────────────────────────────────────────────────────
+const dockScroll=document.getElementById('dock-scroll')
+const dockInner=document.getElementById('dock-inner')
+const dockLikeRow=document.getElementById('dock-like-row')
+
+let dockAutoScrollTimer = null
+let dockUserInteracted = false
+
+function scheduleDockAutoScroll() {
+    if (dockAutoScrollTimer) clearTimeout(dockAutoScrollTimer)
+    dockAutoScrollTimer = setTimeout(() => {
+        if (!dockUserInteracted) {
+            dockScroll.scrollTop = dockScroll.scrollHeight
+        }
+        dockUserInteracted = false
+    }, 10000)
+}
+
+dockScroll.addEventListener('scroll', () => {
+    dockUserInteracted = true
+    scheduleDockAutoScroll()
+})
+
+dockScroll.addEventListener('wheel', () => {
+    dockUserInteracted = true
+})
+
+function addToDock(type,user,actionText,giftImgUrl,noAnim=false){
+    if(type==='follow'&&cfg.showFollows===false)return
+    if(type==='gift'&&cfg.showGifts===false)return
+    const empty=document.getElementById('dock-empty');if(empty)empty.remove()
+    const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
+    const row=document.createElement('div');row.className=`dock-event dock-event-${type}`
+    if(noAnim)row.style.animation='none'
+    const icon=document.createElement('div');icon.className=`dock-event-icon dock-icon-${type}`
+    if(type==='gift'&&giftImgUrl){const img=document.createElement('img');img.src=giftImgUrl;img.className='dock-gift-img';img.alt='';img.onerror=()=>img.replaceWith(document.createTextNode('🎁'));icon.appendChild(img)}
+    else icon.textContent=type==='follow'?'👤':'🎁'
+    const body=document.createElement('div');body.className='dock-event-body'
+    const uSpan=document.createElement('span');uSpan.className=`dock-user dock-${type}-color`;uSpan.textContent=user
+    const aSpan=document.createElement('span');aSpan.className='dock-action';aSpan.textContent=actionText
+    body.appendChild(uSpan);body.appendChild(aSpan);row.appendChild(icon);row.appendChild(body)
+    dockInner.appendChild(row)
+    const dockEvents=dockInner.querySelectorAll('.dock-event')
+    for(let i=0;i<dockEvents.length-MAX_DOCK;i++)dockEvents[i].remove()
+    if(wasAtBottom)dockScroll.scrollTop=dockScroll.scrollHeight
+    scheduleDockAutoScroll()
+}
+function updateLikeRow(user,uid,count){
+    if(cfg.showLikes===false)return
+    const empty=document.getElementById('dock-empty');if(empty)empty.remove()
+    const wasAtBottom=dockScroll.scrollHeight-dockScroll.scrollTop-dockScroll.clientHeight<10
+    let existingLike = null
+    const likeEvents = dockInner.querySelectorAll('.dock-event-like')
+    likeEvents.forEach(ev => {
+        if(ev.dataset.userId === uid) existingLike = ev
+    })
+    if(existingLike) {
+        const currentCount = parseInt(existingLike.dataset.count || '0')
+        const newCount = currentCount + count
+        existingLike.dataset.count = newCount
+        existingLike.querySelector('.dock-action').textContent = ` ${newCount} ❤`
+        dockInner.appendChild(existingLike)
+    } else {
+        const row=document.createElement('div')
+        row.className='dock-event dock-event-like'
+        row.dataset.userId = uid
+        row.dataset.count = count
+        const icon=document.createElement('div')
+        icon.className='dock-event-icon dock-icon-like'
+        icon.textContent='❤'
+        const body=document.createElement('div')
+        body.className='dock-event-body'
+        const uSpan=document.createElement('span')
+        uSpan.className='dock-user dock-like-color'
+        uSpan.textContent=user
+        const aSpan=document.createElement('span')
+        aSpan.className='dock-action'
+        aSpan.textContent=` ${count} ❤`
+        body.appendChild(uSpan)
+        body.appendChild(aSpan)
+        row.appendChild(icon)
+        row.appendChild(body)
+        dockInner.appendChild(row)
+    }
+    while(dockInner.children.length>MAX_DOCK){
+        const first=dockInner.firstElementChild
+        if(first&&first.id!=='dock-empty')first.remove()
+    }
+    if(wasAtBottom||!dockUserInteracted){dockScroll.scrollTop=dockScroll.scrollHeight;dockUserInteracted=false}
+    scheduleDockAutoScroll()
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────────────
+const chatDiv = document.getElementById('chat');
+const pausedBadge = document.getElementById('scroll-paused');
+
+const isAtBottom = () => chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight < 60;
+
+function updatePauseBadge() {
+    if (!isAtBottom()) {
+        pausedBadge.classList.add('visible');
+    } else {
+        pausedBadge.classList.remove('visible');
+    }
+}
+
+chatDiv.addEventListener('scroll', () => {
+    if (isAtBottom()) {
+        pausedBadge.classList.remove('visible');
+    }
+}, { passive: true });
+
+pausedBadge.addEventListener('click', () => {
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    pausedBadge.classList.remove('visible');
+});
+
+function appendAndScroll(element) {
+    const shouldScroll = isAtBottom();
+    chatDiv.appendChild(element);
+    if (chatDiv.childElementCount > MAX_CHAT_NODES) {
+        chatDiv.firstChild.remove();
+    }
+    if (shouldScroll) {
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    } else {
+        pausedBadge.classList.add('visible');
+    }
+}
+
+function shouldShowMsg(d) {
+    if(!d||!d.user) return false
+    const userLow=(d.user||'').toLowerCase()
+    if(cfg.hideBots&&KNOWN_BOTS.includes(userLow)) return false
+    if(cfg.blockedWordsEnabled&&cfg.blockedWords?.length){
+        const textLow=(d.text||'').toLowerCase()
+        if(cfg.blockedWords.some(w=>textLow.includes(w))) return false
+    }
+    if(cfg.filterSubsOnly&&!d.badges?.sub) return false
+    if(cfg.filterModsOnly&&!d.badges?.mod) return false
+    if(!chipAllowsMsg(d)) return false
+    return true
+}
+
+function isCustomHighlight(text) {
+    if(!cfg.customHighlights?.length) return false
+    const tl=(text||'').toLowerCase()
+    return cfg.customHighlights.some(w=>tl.includes(w))
+}
+
+function crearMsgChat(d,animate=false){
+    if(!shouldShowMsg(d)) return null
+    const div=document.createElement('div')
+    const streamer=cfg.streamerName||''
+    const isMention=streamer&&d.text?.toLowerCase().includes(streamer.toLowerCase())
+    const isCustom=isCustomHighlight(d.text)
+    const bg=nextBg(false)
+    if(d.isFirst) div.className=`linea first-chatter ${bg}`
+    else if(isMention) div.className=`linea mention-highlight ${bg}`
+    else if(isCustom) div.className=`linea custom-highlight ${bg}`
+    else div.className=`linea ${bg}`
+    if(animate) div.classList.add('linea-new')
+    div.dataset.sub=d.badges?.sub?'true':'false'
+    div.dataset.mod=d.badges?.mod?'true':'false'
+    const now=new Date(),time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+    const su=esc(d.user),sid=esc(d.userId),sav=esc(d.avatar??''),spl=esc(d.plat),color=getColor(d.user)
+    const url=d.plat==='TT'?`https://www.tiktok.com/@${su}`:d.plat==='TW'?`https://www.twitch.tv/${su.toLowerCase()}`:`https://www.youtube.com/channel/${sid}`
+    let html=''
+    if(cfg.showTimestamps!==false)html+=`<span class="timestamp">${time}</span>`
+    html+=`<span class="plat-icon bg-${spl}" title="${spl}"><svg viewBox="0 0 18 18">${platIconSvg(spl)}</svg></span>`
+    html+=`<span class="profile-link" data-user="${su}" data-userid="${sid}" data-color="${esc(color)}" data-avatar="${sav}" data-plat="${spl}" data-url="${esc(url)}">`
+    if(d.avatar)html+=`<img src="${sav}" class="avatar" alt="">`
+    if(d.badgeUrls?.length){
+        d.badgeUrls.forEach(b=>{html+=`<img src="${esc(b.url)}" class="badge-img" title="${esc(b.name)}" alt="${esc(b.name)}">`})
+    } else {
+        if(d.badges?.mod) html+=`<span class="badge-icon" title="Mod">🛡️</span>`
+        if(d.badges?.sub) html+=`<span class="badge-icon" title="Sub">⭐</span>`
+    }
+    html+=`<span class="user" style="color:${color}">${su}</span></span>`
+    html+=`<span class="colon">:</span><span class="text chat-text">${parseEmotes(d.text, d.twitchEmotes, d.plat, d.ytEmotes)}</span>`
+    div.setAttribute('data-uid', d.userId||'')
+    div.setAttribute('data-user', d.user||'')
+    div.innerHTML=html
+    if(d.plat==='TW' && cfg.modHoverMenu!==false) {
+        const menu=document.createElement('div')
+        menu.className='mod-hover-menu'
+        const uid=esc(d.userId||''), uname=esc(d.user||''), utxt=esc((d.text||'').slice(0,80).replace(/'/g,"\\'"))
+        menu.innerHTML=`<button class="mhm-btn reply" title="Responder" onclick="startReply('${uname}','${utxt}','${uid}')">↩</button><button class="mhm-btn" title="Copiar" onclick="navigator.clipboard.writeText(this.closest('.linea').querySelector('.chat-text')?.textContent||'')">⎘</button>${cfg.twitchToken?`<button class="mhm-btn timeout" title="Timeout 5min" onclick="modAction('${uid}','${uname}','timeout',300)">⏱</button><button class="mhm-btn ban" title="Ban" onclick="modAction('${uid}','${uname}','ban')">🚫</button>`:''}`
+        div.style.position='relative'
+        div.appendChild(menu)
+    }
+    if(isMention&&animate){
+        showToast(`💬 Mención de ${d.user}`,'mention')
+        if(cfg.soundsEnabled&&cfg.soundMention) playMention()
+    }
+    if(isCustom&&animate) showToast(`🌟 ${d.user}: ${d.text?.slice(0,40)}`)
+    return div
+}
+function crearEventoChat(d){
+    const bg=nextBg(false)
+    const div=document.createElement('div')
+
+    if(d.type==='follow'){
+        div.className=`linea-event linea-event-follow ${bg}`
+        const s=document.createElement('span');s.className='linea-event-text'
+        s.textContent=`👤 ${d.user} te empezó a seguir`;div.appendChild(s)
+        return div
+    }
+    if(d.type==='gift'&&d.plat!=='TW'){
+        div.className=`linea-event linea-event-gift ${bg}`
+        if(d.giftImg){const img=document.createElement('img');img.src=d.giftImg;img.className='gift-chat-img';img.alt='';img.onerror=()=>img.remove();div.appendChild(img)}
+        const s=document.createElement('span');s.className='linea-event-text'
+        s.textContent=`${d.user} envió ${d.text}${d.count>1?` x${d.count}`:''}`
+        div.appendChild(s);return div
+    }
+
+    const mkLabel=(cls,txt)=>{const l=document.createElement('span');l.className=`ev-label ${cls}`;l.textContent=txt;return l}
+    const su=esc(d.user),color=getColor(d.user)
+    const userSpan=`<span style="color:${color};font-weight:700">${su}</span>`
+
+    if(d.type==='sub'){
+        div.className=`linea ev-sub ${bg}`
+        div.innerHTML=`${mkLabel('lb-sub','Sub').outerHTML} ${userSpan} se suscribió${d.text?' — '+esc(d.text):''}`
+        return div
+    }
+    if(d.type==='resub'){
+        div.className=`linea ev-resub ${bg}`
+        const months=d.count>1?` · ${d.count} meses`:''
+        div.innerHTML=`${mkLabel('lb-resub','Resub').outerHTML} ${userSpan}${months}${d.text?' — <em style="color:#666;font-style:italic">'+esc(d.text)+'</em>':''}`
+        return div
+    }
+    if(d.type==='gift'&&d.plat==='TW'){
+        div.className=`linea ev-sub ${bg}`
+        div.innerHTML=`${mkLabel('lb-gift','Gift').outerHTML} ${userSpan} — ${esc(d.text||'regaló una sub')}`
+        return div
+    }
+    if(d.type==='raid'){
+        div.className=`linea ev-raid ${bg}`
+        div.innerHTML=`${mkLabel('lb-raid','Raid').outerHTML} ${userSpan} llegó con ${d.count||'?'} viewers 🚀`
+        return div
+    }
+    if(d.type==='cheer'){
+        div.className=`linea ev-cheer ${bg}`
+        div.innerHTML=`${mkLabel('lb-cheer','Bits').outerHTML} ${userSpan} donó ${d.count||0} bits${d.text?' — '+esc(d.text):''}`
+        return div
+    }
+    if(d.type==='redeem'){
+        div.className=`linea ev-redeem ${bg}`
+        div.innerHTML=`${mkLabel('lb-redeem','Canje').outerHTML} ${userSpan}${d.text?' — '+esc(d.text):''}`
+        return div
+    }
+
+    return null
+}
+function appendMsg(d,animate=true){
+    const el=crearMsgChat(d,animate);if(!el)return
+    appendAndScroll(el)
+    if(animate) speakMsg(d)
+}
+function appendEvento(d){const el=crearEventoChat(d);if(!el)return; appendAndScroll(el)}
+
+chatDiv.addEventListener('click', async e => {
+    const link = e.target.closest('.profile-link')
+    if (!link) return
+    e.stopPropagation()
+    const url = link.dataset.url
+    if (e.ctrlKey || e.button === 1) {
+        if (url) window.electronAPI.openExternal(url)
+        return
+    }
+    try {
+        await window.electronAPI.openPopup({
+            user:    link.dataset.user,
+            userId:  link.dataset.userid,
+            color:   link.dataset.color,
+            avatar:  link.dataset.avatar,
+            plat:    link.dataset.plat,
+            url
+        })
+    } catch {}
+})
+
+const socket=io(SERVER,{reconnectionDelay:2000,reconnectionAttempts:20})
+socket.on('connect',()=>console.log('[Socket] Conectado'))
+socket.on('connect_error',e=>console.warn('[Socket] Error:',e.message))
+
+socket.on('history',msgs=>{
+    chatDiv.innerHTML='';msgLineCounter=0
+    msgs.forEach(d=>{if(d.type==='msg')appendMsg(d,false)})
+})
+socket.on('dock_history',events=>{
+    events.forEach(d=>{
+        if(d.type==='follow') addToDock('follow',d.user||d.username,' te empezó a seguir',null,true)
+        else if(d.type==='gift') addToDock('gift',d.user||d.username,` envió ${d.text}`,null,true)
+    })
+})
+socket.on('likes_init',()=>{})
+socket.on('msg',d=>appendMsg(d,true))
+socket.on('status',isLive=>{
+    const live=isLive.TT||isLive.YT||isLive.TW
+    const s=document.getElementById('status-text')
+    s.textContent=live?'LIVE':'NOT LIVE';s.classList.toggle('text-live',live)
+    
+    if(live) pollViewerCount()
+})
+socket.on('platform_states', states => {
+    Object.keys(states).forEach(plat => {
+        updatePlatformIcon(plat, states[plat])
+    })
+})
+socket.on('platform_state', ({ plat, state }) => {
+    updatePlatformIcon(plat, state)
+})
+function updatePlatformIcon(plat, state) {
+    const icon = document.querySelector(`.plat-status-icon[data-plat="${plat}"]`)
+    if (!icon) return
+    icon.classList.remove('state-loading', 'state-error', 'state-connected', 'state-disconnected')
+    icon.classList.add(`state-${state}`)
+    const titles = {
+        loading: 'Conectando...',
+        connected: 'Conectado',
+        error: 'Error de conexión',
+        disconnected: 'Desconectado'
+    }
+    const platNames = { TT: 'TikTok', YT: 'YouTube', TW: 'Twitch' }
+    icon.title = `${platNames[plat]}: ${titles[state] || state}`
+}
+socket.on('evento',d=>{
+    if(d.type==='like'){updateLikeRow(d.user,d.userId,d.count||1)}
+    else if(d.type==='follow'){
+        addToDock('follow',d.user,' te empezó a seguir',null)
+        appendEvento(d)
+        showToast(`👤 ${d.user} te siguió`,'follow')
+        if(cfg.soundsEnabled&&cfg.soundFollow) playFollow()
+    }
+    else if(d.type==='gift'&&d.plat!=='TW'){
+        addToDock('gift',d.user,` envió ${d.text}`,d.giftImg??null)
+        appendEvento(d)
+        showToast(`🎁 ${d.user} envió ${d.text} x${d.count??1}`,'gift')
+        if(cfg.soundsEnabled&&cfg.soundGift) playGift()
+    }
+    else if(d.type==='sub'||d.type==='resub'||(d.type==='gift'&&d.plat==='TW')){
+        appendEvento(d)
+        addToDock('gift',d.user,` ${d.type==='resub'?'resub':'se suscribió'}`,null)
+        showToast(`⭐ ${d.user} ${d.type==='resub'?'resub':'sub'}${d.count>1?` x${d.count}`:''}`)
+        if(cfg.soundsEnabled&&cfg.soundGift) playGift()
+    }
+    else if(d.type==='raid'){
+        appendEvento(d)
+        showToast(`🚀 Raid de ${d.user} con ${d.count||'?'} viewers`)
+    }
+    else if(d.type==='cheer'){
+        appendEvento(d)
+        showToast(`💎 ${d.user} donó ${d.count||0} bits`)
+    }
+    else if(d.type==='redeem'){
+        appendEvento(d)
+    }
+})
+
+function te(tipo){
+    const b={follow:{user:'TestFollow'},gift:{user:'DonadorTest',gift:'Rose',count:3},msg:{user:'TestUser',text:'hola esto es una prueba Kappa POGGERS',plat:'TT'},like:{user:'LikeUser',count:50}}
+    fetch(`${SERVER}/test/${tipo}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b[tipo])}).catch(console.error)
+}
+
+// ── TTS ───────────────────────────────────────────────────────────────────────
+let ttsQueue=[], ttsBusy=false
+let ttsVoiceIdx=0   
+let ttsVoiceList=[] 
+
+function getTTSVoices(){
+    if(ttsVoiceList.length) return ttsVoiceList
+    const all=speechSynthesis.getVoices()
+    const es=all.filter(v=>v.lang.startsWith('es'))
+    const en=all.filter(v=>v.lang.startsWith('en'))
+    ttsVoiceList = es.length >= 2 ? es : es.length === 1 ? [...es,...en] : en.length ? en : all
+    return ttsVoiceList
+}
+speechSynthesis.addEventListener('voiceschanged',()=>{ ttsVoiceList=[] })
+
+function speakMsg(d){
+    if(!cfg.ttsEnabled || !cfg['tts'+d.plat]) return;
+
+    let textToSpeak = d.text || '';
+
+    if (cfg.ttsNoEmoji !== false) {
+        // Regex para eliminar emojis, incluidos los que tienen variaciones de tono de piel y género
+        textToSpeak = textToSpeak.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F004}-\u{1F0CF}]/gu, '');
+        // Eliminar también los emotes de Twitch/7TV por su nombre
+        if (d.plat === 'TW') {
+            Object.keys(emoteMap).forEach(emoteName => {
+                textToSpeak = textToSpeak.replace(new RegExp(`\\b${emoteName}\\b`, 'g'), '');
+            });
+        }
+    }
+
+    // Limpiar texto restante y añadir nombre de usuario si es necesario
+    const cleanText = textToSpeak.replace(/https?:\/\/\S+/g, 'link').trim();
+    const text = cfg.ttsNoName ? cleanText : `${d.user}: ${cleanText}`;
+    if(!text) return;
+
+    const MAX_TTS_QUEUE=50;
+    if(ttsQueue.length>=MAX_TTS_QUEUE)ttsQueue.shift();
+    ttsQueue.push({text,plat:d.plat,user:d.user});
+    if(!ttsBusy) flushTTS();
+}
+function flushTTS(){
+    if(!ttsQueue.length){ttsBusy=false;return}
+    ttsBusy=true
+    const {text,plat}=ttsQueue.shift()
+    const utt=new SpeechSynthesisUtterance(text)
+    utt.lang='es-MX'
+    utt.volume=Math.min((cfg.soundVolume||60)/100,1)
+
+    const voices=getTTSVoices()
+    if(voices.length>0){
+        utt.voice=voices[ttsVoiceIdx % voices.length]
+        ttsVoiceIdx++
+        const variation=ttsVoiceIdx%4
+        utt.rate  = [1.0, 1.08, 0.95, 1.05][variation]
+        utt.pitch = [1.0, 1.15, 0.88, 1.08][variation]
+    } else {
+        const v=ttsVoiceIdx++%4
+        utt.rate  = [1.0, 1.08, 0.95, 1.05][v]
+        utt.pitch = [1.0, 1.15, 0.88, 1.08][v]
+    }
+
+    utt.onend=()=>flushTTS()
+    utt.onerror=()=>{ ttsVoiceIdx++; flushTTS() }
+    speechSynthesis.speak(utt)
+}
+
+// ── CHAT INPUT ────────────────────────────────────────────────────────────────
+const sentHistory = []
+let histIdx = -1
+
+function pushSentHistory(text) {
+    if (!text) return
+    if (sentHistory[0] === text) return  
+    sentHistory.unshift(text)
+    if (sentHistory.length > 50) sentHistory.pop()
+    histIdx = -1
+}
+
+async function sendChatMsg(){
+    const input=document.getElementById('chat-input-field')
+    const plat=document.getElementById('chat-plat-sel')?.value||'TW'
+    const text=(input.value||'').trim()
+    if(!text) return
+
+    pushSentHistory(text);
+
+    if(text.startsWith('/') && plat==='TW'){
+        const parts=text.split(' ')
+        const cmd=parts[0].toLowerCase()
+        const target=parts[1]?.replace('@','')
+        const rest=parts.slice(2).join(' ')
+
+        const tmiCommands=['/ban','/unban','/timeout','/untimeout','/mod','/unmod',
+            '/vip','/unvip','/clear','/color','/commercial','/emoteonly','/emoteonlyoff',
+            '/subscribers','/subscribersoff','/slow','/slowoff','/me','/w','/host','/unhost']
+
+        if(tmiCommands.includes(cmd)){
+            input.value=''
+            try{
+                const r=await fetch(`${SERVER}/api/send-message`,{
+                    method:'POST',headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({text,platform:'TW',isCommand:true})
+                })
+                const d=await r.json()
+                if(!d.ok) showToast(`⚠ ${d.error||'Error al ejecutar comando'}`)
+                else showToast(`✓ ${cmd}${target?' → '+target:''}`)
+            }catch(e){ showToast('⚠ Sin conexión al servidor') }
+            return
+        }
+    }
+
+    if(replyTo){
+        const fullText=`@${replyTo.user} ${text}`
+        input.value=''
+        cancelReply()
+        try{
+            const r=await fetch(`${SERVER}/api/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:fullText,platform:plat})})
+            const d=await r.json()
+            if(!d.ok) showToast(`⚠ ${d.error||'Error al enviar'}`)
+        }catch(e){ showToast('⚠ Sin conexión al servidor') }
+        return
+    }
+
+    input.value=''
+    try{
+        const r=await fetch(`${SERVER}/api/send-message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,platform:plat})})
+        const d=await r.json()
+        if(!d.ok) showToast(`⚠ ${d.error||'Error al enviar'}`)
+    }catch(e){ showToast('⚠ Sin conexión al servidor') }
+}
+
+document.addEventListener('click',e=>{
+    const link=e.target.closest('a.chat-link')
+    if(!link)return
+    e.preventDefault()
+    const url=link.dataset.href
+    if(url) window.electronAPI.openExternal(url)
+})
+
+function showSkeleton(){
+    document.getElementById('skeleton-overlay').classList.add('visible')
+}
+function hideSkeleton(){
+    document.getElementById('skeleton-overlay').classList.remove('visible')
+}
+
+async function settingsLoginTwitch(){
+    const btn=document.getElementById('s-tw-oauth-btn')
+    const lbl=document.getElementById('s-tw-oauth-label')
+    const st=document.getElementById('tw-token-status')
+    lbl.textContent='Esperando...'
+    st.textContent='Abre el navegador para autorizar...';st.style.color='#888'
+    btn.style.pointerEvents='none'
+    try{
+        const result=await window.electronAPI.loginTwitch()
+        if(result?.success && result.token){
+            let login=''
+            try{
+                const r=await fetch(`${SERVER}/api/twitch/validate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:result.token})})
+                const d=await r.json()
+                if(d.ok) login=d.login||''
+            }catch{}
+            document.getElementById('s-tw-token').value=result.token
+            if(login) document.getElementById('s-tw').value=login
+            lbl.textContent='✓ Conectado'+(login?' como '+login:'')
+            btn.style.background='#1a4a1a';btn.style.border='1px solid #53fc18';btn.style.color='#53fc18'
+            st.textContent='';
+            document.getElementById('chat-input-bar').classList.add('visible')
+            showToast('✓ Twitch conectado'+(login?' como '+login:''))
+        } else {
+            lbl.textContent='Conectar con Twitch'
+            btn.style.cssText=''
+            st.textContent=result?.error||'Cancelado';st.style.color='#666'
+        }
+    }catch(e){
+        lbl.textContent='Conectar con Twitch'
+        btn.style.cssText=''
+        st.textContent='Error: '+e.message;st.style.color='#ff6060'
+    }
+    btn.style.pointerEvents=''
+}
+
+const TWITCH_COMMANDS=[
+    {name:'/ban',desc:'Banear usuario: /ban [usuario] [razón]'},
+    {name:'/timeout',desc:'Silenciar: /timeout [usuario] [segundos]'},
+    {name:'/unban',desc:'Desbanear: /unban [usuario]'},
+    {name:'/mod',desc:'Dar mod: /mod [usuario]'},
+    {name:'/unmod',desc:'Quitar mod: /unmod [usuario]'},
+    {name:'/vip',desc:'Dar VIP: /vip [usuario]'},
+    {name:'/unvip',desc:'Quitar VIP: /unvip [usuario]'},
+    {name:'/clear',desc:'Limpiar chat'},
+    {name:'/slow',desc:'Modo lento: /slow [segundos]'},
+    {name:'/slowoff',desc:'Desactivar modo lento'},
+    {name:'/subscribers',desc:'Modo solo subs'},
+    {name:'/subscribersoff',desc:'Desactivar modo subs'},
+    {name:'/emoteonly',desc:'Solo emotes'},
+    {name:'/emoteonlyoff',desc:'Desactivar solo emotes'},
+    {name:'/color',desc:'Cambiar color de nombre'},
+    {name:'/me',desc:'Acción en el chat'},
+    {name:'/w',desc:'Susurro: /w [usuario] [mensaje]'},]
+
+let acItems=[], acIndex=-1
+
+const acDiv=document.getElementById('chat-autocomplete')
+const chatField=document.getElementById('chat-input-field')
+
+function closeAC(){acDiv.classList.remove('open');acItems=[];acIndex=-1}
+
+function buildAC(q){
+    acDiv.innerHTML='';acItems=[];acIndex=-1
+    if(!q){closeAC();return}
+    const ql=q.toLowerCase()
+    let results=[]
+    if(q.startsWith('/')){
+        results=TWITCH_COMMANDS.filter(c=>c.name.startsWith(ql)).slice(0,8)
+        results.forEach((c,i)=>{
+            const d=document.createElement('div')
+            d.className='ac-item ac-cmd'
+            d.innerHTML=`<span class="ac-name">${esc(c.name)}</span><span style="font-size:10px;color:#555;flex:1;margin-left:8px">${esc(c.desc)}</span>`
+            d.addEventListener('mousedown',e=>{e.preventDefault();chatField.value=c.name+' ';closeAC();chatField.focus()})
+            acDiv.appendChild(d);acItems.push(d)
+        })
+    } else {
+        results=Object.entries(emoteMap).filter(([n])=>n.toLowerCase().startsWith(ql)).slice(0,10)
+        results.forEach(([name,e],i)=>{
+            const d=document.createElement('div')
+            d.className='ac-item'
+            d.innerHTML=`<img src="${esc(e.url)}" alt=""><span class="ac-name">${esc(name)}</span><span class="ac-plat">${esc(e.platform||'')}</span>`
+            d.addEventListener('mousedown',ev=>{
+                ev.preventDefault()
+                const val=chatField.value
+                const colon=val.lastIndexOf(':')
+                chatField.value=(colon>=0?val.slice(0,colon):val)+name+' '
+                closeAC();chatField.focus()
+            })
+            acDiv.appendChild(d);acItems.push(d)
+        })
+    }
+    if(acItems.length) acDiv.classList.add('open')
+    else closeAC()
+}
+
+function acNavigate(dir){
+    if(!acItems.length)return true 
+    acItems.forEach(i=>i.classList.remove('selected'))
+    acIndex=((acIndex+dir)+acItems.length)%acItems.length
+    acItems[acIndex].classList.add('selected')
+    acItems[acIndex].scrollIntoView({block:'nearest'})
+    return false
+}
+
+chatField?.addEventListener('input',()=>{ 
+    const val=chatField.value
+    if(val.startsWith('/')){
+        buildAC(val)
+    } else {
+        const m=val.match(/:([a-zA-Z0-9_]{2,})$/)
+        if(m) buildAC(m[1])
+        else closeAC()
+    }
+})
+
+chatField?.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+        if(acDiv.classList.contains('open')&&acIndex>=0){
+            e.preventDefault();acItems[acIndex].dispatchEvent(new MouseEvent('mousedown'));return
+        }
+        e.preventDefault();sendChatMsg()
+    }
+    if(e.key==='Tab'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(1)}
+    if(e.key==='ArrowDown'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(1)}
+    if(e.key==='ArrowUp'&&acDiv.classList.contains('open')){e.preventDefault();acNavigate(-1)}
+    if(e.key==='Escape'){closeAC()}
+    if(!acDiv.classList.contains('open')){
+        if(e.key==='ArrowUp'){
+            e.preventDefault()
+            if(sentHistory.length===0) return
+            histIdx = Math.min(histIdx+1, sentHistory.length-1)
+            chatField.value = sentHistory[histIdx] || ''
+            setTimeout(()=>chatField.setSelectionRange(chatField.value.length,chatField.value.length),0)
+        }
+        if(e.key==='ArrowDown'){
+            e.preventDefault()
+            histIdx = Math.max(histIdx-1, -1)
+            chatField.value = histIdx < 0 ? '' : (sentHistory[histIdx] || '')
+        }
+    }
+})
+
+document.addEventListener('click',e=>{
+    if(!e.target.closest('#chat-input-bar'))closeAC()
+})
+
+let replyTo = null 
+
+function startReply(user, text, msgId) {
+    replyTo = { user, text, msgId }
+    document.getElementById('reply-bar').classList.add('open')
+    document.getElementById('reply-user').textContent = user
+    document.getElementById('reply-text').textContent = text.slice(0,60)+(text.length>60?'…':'')
+    document.getElementById('chat-input-field')?.focus()
+}
+
+function cancelReply() {
+    replyTo = null
+    document.getElementById('reply-bar').classList.remove('open')
+}
+
+let epOpen = false
+
+function buildEmotePicker() {
+    const grid = document.getElementById('ep-grid')
+    if(!grid) return
+    grid.innerHTML = ''
+    Object.entries(emoteMap).slice(0,200).forEach(([name, e]) => {
+        const item = document.createElement('div')
+        item.className = 'ep-item'
+        item.title = name
+        item.dataset.name = name
+        item.innerHTML = `<img src="${esc(e.url)}" alt="${esc(name)}" loading="lazy">`
+        item.addEventListener('click', () => {
+            const field = document.getElementById('chat-input-field')
+            if(field){ field.value += name+' '; field.focus() }
+            toggleEmotePicker()
+        })
+        grid.appendChild(item)
+    })
+}
+
+function toggleEmotePicker() {
+    const picker = document.getElementById('emote-picker')
+    if(!picker) return
+    epOpen = !epOpen
+    if(epOpen){ picker.classList.add('open'); buildEmotePicker(); document.getElementById('ep-search')?.focus() }
+    else picker.classList.remove('open')
+}
+
+function filterEmotePicker(q) {
+    const ql = q.toLowerCase()
+    document.querySelectorAll('#ep-grid .ep-item').forEach(el => {
+        el.style.display = el.dataset.name.toLowerCase().includes(ql) ? '' : 'none'
+    })
+}
+
+document.addEventListener('click', e => {
+    if(!e.target.closest('#emote-picker') && !e.target.closest('#emote-picker-btn') && epOpen) toggleEmotePicker()
+})
+
+let viewerPollInterval = null
+
+async function pollViewerCount() {
+    try {
+        const r = await fetch(`${SERVER}/api/viewer-count`)
+        const d = await r.json()
+        const el = document.getElementById('viewer-count')
+        const num = document.getElementById('viewer-num')
+        if(d.ok && d.viewers > 0 && el && num) {
+            num.textContent = d.viewers.toLocaleString()
+            el.style.display = 'flex'
+        } else if(el) {
+            el.style.display = 'none'
+        }
+    } catch {}
+}
+function startViewerPoll() {
+    if(viewerPollInterval) clearInterval(viewerPollInterval)
+    pollViewerCount()
+    viewerPollInterval = setInterval(pollViewerCount, 120000)
+}
+
+let emoteObserver = null
+
+function setupEmoteObserver() {
+    if(!cfg.lazyEmotes) return
+    if(emoteObserver) emoteObserver.disconnect()
+    emoteObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            const img = entry.target
+            if(entry.isIntersecting) {
+                if(img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src }
+            } else {
+                if(img.classList.contains('emote-animated') && img.src) {
+                    img.dataset.lazysrc = img.src
+                }
+            }
+        })
+    }, { rootMargin:'200px' })
+}
+
+async function modAction(userId, username, action, duration=300) {
+    if(!cfg.twitchToken){ showToast('⚠ Necesitas autenticarte con Twitch'); return }
+    let tmiCmd = ''
+    if(action === 'ban')     tmiCmd = `/ban ${username}`
+    if(action === 'timeout') tmiCmd = `/timeout ${username} ${duration}`
+    if(action === 'unban')   tmiCmd = `/unban ${username}`
+    if(action === 'mod')     tmiCmd = `/mod ${username}`
+    if(action === 'unmod')   tmiCmd = `/unmod ${username}`
+    if(action === 'vip')     tmiCmd = `/vip ${username}`
+    if(action === 'unvip')   tmiCmd = `/unvip ${username}`
+    if(!tmiCmd) return
+
+    try {
+        const r = await fetch(`${SERVER}/api/send-message`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ text: tmiCmd, platform:'TW', isCommand:true })
+        })
+        const d = await r.json()
+        if(d.ok){
+            showToast(`✓ ${action} → ${username}`)
+            const els = document.querySelectorAll(`.linea[data-uid="${CSS.escape(userId)}"]`)
+            if(action==='ban'||action==='timeout'){
+                if(cfg.showBannedMessages) els.forEach(el=>el.classList.add('banned-msg'))
+                else els.forEach(el=>el.remove())
+            }
+        } else {
+            showToast(`⚠ ${d.error||'Error en '+action}`)
+        }
+    } catch(e) { showToast('⚠ Sin conexión') }
+}
+
+async function init(){
+    showSkeleton()
+    try {
+        try{cfg=(await window.electronAPI.getConfig())||{}}catch(e){console.error('Error loading config',e);cfg={}}
+        aplicarConfig()
+        try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e) }
+        setupEmoteObserver()
+        await checkChangelog()
+        startViewerPoll()
+    } finally {
+        hideSkeleton()
+    }
+    socket.on('twitch_auth',d=>{
+        if(d.ok){
+            aplicarConfig()
+            showToast(`✓ Twitch: conectado como ${d.login}`)
+        }
+    })
+}
+init()
+
 </script>
 </body>
 </html>
