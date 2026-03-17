@@ -144,6 +144,7 @@ function setupSocketListeners() {
             document.getElementById('conn-status-text').textContent = 'Conectado';
             socket.emit('join', { room: 'stream' });
             clearChat();
+            startViewerPoll(); // Movido aquí
         } catch (e) {
             window.electronAPI.logError(`[socket-connect] ${e.message}`);
         }
@@ -191,7 +192,7 @@ async function checkChangelog() {
             const changelogBody = document.getElementById('changelog-body');
 
             if (changelogOverlay && changelogVersion && changelogBody) {
-                const response = await fetch('changelog.md'); // Corregido
+                const response = await fetch('changelog.md');
                 const text = await response.text();
 
                 changelogVersion.textContent = `v${currentVersion}`;
@@ -228,7 +229,7 @@ async function init(){
         try { await cargarEmotes(cfg) } catch(e) { console.warn('[Emotes]',e); window.electronAPI.logError(`[init] cargarEmotes failed: ${e.message}`) }
         setupEmoteObserver()
         await checkChangelog()
-        startViewerPoll()
+        // startViewerPoll() -> Movido a socket connect
     } catch(e) {
         window.electronAPI.logError(`[init] CRITICAL: ${e.message}`);
         showErrorToast('Error fatal al iniciar. Revise los logs.');
