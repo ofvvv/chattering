@@ -83,7 +83,6 @@ export function connect(channel) {
 
         client.on('message', (ch, tags, message, self) => {
             try {
-                if (self) return
                 const user = tags['display-name'] || tags.username || 'unknown'
                 const userId = tags['user-id']
                 if (!userId) return
