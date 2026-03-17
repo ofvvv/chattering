@@ -1,0 +1,20 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Chattering — Estilos base y variables
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Variables CSS globales (Tema Dark por defecto) */
+:root {
+  --bg: #111111;
+  --bg2: #18181b;
+  --bg3: #09090b;
+  --border: #1a1a1e;
+  --border2: #2e2e35;
+  --text: #dadada;
+  --text2: #888;
+  --text3: #444;
+  --accent: #9b9bf5;
+  --accent2: #7b7bdc;
+  --translucent-opacity: 0.85;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
