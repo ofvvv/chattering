@@ -1,0 +1,242 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ÁREA Y MENSAJES DEL CHAT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.win-main #chat-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.win-main #chat {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.win-main #chat.scroll-invert {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* ─── LÍNEA DE CHAT INDIVIDUAL ─────────────────────────────────────────────── */
+
+.win-main .linea {
+  padding: 3px 8px;
+  border-left: 3px solid transparent;
+  line-height: 24px;
+  overflow-wrap: break-word;
+  word-break: normal;
+  user-select: text;
+  cursor: text;
+}
+
+.win-main .linea-bg-even { background: var(--bg-even, #111111); }
+.win-main .linea-bg-odd { background: var(--bg-odd, #18181b); }
+
+@keyframes fadeSlide { 
+  from { opacity: 0; transform: translateX(-3px); } 
+  to { opacity: 1; transform: translateX(0); } 
+}
+.win-main .linea-new { animation: fadeSlide 0.15s ease-out; }
+
+/* ─── COMPONENTES DEL MENSAJE ──────────────────────────────────────────────── */
+
+.win-main .timestamp {
+  display: inline;
+  color: var(--text-timestamp, #555);
+  font-size: 10.5px;
+  font-family: 'Consolas', monospace;
+  margin-right: 5px;
+}
+
+.win-main .profile-link {
+  display: inline;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.win-main .profile-link:hover { opacity: 0.8; }
+
+.win-main .user {
+  display: inline;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.win-main .colon {
+  display: inline;
+  color: var(--text-colon, #666);
+  margin: 0 4px 0 2px;
+}
+
+.win-main .text {
+  display: inline;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.win-main .chat-link {
+  color: var(--accent-link, #7b7bdc);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.win-main .chat-link:hover {
+  text-decoration: underline;
+  color: var(--accent, #9b9bf5);
+}
+
+/* ─── ÍCONOS Y BADGES ──────────────────────────────────────────────────────── */
+
+.win-main .avatar {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-right: 3px;
+  margin-bottom: 1px; 
+  flex-shrink: 0;
+}
+
+.win-main body.av-none .avatar { display: none; }
+.win-main body.av-square .avatar { border-radius: 2px; }
+.win-main body.av-squircle .avatar { border-radius: 30%; }
+.win-main body.av-circle .avatar { border-radius: 50%; }
+
+.win-main .badge-icon, .win-main .badge-img {
+  height: 16px;
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 2px;
+  border-radius: 2px;
+}
+
+.win-main .plat-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 3px;
+}
+
+.win-main .plat-ico svg, .win-main .plat-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+/* ─── EMOTES ───────────────────────────────────────────────────────────────── */
+
+.win-main .emote {
+  display: inline-block;
+  height: 28px;
+  vertical-align: middle;
+  margin: -4px 1px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+
+.win-main .emote:hover { transform: scale(1.2); z-index: 10; }
+.win-main .emote.zw { margin-left: -28px; }
+
+/* ─── HIGHLIGHTS Y ESTADOS ─────────────────────────────────────────────────── */
+
+.win-main .first-chatter { 
+  background: rgba(145,71,255,0.12) !important; 
+  border-left-color: #9147ff !important; 
+}
+
+.win-main .mention-highlight { 
+  background: rgba(255,200,0,0.08) !important; 
+  border-left-color: #ffc800 !important; 
+}
+
+.win-main .custom-highlight { 
+  background: rgba(83,252,24,0.07) !important; 
+  border-left-color: #53fc18 !important; 
+}
+
+/* ─── MODERACIÓN EN LÍNEA ──────────────────────────────────────────────────── */
+
+.win-main .mod-hover-menu {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  gap: 2px;
+  z-index: 50;
+  background: var(--bg2, #18181b);
+  border: 1px solid var(--border2, #2e2e35);
+  border-radius: 5px;
+  padding: 3px 4px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.win-main .linea:hover .mod-hover-menu { display: flex; }
+
+.win-main .mhm-btn {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.win-main .mhm-btn:hover { background: #2a2a35; color: #ddd; }
+.win-main .mhm-btn.ban:hover { background: rgba(255,60,60,0.15); color: #ff6060; }
+.win-main .mhm-btn.timeout:hover { background: rgba(255,150,0,0.12); color: #ff9900; }
+.win-main .mhm-btn.reply:hover { background: rgba(155,155,245,0.15); color: var(--accent, #9b9bf5); }
+
+.win-main .linea.banned-msg { opacity: 0.4; }
+.win-main .linea.banned-msg .chat-text { text-decoration: line-through; }
+
+
+/* ─── MODO COMPACTO ────────────────────────────────────────────────────────── */
+
+.win-main body.compact .linea {
+  padding: 1px 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.win-main body.compact .linea-event {
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.win-main body.compact .avatar { width: 16px; height: 16px; margin-right: 2px; }
+.win-main body.compact .plat-icon { width: 14px; height: 14px; }
+.win-main body.compact .badge-img { height: 14px; }
+.win-main body.compact .emote { height: 22px; }
+.win-main body.compact .colon { margin: 0 3px 0 2px; }
+
+/* ─── ACCESIBILIDAD ────────────────────────────────────────────────────────── */
+
+.win-main body.accessibility .profile-link span[style*="color"] { 
+  text-shadow: 0 0 8px rgba(0,0,0,0.8); 
+  -webkit-text-stroke: 0.3px rgba(0,0,0,0.6); 
+}
+
+.win-main body.accessibility .profile-link { filter: none !important; }

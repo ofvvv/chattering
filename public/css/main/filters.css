@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BARRAS DE FILTRO Y BÚSQUEDA
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.win-main #filter-bar, .win-main #search-bar {
+  background: var(--bg2, #18181b);
+  border-bottom: 1px solid var(--border, #2e2e35);
+  padding: 4px 10px;
+  display: none;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.win-main #filter-bar.visible { 
+  display: flex; 
+}
+
+.win-main #search-bar.visible { 
+  display: flex; 
+}
+
+/* ─── CHIPS DE FILTRO ──────────────────────────────────────────────────────── */
+
+.win-main .fchip {
+  background: #25252a;
+  border: 1px solid #3a3a44;
+  color: #888;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.win-main .fchip:hover { 
+  border-color: #555; 
+  color: #ccc; 
+}
+
+.win-main .fchip.active { 
+  color: #000; 
+  border-color: transparent; 
+}
+
+.win-main .fchip.active.fc-subs { background-color: #ffd700; }
+.win-main .fchip.active.fc-mods { background-color: #53fc18; }
+.win-main .fchip.active.fc-bots { background-color: #ff6060; }
+.win-main .fchip.active.fc-first { background-color: #9147ff; color: #fff; }
+.win-main .fchip.active.fc-plat { color: #fff; }
+.win-main .fchip.active#fc-TT { background-color: #fff; color: #000; }
+.win-main .fchip.active#fc-YT { background-color: #ff0000; }
+.win-main .fchip.active#fc-TW { background-color: #9147ff; }
+
+
+/* ─── BARRA DE BÚSQUEDA ────────────────────────────────────────────────────── */
+
+.win-main #search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  padding: 5px 0;
+  outline: none;
+  font-family: inherit;
+}
+
+.win-main #search-count {
+  font-size: 11px;
+  color: #666;
+  background: #111;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.win-main #search-close {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.15s;
+}
+
+.win-main #search-close:hover { 
+  color: #fff; 
+}

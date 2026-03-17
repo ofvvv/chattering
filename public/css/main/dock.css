@@ -1,0 +1,101 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DOCK DE EVENTOS (FOLLOWS, SUBS, LIKES)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.win-main #top-dock {
+  height: 38px;
+  background: var(--bg2, #18181b);
+  border-bottom: 1px solid var(--border, #2e2e35);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.win-main #main-layout.dock-bottom #top-dock {
+  border-top: 1px solid var(--border, #2e2e35);
+  border-bottom: none;
+}
+
+.win-main #dock-resize-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  cursor: ns-resize;
+  z-index: 10;
+  background: transparent;
+}
+
+.win-main #main-layout.dock-bottom #dock-resize-handle {
+  top: 0;
+  bottom: auto;
+}
+
+.win-main #dock-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.win-main #dock-inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px;
+  gap: 12px;
+}
+
+.win-main .dock-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  animation: dock-fade-in 0.3s ease-out;
+}
+
+@keyframes dock-fade-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+.win-main .dock-icon { font-size: 13px; }
+.win-main .dock-user { font-weight: 700; }
+
+.win-main .follow-color { color: #9b9bf5; }
+.win-main .gift-color { color: #ffcc00; }
+.win-main .like-color { color: #ff2b54; }
+
+.win-main .dock-empty {
+  color: #555;
+  font-size: 11px;
+  font-style: italic;
+  width: 100%;
+  text-align: center;
+}
+
+/* ─── LÍNEA INFERIOR (para likes de TikTok) ───────────────────────────────── */
+
+.win-main #dock-like-row {
+  position: absolute;
+  bottom: -15px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 1px 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  background: linear-gradient(to top, rgba(255,43,84,0.1), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-out;
+}
+
+.win-main #dock-like-row.visible {
+  bottom: 0;
+  opacity: 1;
+}
