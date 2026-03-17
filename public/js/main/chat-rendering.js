@@ -11,7 +11,7 @@ function renderMessage(msg) {
         const isScrolled = chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 50;
 
         const msgLine = document.createElement('div');
-        msgLine.className = 'linea'; // CLASE CSS CORRECTA
+        msgLine.className = 'linea';
         msgLine.dataset.msgId = msg.msgId;
         msgLine.dataset.userId = msg.userId;
 
@@ -24,7 +24,6 @@ function renderMessage(msg) {
         
         if (cfg.msgAnimation) msgLine.classList.add('linea-new');
 
-        // USA INNERHTML PARA CONSTRUIR LA ESTRUCTURA COMPLETA
         msgLine.innerHTML = buildMessageHTML(msg);
 
         chat.appendChild(msgLine);
@@ -44,7 +43,7 @@ function renderMessage(msg) {
             if (pausedIndicator) pausedIndicator.style.display = 'block';
         }
     } catch (e) {
-        window.electronAPI.logError(`[renderMessage] Failed for ${msg?.msgId} msg. User: ${msg?.user}. Error: ${e.message}`);
+        window.electronAPI.logError(`[renderMessage] Failed for msgId ${msg?.msgId}. User: ${msg?.user}. Error: ${e.message}`);
     }
 }
 
@@ -52,7 +51,8 @@ function buildMessageHTML(msg) {
     const timestampHTML = cfg.showTimestamps ? `<span class="timestamp">${new Date(msg.ts || Date.now()).toLocaleTimeString()}</span>` : '';
     
     let badgesHTML = '';
-    if (msg.badges) {
+    // FIX: Add defensive check to ensure msg.badges is an array before mapping.
+    if (msg.badges && Array.isArray(msg.badges)) {
         badgesHTML = msg.badges.map(b => `<img src="${b.url}" alt="${b.name}" class="badge" title="${b.name}">`).join('');
     }
 
@@ -61,7 +61,6 @@ function buildMessageHTML(msg) {
     const usernameHTML = `<span class="username" style="color:${msg.userColor || '#FFFFFF'}" onclick="openUserCtx(event, '${msg.userId}', '${msg.user}')">${msg.user}</span>`;
     
     const textClass = msg.isAction ? 'msg-text accion' : 'msg-text';
-    // PROCESA EMOTES Y TEXTO
     const textHTML = `<span class="${textClass}">${processMessageText(msg.text, msg.emotes, msg.ytEmotes)}</span>`;
 
     return `${timestampHTML}<span class="badges">${badgesHTML}</span>${pronounsHTML}${usernameHTML}: ${textHTML}`;
@@ -70,7 +69,6 @@ function buildMessageHTML(msg) {
 function processMessageText(text, emotes = [], ytEmotes = []) {
     if (!text) return '';
 
-    // Escapa HTML para seguridad
     let processedText = text.replace(/[<>"']/g, char => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
     const allEmotes = [];
@@ -81,30 +79,27 @@ function processMessageText(text, emotes = [], ytEmotes = []) {
         ytEmotes.forEach(e => allEmotes.push({ name: e.name, url: e.url }));
     }
 
-    // Reemplaza texto de emotes con <img> tags
     if (allEmotes.length > 0) {
         allEmotes.forEach(emote => {
-            const emoteRegex = new RegExp(`\b${emote.name}\b`, 'g');
+            const emoteRegex = new RegExp(`\b${escapeRegExp(emote.name)}\b`, 'g');
             processedText = processedText.replace(emoteRegex, `<img src="${emote.url}" alt="${emote.name}" title="${emote.name}" class="emote">`);
         });
     }
 
-    // Procesa menciones
     processedText = processedText.replace(/@(\w+)/g, '<span class="mencion">@$1</span>');
 
     return processedText;
 }
 
-function renderEvent(event) {
-    // Implementación de renderizado de eventos
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+function renderEvent(event) {}
 
-// --- FILTROS ---
 function shouldFilter(msg) {
     if (!cfg.filters) return false;
     const f = cfg.filters;
-
     if (f.subs && !msg.isSub) return true;
     if (f.mods && !msg.isMod) return true;
     if (f.bots && msg.isBot) return true;
@@ -112,11 +107,8 @@ function shouldFilter(msg) {
     if (f.TT && msg.platform !== 'TT') return true;
     if (f.YT && msg.platform !== 'YT') return true;
     if (f.TW && msg.platform !== 'TW') return true;
-
     return false;
 }
-
-// --- OTROS ---
 
 function handleUserBan(userId, platform) {
     const messages = document.querySelectorAll(`.linea[data-user-id="${userId}"]`);

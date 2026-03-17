@@ -83,12 +83,7 @@ export function connect(channel) {
 
         client.on('message', (ch, tags, message, self) => {
             try {
-                if (self) {
-                    console.log(`[Twitch] Received self-message. Config showOwnMessages: ${config.showOwnMessages}`);
-                }
-                if (config.showOwnMessages === false && self) {
-                    return console.log('[Twitch] Ignored self-message due to config.');
-                }
+                if (config.showOwnMessages === false && self) return
 
                 const user = tags['display-name'] || tags.username || 'unknown'
                 const userId = tags['user-id']
@@ -100,16 +95,33 @@ export function connect(channel) {
                     loadChannel(channelId, config.twitchToken)
                 }
 
-                const badgeUrls = buildBadgeUrls(tags, channelId)
-                const isFirst = procesarUsuario(userId, user, 'TW')
-                
                 if (tags['custom-reward-id']) {
                     emitEvento({ plat: 'TW', type: 'redeem', user, userId, avatar: null, text: message, rewardTitle: tags['custom-reward-id'], count: 0 })
                     return
                 }
-                
-                const twitchEmotes = tags.emotes || {}
-                emitMsg({ plat: 'TW', type: 'msg', user, userId, avatar: null, text: message, isFirst, badges: { mod: !!tags.mod, sub: !!tags.subscriber }, badgeUrls, twitchEmotes })
+
+                const isFirst = procesarUsuario(userId, user, 'TW')
+                const finalBadges = buildBadgeUrls(tags, channelId);
+                const finalEmotes = tags.emotes || {};
+
+                emitMsg({
+                    plat: 'TW',
+                    type: 'msg',
+                    msgId: tags.id,
+                    user,
+                    userId,
+                    userColor: tags.color,
+                    avatar: null,
+                    text: message,
+                    isFirst,
+                    isAction: tags['message-type'] === 'action',
+                    isHighlight: tags['custom-reward-id'] != null,
+                    isMention: config.twitchUser ? message.toLowerCase().includes(`@${config.twitchUser.toLowerCase()}`) : false,
+                    isSub: !!tags.subscriber,
+                    isMod: !!tags.mod,
+                    badges: finalBadges, // CORRECTED: Use the array from buildBadgeUrls
+                    emotes: finalEmotes // CORRECTED: Use the standard name
+                })
             } catch (e) { console.error('[Twitch] Error in onMessageHandler:', e.message, e.stack) }
         })
         
