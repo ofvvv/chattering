@@ -69,30 +69,28 @@
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm6.1 7.6a4.7 4.7 0 01-2.7-.9v4a4.1 4.1 0 11-3.5-4.1h.4v2.2a2 2 0 101.5 1.9V6.9h2.1a2.6 2.6 0 002.2 2.2z"/></svg> TikTok
         </div>
         <div class="row">
-          <div class="row-label"><div class="label">Usuario</div></div>
           <div style="width:180px;position:relative">
             <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
             <input type="text" id="s-tt" placeholder="usuario de tiktok" style="padding-left:18px">
           </div>
         </div>
+        <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
+          <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
+        </button>
+        <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
       </div>
-      <button class="btn btn-twitch" id="btn-tt-login" onclick="loginTiktokSeamless()" style="margin-top:10px; background:#111; border:1px solid #333; color:white; width:100%">
-        <span id="tt-btn-label">🔗 Vincular sesión de TikTok</span>
-      </button>
-      <div id="tt-status-msg" class="hint">Escribe tu usuario arriba y luego vincula para evitar desconexiones.</div>
-    </div>
+
       <!-- YOUTUBE -->
       <div class="section">
         <div class="section-title">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 4px;"><path d="M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5z"/><path d="M9.5 15.5l6.3-3.5-6.3-3.5v7z" fill="#fff"/></svg> YouTube
         </div>
         <div class="row">
-          <div class="row-label"><div class="label">ID del Canal</div></div>
           <div style="width:180px;position:relative">
-            <input type="text" id="s-yt" placeholder="UC...">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#888;font-size:12px;pointer-events:none;user-select:none">@</span>
+            <input type="text" id="s-yt" placeholder="nombredecanal" style="padding-left:18px;">
           </div>
         </div>
-        <div class="hint">El ID del canal de Youtube, que empieza por UC.</div>
       </div>
 
       <!-- TWITCH -->
@@ -101,7 +99,6 @@
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#9146FF" style="vertical-align: middle; margin-right: 4px;"><path d="M4.3 2L2 6v16h5.3v4h2.9l4-4h4.7l6.3-6.3V2zm17.7 13l-3.6 3.6h-6.1l-3.2 3.2v-3.2H5V4h17zM16 8v6h-2V8zm-5.3 0v6h-2V8z"/></svg> Twitch
         </div>
         <div class="row">
-          <div class="row-label"><div class="label">Canal a observar</div></div>
           <div style="width:180px;position:relative">
             <input type="text" id="s-tw" placeholder="tucanal">
           </div>
@@ -164,8 +161,9 @@
         <div class="eg-row"><span class="eg-label">Global</span><label class="toggle"><input type="checkbox" id="s-ffz-global"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
         <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-ffz-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
-      <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
     </div>
+    <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+  </div>
   
     <!-- MODERACIÓN -->
     <div class="page" id="page-mod">
