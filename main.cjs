@@ -1,4 +1,4 @@
-console.log('--- MAIN.CJS V1 LOADED ---');
+console.log('--- MAIN.CJS V2 LOADED ---');
 const { app, BrowserWindow, ipcMain, screen, shell, safeStorage, nativeTheme } = require('electron')
 const path   = require('path')
 const fs     = require('fs')
@@ -11,7 +11,6 @@ if (app.isPackaged) {
     try { autoUpdater = require('electron-updater').autoUpdater } catch (e) { console.warn('[Updater] Not available:', e?.message) }
 }
 
-// ─── LOGGING ─────────────────────────────────────────────────────────────────
 const LOG_PATH = path.join(app.getPath('userData'), 'error.log')
 try {
     if (fs.existsSync(LOG_PATH) && fs.statSync(LOG_PATH).size > 5 * 1024 * 1024) {
@@ -27,7 +26,6 @@ function writeLog(msg) {
 process.on('uncaughtException',  e => writeLog(`[CRASH] ${e.message}\n${e.stack}`))
 process.on('unhandledRejection', e => writeLog(`[REJECT] ${e?.message || e}`))
 
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
 
 function loadConfig() {
@@ -38,7 +36,6 @@ function saveConfig(cfg) {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8')
 }
 
-// ─── VERSION & CHANGELOG ───────────────────────────────────────────────────
 const APP_VERSION = app.getVersion()
 const SEEN_VERSION_PATH = path.join(app.getPath('userData'), 'last_seen_version.txt')
 
@@ -65,19 +62,15 @@ function getStreamerChangelog(version) {
     return notes[version] || ['Mejoras y correcciones generales.']
 }
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
 let mainWindow = null
 let serverProc = null
 let pendingPopup = null
 
-// ─── PATHS ───────────────────────────────────────────────────────────────────
 const APP_ROOT = app.isPackaged ? path.join(__dirname, '..') : __dirname
 
 function getResourcePath(...parts) {
     return path.join(app.isPackaged ? process.resourcesPath : __dirname, ...parts)
 }
-
-// ─── SERVER PROCESS ──────────────────────────────────────────────────────────
 
 async function killPort(port) {
     const command = process.platform === 'win32'
@@ -143,7 +136,6 @@ function startServer() {
     })
 }
 
-// ─── MAIN WINDOW ─────────────────────────────────────────────────────────────
 function createMainWindow(isSetup) {
     const cfg = loadConfig() || {}
     const isTranslucent = cfg.translucent === true
@@ -181,8 +173,6 @@ function createMainWindow(isSetup) {
     mainWindow.on('closed', () => { app.quit() })
 }
 
-// ─── APP LIFECYCLE ───────────────────────────────────────────────────────────
-
 if (!app.requestSingleInstanceLock()) {
     app.quit()
 }
@@ -218,7 +208,6 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
-// ─── IPC HANDLERS ────────────────────────────────────────────────────────────
 writeLog('--- MAIN.CJS: Registering IPC Handlers ---');
 
 ipcMain.on('log-error', (_event, errorLog) => {
@@ -286,12 +275,13 @@ ipcMain.handle('sync-filters', (e, filters) => {
 });
 
 ipcMain.handle('save-settings', async (_e, cfg) => {
+    writeLog('[Main] SAVE-SETTINGS HANDLER EXECUTED.');
     saveConfig(cfg)
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.setAlwaysOnTop(cfg.alwaysOnTop === true, 'floating')
         if (cfg.translucent) mainWindow.setOpacity((cfg.windowOpacity||90)/100)
         else mainWindow.setOpacity(1)
-        mainWindow.webContents.send('settings-saved', cfg)
+        // mainWindow.webContents.send('settings-saved', cfg) // CRASH CAUSER
     }
     if (serverProc) {
         try {
