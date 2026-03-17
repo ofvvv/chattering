@@ -24,7 +24,7 @@ function createTagElement(tag) {
         return span;
     } catch (e) {
         window.electronAPI.logError(`[settings-createTagElement] ${e.message}`);
-        return document.createElement('span'); // Devuelve un elemento vacío en caso de error
+        return document.createElement('span');
     }
 }
 
@@ -32,12 +32,12 @@ function getTags(containerId) {
     try {
         const tags = [];
         document.querySelectorAll(`#${containerId} .tag`).forEach(tagEl => {
-            tags.push(tagEl.textContent.slice(0, -1)); // Quita el botón '×'
+            tags.push(tagEl.textContent.slice(0, -1));
         });
         return tags;
     } catch (e) {
         window.electronAPI.logError(`[settings-getTags] ${e.message}`);
-        return []; // Devuelve un array vacío en caso de error
+        return [];
     }
 }
 
@@ -62,5 +62,14 @@ function setupTagInputs() {
     }
 }
 
-// Inicializar al cargar el script
+function syncFilterChips() {
+    try {
+        const blockedWords = getTags('blocked-words-container');
+        const highlightWords = getTags('highlight-words-container');
+        window.electronAPI.syncFilters({ blocked: blockedWords, highlight: highlightWords });
+    } catch (e) {
+        window.electronAPI.logError(`[settings-syncFilterChips] ${e.message}`);
+    }
+}
+
 setupTagInputs();

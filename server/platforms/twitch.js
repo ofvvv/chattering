@@ -170,7 +170,7 @@ export function connect(channel) {
             try {
                 console.log('[Twitch] Disconnected. Reason:', reason)
                 updateStatus('TW', false)
-                if (liveCheckiver) { clearInterval(liveCheckTimer); liveCheckTimer = null }
+                if (liveCheckTimer) { clearInterval(liveCheckTimer); liveCheckTimer = null }
                 clientRef = null
                 if (reason && !reason.includes('manual')) {
                     if (reconnectTimer) clearTimeout(reconnectTimer)
