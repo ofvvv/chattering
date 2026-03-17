@@ -165,7 +165,8 @@
         <div class="eg-row"><span class="eg-label">Canal</span><label class="toggle"><input type="checkbox" id="s-ffz-canal"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
       </div>
     </div>
-
+    <div class="row"><div class="row-label"><div class="label">Limitar emotes animados a los visibles</div><div class="sublabel">Mejora rendimiento en chats rápidos</div></div><label class="toggle"><input type="checkbox" id="s-lazy-emotes"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+  </div>
     <!-- MODERACIÓN -->
     <div class="page" id="page-mod">
       <div class="page-title">Moderación</div>
@@ -381,6 +382,26 @@ function loadForm() {
     set('s-yt', cfg.youtubeChannelId||'')
     set('s-tw', cfg.twitchUser||'')
 
+    function loadForm() {
+    set('s-tt', cfg.tiktokUser||'')
+    set('s-yt', cfg.youtubeChannelId||'')
+    set('s-tw', cfg.twitchUser||'')
+
+    const ttBtn = document.getElementById('btn-tt-login')
+    const ttLbl = document.getElementById('tt-btn-label')
+    const ttSt  = document.getElementById('tt-status-msg')
+    if (cfg.tiktokSessionId && cfg.tiktokUser) {
+        ttLbl.textContent = '✓ Conectado como @' + cfg.tiktokUser
+        ttBtn.style.background = '#1a4a1a'
+        ttBtn.style.borderColor = '#53fc18'
+        ttBtn.style.color = '#53fc18'
+        ttSt.textContent = 'Haz clic para reconectar o cambiar cuenta'
+        ttSt.className = 'hint status-ok'
+    } else if (cfg.tiktokUser) {
+        ttLbl.textContent = 'Actualizar conexión a @' + cfg.tiktokUser
+        ttSt.textContent = 'Tu conexión a TikTok es antigua. Por favor revincula.'
+        ttSt.style.color = '#ffaa00'
+    }
     document.getElementById('s-tw-token').value = cfg.twitchToken||''
 
     const btn = document.getElementById('s-tw-oauth-btn')
@@ -594,6 +615,54 @@ async function guardar() {
 async function resetConfig() {
     if(!confirm('¿Restablecer toda la configuración y volver al setup inicial?')) return
     await window.electronAPI.resetConfig()
+    window.close()
+}
+
+function openLink(url) {
+    window.electronAPI.openExternal(url)
+}
+
+init()
+
+async function loginTiktokSeamless() {
+    const btn = document.getElementById('btn-tt-login');
+    const status = document.getElementById('tt-status-msg');
+    const ttInput = document.getElementById('s-tt');
+
+    btn.disabled = true;
+    status.textContent = "Abriendo ventana segura...";
+    
+    try {
+        const res = await window.electronAPI.loginTiktok();
+        if (res.success && res.sessionId) {
+            cfg.tiktokSessionId = res.sessionId; // Guardar en memoria para que guardar() lo tome
+            const user = res.username;
+            
+            if(user) {
+                cfg.tiktokUser = user;
+                ttInput.value = user;
+                await window.electronAPI.saveSettings(cfg); 
+                
+                btn.style.background = '#1a4a1a';
+                btn.style.color = '#53fc18';
+                document.getElementById('tt-btn-label').textContent = '✓ TikTok Vinculado';
+                status.textContent = 'Sesión guardada correctamente.';
+                status.style.color = '#53fc18';
+            } else {
+                status.textContent = "⚠️ Sesión capturada. Por favor, escribe tu usuario en la caja de arriba y guarda los cambios.";
+                status.style.color = "#ffcc00";
+                ttInput.removeAttribute('readonly');
+                ttInput.focus();
+            }
+        } else {
+            status.textContent = "Error: " + (res.error || "Desconocido");
+            status.style.color = "#ff6060";
+        }
+    } catch (e) {
+        status.textContent = "Error interno: " + e.message;
+        status.style.color = "#ff6060";
+    }
+    btn.disabled = false;
 }
 
 async function settingsLoginTwitch() {
