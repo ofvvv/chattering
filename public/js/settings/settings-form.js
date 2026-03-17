@@ -1,31 +1,36 @@
-function loadForm(cfg) {
+// Contiene las funciones para cargar y recolectar datos del formulario de configuración.
+
+function loadForm(config) {
     try {
         // General
-        set('theme', cfg.theme || 'dark');
-        set('fontSize', cfg.fontSize || 13.5);
-        chk('compact', cfg.compact);
-        chk('translucent', cfg.translucent);
-        set('windowOpacity', cfg.windowOpacity || 90);
+        chk('alwaysOnTop', config.alwaysOnTop);
+
+        // Cuentas (el input de usuario se maneja en accounts.js)
+        set('twitchUser', config.twitchLogin);
 
         // Chat
-        set('avatarShape', cfg.avatarShape || 'circle');
-        chk('hideBots', cfg.hideBots);
-        chk('showTimestamps', cfg.showTimestamps);
+        set('fontSize', config.fontSize || 13.5);
+        set('avatarShape', config.avatarShape || 'circle');
+        chk('hideBots', config.hideBots);
+        chk('showTimestamps', config.showTimestamps !== false); // Default a true
 
         // Emotes
-        chk('show7tvCanal', cfg.show7tvCanal);
-        chk('showBttvCanal', cfg.showBttvCanal);
+        chk('show7tvCanal', config.show7tvCanal);
+        chk('showBttvCanal', config.showBttvCanal);
 
-        // Notificaciones
-        chk('soundsEnabled', cfg.soundsEnabled);
+        // Apariencia
+        set('theme', config.theme || 'dark');
+        chk('compact', config.compact);
+        chk('translucent', config.translucent);
+        set('windowOpacity', config.windowOpacity || 90);
 
         // Moderación
-        loadTags('blocked-words-list', cfg.blockedWords || []);
-        loadTags('highlighted-words-list', cfg.highlightedWords || []);
+        loadTags('blocked-words-list', config.blockedWords || []);
+        loadTags('highlighted-words-list', config.highlightedWords || []);
 
     } catch (e) {
-        window.electronAPI.logError(`[settings-loadForm] ${e.message}`);
-        alert('Error al cargar los datos en el formulario de configuración.');
+        window.electronAPI.logError(`[settings-form:loadForm] ${e.message}`);
+        alert('Error al cargar los datos en el formulario.');
     }
 }
 
@@ -34,13 +39,13 @@ function collectFormData() {
         const newCfg = {};
 
         // General
-        newCfg.theme = get('theme');
-        newCfg.fontSize = parseFloat(get('fontSize'));
-        newCfg.compact = get('compact');
-        newCfg.translucent = get('translucent');
-        newCfg.windowOpacity = parseInt(get('windowOpacity'), 10);
+        newCfg.alwaysOnTop = get('alwaysOnTop');
+
+        // Cuentas
+        newCfg.twitchLogin = get('twitchUser'); // Guardamos el nombre de usuario de Twitch
 
         // Chat
+        newCfg.fontSize = parseFloat(get('fontSize'));
         newCfg.avatarShape = get('avatarShape');
         newCfg.hideBots = get('hideBots');
         newCfg.showTimestamps = get('showTimestamps');
@@ -49,8 +54,11 @@ function collectFormData() {
         newCfg.show7tvCanal = get('show7tvCanal');
         newCfg.showBttvCanal = get('showBttvCanal');
 
-        // Notificaciones
-        newCfg.soundsEnabled = get('soundsEnabled');
+        // Apariencia
+        newCfg.theme = get('theme');
+        newCfg.compact = get('compact');
+        newCfg.translucent = get('translucent');
+        newCfg.windowOpacity = parseInt(get('windowOpacity'), 10);
 
         // Moderación
         newCfg.blockedWords = getTags('blocked-words-list');
@@ -58,8 +66,8 @@ function collectFormData() {
 
         return newCfg;
     } catch (e) {
-        window.electronAPI.logError(`[settings-collectFormData] ${e.message}`);
+        window.electronAPI.logError(`[settings-form:collectFormData] ${e.message}`);
         alert('Error al recolectar los datos del formulario.');
-        return null; // Devuelve null para indicar que la recolección falló
+        return null;
     }
 }

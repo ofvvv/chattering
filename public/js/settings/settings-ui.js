@@ -5,6 +5,7 @@ function setupEventListeners() {
         // Navegación del Menú Lateral
         document.querySelector('.main-menu').addEventListener('click', (e) => {
             if (e.target.tagName === 'A') {
+                e.preventDefault();
                 const pageId = e.target.getAttribute('href').substring(1);
                 navigateTo(pageId);
             }
@@ -14,15 +15,26 @@ function setupEventListeners() {
         document.getElementById('save-button').addEventListener('click', save);
         document.getElementById('reset-button').addEventListener('click', reset);
         document.getElementById('cancel-button').addEventListener('click', () => {
-            window.electronAPI.closeSettings(); // Cierra la ventana sin guardar
+            window.electronAPI.closeSettings();
         });
 
         // Búsqueda de Configuración
         const searchInput = document.getElementById('search-input');
         searchInput.addEventListener('input', (e) => searchSettings(e.target.value));
 
-        // Previsualizaciones en Vivo (para opacidad, etc.)
-        document.getElementById('windowOpacity').addEventListener('input', handleOpacityPreview);
+        // Listeners para previsualización y actualización de valores en la UI
+        const fontSizeSlider = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('font-size-value');
+        fontSizeSlider.addEventListener('input', () => {
+            fontSizeValue.textContent = fontSizeSlider.value;
+        });
+
+        const opacitySlider = document.getElementById('windowOpacity');
+        const opacityValue = document.getElementById('window-opacity-value');
+        opacitySlider.addEventListener('input', () => {
+            opacityValue.textContent = opacitySlider.value;
+            handleOpacityPreview(opacitySlider.value);
+        });
 
     } catch (e) {
         window.electronAPI.logError(`[settings-ui:setupEventListeners] ${e.message}`);
@@ -30,69 +42,63 @@ function setupEventListeners() {
 }
 
 function setupInitialUI() {
-    try {
-        // Actualiza el valor numérico del slider de opacidad al iniciar
-        const opacitySlider = document.getElementById('windowOpacity');
-        const opacityValue = document.getElementById('window-opacity-value');
-        if (opacitySlider && opacityValue) {
-            opacityValue.textContent = opacitySlider.value;
-        }
-    } catch (e) {
-        window.electronAPI.logError(`[settings-ui:setupInitialUI] ${e.message}`);
-    }
+    aplicarConfig(); // Aplicar configuración inicial al cargar
 }
 
 function navigateTo(pageId) {
-    try {
-        // Oculta todas las páginas
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        
-        // Muestra la página solicitada
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.style.display = 'block';
-        }
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    document.getElementById(pageId).style.display = 'block';
 
-        // Actualiza el estado activo en el menú
-        document.querySelectorAll('.main-menu a').forEach(a => a.classList.remove('active'));
-        const activeLink = document.querySelector(`.main-menu a[href="#${pageId}"]`);
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
-    } catch (e) {
-        window.electronAPI.logError(`[settings-ui:navigateTo] ${e.message}`);
-    }
+    document.querySelectorAll('.main-menu a').forEach(a => a.classList.remove('active'));
+    document.querySelector(`.main-menu a[href="#${pageId}"]`).classList.add('active');
 }
 
 function searchSettings(term) {
-    // La implementación de la búsqueda se puede añadir aquí si se desea.
-    // Por ahora, esta función está vacía pero conectada.
+    // Lógica para la búsqueda (se puede implementar más adelante)
 }
 
-function handleOpacityPreview(event) {
+function handleOpacityPreview(value) {
     try {
-        const opacityValue = parseInt(event.target.value, 10);
-        
-        // Actualiza el texto del porcentaje en la UI
-        const opacityValueLabel = document.getElementById('window-opacity-value');
-        if (opacityValueLabel) {
-            opacityValueLabel.textContent = opacityValue;
+        if (window.electronAPI.previewSettings) {
+            window.electronAPI.previewSettings({ windowOpacity: parseInt(value, 10) });
         }
-
-        // Envía el valor de previsualización al proceso principal
-        window.electronAPI.previewSettings({ windowOpacity: opacityValue });
     } catch (e) {
         window.electronAPI.logError(`[settings-ui:handleOpacityPreview] ${e.message}`);
     }
 }
 
-function showSaveConfirmation() {
-    // Esta es una forma simple. Si tienes un sistema de "toasts" o notificaciones,
-    // sería mejor usarlo aquí.
-    alert('Configuración guardada con éxito.');
+function aplicarConfig() {
+    // Esta función refleja el estado de `cfg` en la UI.
+    // Es una migración directa de la lógica en settings-old.html
+
+    // General
+    document.getElementById('alwaysOnTop').checked = cfg.alwaysOnTop === true;
+
+    // Chat
+    const fontSizeSlider = document.getElementById('fontSize');
+    const fontSizeValue = document.getElementById('font-size-value');
+    fontSizeSlider.value = cfg.fontSize || 13.5;
+    fontSizeValue.textContent = fontSizeSlider.value;
+
+    document.getElementById('avatarShape').value = cfg.avatarShape || 'circle';
+    document.getElementById('hideBots').checked = cfg.hideBots === true;
+    document.getElementById('showTimestamps').checked = cfg.showTimestamps !== false;
+
+    // Emotes
+    document.getElementById('show7tvCanal').checked = cfg.show7tvCanal === true;
+    document.getElementById('showBttvCanal').checked = cfg.showBttvCanal === true;
+
+    // Apariencia
+    document.getElementById('theme').value = cfg.theme || 'dark';
+    document.getElementById('compact').checked = cfg.compact === true;
+    document.getElementById('translucent').checked = cfg.translucent === true;
+    
+    const opacitySlider = document.getElementById('windowOpacity');
+    const opacityValue = document.getElementById('window-opacity-value');
+    opacitySlider.value = cfg.windowOpacity || 90;
+    opacityValue.textContent = opacitySlider.value;
 }
 
-// Esta función asegura que el contenido inicial sea visible al cargar.
 function showInitialContent() {
     navigateTo('page-general');
 }

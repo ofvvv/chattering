@@ -1,39 +1,30 @@
+// Funciones de ayuda para obtener y establecer valores en el formulario.
+
 function get(id) {
-    try {
-        const el = document.getElementById(id);
-        if (el) {
-            if (el.type === 'checkbox') return el.checked;
-            return el.value;
+    const el = document.getElementById(id);
+    if (!el) return null;
+    return el.type === 'checkbox' ? el.checked : el.value;
+}
+
+function set(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        if (el.type === 'checkbox') {
+            el.checked = !!value;
+        } else {
+            el.value = value;
         }
-        return null;
-    } catch (e) {
-        window.electronAPI.logError(`[get] Helper failed for id=${id}: ${e.message}`);
-        return null;
     }
 }
 
-function set(id, v) { 
-    try {
-        const el = document.getElementById(id); 
-        if (el) el.value = v; 
-    } catch (e) {
-        window.electronAPI.logError(`[set] Helper failed for id=${id}: ${e.message}`);
+function chk(id, value) {
+    const el = document.getElementById(id);
+    if (el && el.type === 'checkbox') {
+        el.checked = !!value;
     }
 }
 
-function chk(id, v) { 
-    try {
-        const el = document.getElementById(id); 
-        if (el) el.checked = !!v; 
-    } catch (e) {
-        window.electronAPI.logError(`[chk] Helper failed for id=${id}: ${e.message}`);
-    }
-}
-
+// Función para abrir enlaces externos, como en la versión antigua
 function openLink(url) {
-    try {
-        window.electronAPI.openExternal(url);
-    } catch (e) {
-        window.electronAPI.logError(`[openLink] Helper failed: ${e.message}`);
-    }
+    window.electronAPI.openExternal(url);
 }
