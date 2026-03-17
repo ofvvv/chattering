@@ -1,5 +1,4 @@
 socket.on('msg', (data) => {
-    // window.electronAPI.logError(`[DIAGNÓSTICO] msg recibido: ${JSON.stringify(data)}`);
     try {
         renderMessage(data);
     } catch (e) {
@@ -7,14 +6,40 @@ socket.on('msg', (data) => {
     }
 });
 
-socket.on('stream_event', (data) => {
+socket.on('evento', (data) => {
     try {
         renderEvent(data);
         if (cfg.soundsEnabled && data.sound) {
             playSound(data.sound);
         }
     } catch (e) {
-        window.electronAPI.logError(`[socket-stream_event] Error de renderizado/sonido: ${e.message}`);
+        window.electronAPI.logError(`[socket-evento] Error de renderizado/sonido: ${e.message}`);
+    }
+});
+
+socket.on('platform_state', ({ plat, state }) => {
+    try {
+        const icon = document.querySelector(`.plat-status-icon[data-plat="${plat}"]`);
+        if (icon) {
+            icon.className = 'plat-status-icon'; // Reset
+            icon.classList.add(`plat-${state}`);
+        }
+    } catch (e) {
+        window.electronAPI.logError(`[socket-platform_state] ${e.message}`);
+    }
+});
+
+socket.on('platform_states', (states) => {
+    try {
+        for (const [plat, state] of Object.entries(states)) {
+            const icon = document.querySelector(`.plat-status-icon[data-plat="${plat}"]`);
+            if (icon) {
+                icon.className = 'plat-status-icon'; // Reset
+                icon.classList.add(`plat-${state}`);
+            }
+        }
+    } catch (e) {
+        window.electronAPI.logError(`[socket-platform_states] ${e.message}`);
     }
 });
 

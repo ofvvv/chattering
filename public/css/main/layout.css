@@ -1,241 +1,47 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   ESTRUCTURA Y LAYOUT PRINCIPAL
+   LAYOUT PRINCIPAL
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.win-main body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  font-size: 13.5px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+.win-main {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  position: relative;
+  overflow: hidden;
+  background: var(--bg, #101012);
 }
 
 .win-main #main-layout {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
 }
-
-.win-main #main-layout.dock-bottom {
-  flex-direction: column-reverse;
-}
-
-/* ─── BARRA DE TÍTULO ──────────────────────────────────────────────────────── */
-
-.win-main #titlebar {
-  height: 32px;
-  flex-shrink: 0;
-  background: var(--bg3);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px 0 12px;
-  -webkit-app-region: no-drag;
-}
-
-.win-main #titlebar-left { 
-  display: flex; 
-  align-items: center; 
-  gap: 6px; 
-  -webkit-app-region: no-drag; 
-  overflow: hidden; 
-  flex: 1; 
-  min-width: 0; 
-}
-
-.win-main #app-title { 
-  font-size: 12px; 
-  font-weight: 800; 
-  color: #555; 
-  letter-spacing: 1px; 
-  text-transform: uppercase; 
-  -webkit-app-region: no-drag; 
-  flex-shrink: 0; 
-}
-
-.win-main #app-title span { color: var(--accent); }
-
-.win-main #titlebar-controls { 
-  display: flex; 
-  align-items: center; 
-  gap: 1px; 
-  -webkit-app-region: no-drag; 
-  flex-shrink: 0; 
-  margin-left: auto; 
-}
-
-.win-main .win-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: #3a3a44;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-  padding: 0;
-}
-
-.win-main .win-btn svg { 
-  width: 10px; 
-  height: 10px; 
-  pointer-events: none; 
-}
-
-.win-main .win-btn:hover { 
-  background: rgba(255,255,255,0.06); 
-  color: #aaa; 
-}
-
-.win-main #btn-filter:hover { 
-  color: #9b9bf5; 
-  background: rgba(155,155,245,0.1); 
-}
-
-.win-main #btn-settings:hover { 
-  color: #9b9bf5; 
-  background: rgba(155,155,245,0.1); 
-}
-
-.win-main #btn-close:hover { 
-  background: rgba(255,80,80,0.15); 
-  color: #ff6060; 
-}
-
-
-/* ─── DOCK INFERIOR (Status) ───────────────────────────────────────────────── */
 
 .win-main #bottom-dock {
-  background: var(--bg-input, #0e0e10);
-  border-top: 1px solid var(--border);
   height: 22px;
+  background: var(--bg-alt, #08080a);
+  border-top: 1px solid var(--border, #1e1e24);
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  flex-shrink: 0;
-  font-family: 'Consolas', monospace;
-  font-size: 10px;
-  z-index: 10;
-  gap: 8px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 600;
 }
 
 .win-main #platform-icons {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   align-items: center;
 }
 
 .win-main .plat-status-icon {
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.25;
-  transition: opacity 0.3s, transform 0.2s;
-  cursor: default;
-  position: relative;
+  width: 15px;
+  height: 15px;
+  color: #444; /* Default: disconnected */
+  transition: color 0.3s;
 }
 
-.win-main .plat-status-icon svg { 
-  width: 100%; 
-  height: 100%; 
-}
-
-.win-main .plat-status-icon.active { opacity: 1; }
-.win-main .plat-status-icon.active[data-plat="TT"] svg { fill: #fff; }
-.win-main .plat-status-icon.active[data-plat="YT"] svg { fill: #ff0000; }
-.win-main .plat-status-icon.active[data-plat="TW"] svg { fill: #9147ff; }
-.win-main .plat-status-icon.active[data-plat="KK"] svg { fill: #53fc18; }
-
-.win-main .plat-status-icon.state-loading { 
-  opacity: 0.5; 
-  animation: pulse 1.5s ease-in-out infinite; 
-}
-
-.win-main .plat-status-icon.state-error { opacity: 0.4; }
-.win-main .plat-status-icon.state-error::after {
-  content: '!';
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  font-size: 8px;
-  color: #ff6060;
-  font-weight: bold;
-  background: #0e0e10;
-  border-radius: 50%;
-  width: 8px;
-  height: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.win-main .plat-status-icon.state-connected { opacity: 1; }
-
-@keyframes pulse { 
-  0%, 100% { opacity: 0.5; } 
-  50% { opacity: 0.8; } 
-}
-
-.win-main #status-text {
-  color: #555;
-  font-weight: bold;
-  letter-spacing: 2px;
-  transition: color 0.4s;
-  margin-left: auto;
-}
-
-.win-main .text-live { 
-  color: #00f2fe !important; 
-  text-shadow: 0 0 8px rgba(0,242,254,0.4); 
-}
-
-/* ─── MODOS DE VENTANA ─────────────────────────────────────────────────────── */
-
-.win-main body.translucent { 
-  background: transparent !important; 
-}
-
-.win-main body.translucent .win-main,
-.win-main body.translucent #titlebar,
-.win-main body.translucent #main-layout,
-.win-main body.translucent #chat-wrap,
-.win-main body.translucent #bottom-dock,
-.win-main body.translucent #chat-input-bar,
-.win-main body.translucent #filter-bar,
-.win-main body.translucent #top-dock {
-  background: transparent !important;
-}
-
-.win-main body.translucent .linea-bg-even {
-  background-color: rgba(var(--bg-rgb, 17, 17, 17), var(--translucent-opacity)) !important;
-}
-
-.win-main body.translucent .linea-bg-odd {
-  background-color: rgba(var(--bg2-rgb, 24, 24, 27), var(--translucent-opacity)) !important;
-}
-
-.win-main body.no-anim .linea-new,
-.win-main body.no-anim .dock-event {
-  animation: none !important;
-}
-
-.win-main .offline-mode {
-  opacity: 0.6;
-  filter: grayscale(85%);
-  transition: all 0.5s;
-}
+.win-main .plat-connecting { color: #f39c12; }
+.win-main .plat-connected { color: #fff; }
+.win-main .plat-error { color: #e74c3c; }
