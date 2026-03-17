@@ -157,11 +157,14 @@ function startViewerPoll() {
 function setupSocketListeners() {
     socket.on('connect', () => {
         try {
-            document.getElementById('conn-status-dot').style.backgroundColor = '#2ecc71';
-            document.getElementById('conn-status-text').textContent = 'Conectado';
+            const statusTextEl = document.getElementById('status-text');
+            if (statusTextEl) {
+                statusTextEl.textContent = 'CONECTADO';
+                statusTextEl.style.color = '#2ecc71';
+            }
             socket.emit('join', { room: 'stream' });
             clearChat();
-            startViewerPoll(); // Movido aquí
+            startViewerPoll();
         } catch (e) {
             window.electronAPI.logError(`[socket-connect] ${e.message}`);
         }
@@ -169,8 +172,11 @@ function setupSocketListeners() {
 
     socket.on('disconnect', () => {
         try {
-            document.getElementById('conn-status-dot').style.backgroundColor = '#e74c3c';
-            document.getElementById('conn-status-text').textContent = 'Desconectado';
+            const statusTextEl = document.getElementById('status-text');
+            if (statusTextEl) {
+                statusTextEl.textContent = 'DESCONECTADO';
+                statusTextEl.style.color = '#e74c3c';
+            }
         } catch (e) {
             window.electronAPI.logError(`[socket-disconnect] ${e.message}`);
         }
@@ -178,8 +184,11 @@ function setupSocketListeners() {
 
     socket.on('connect_error', (err) => {
         try {
-            document.getElementById('conn-status-dot').style.backgroundColor = '#f39c12';
-            document.getElementById('conn-status-text').textContent = 'Error de conexión';
+            const statusTextEl = document.getElementById('status-text');
+            if (statusTextEl) {
+                statusTextEl.textContent = 'ERROR DE CONEXIÓN';
+                statusTextEl.style.color = '#f39c12';
+            }
             window.electronAPI.logError(`[socket-connect_error] ${err.message}`);
         } catch (e) {
             window.electronAPI.logError(`[socket-connect_error-handler] ${e.message}`);
