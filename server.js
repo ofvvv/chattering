@@ -1,4 +1,3 @@
-// server.js — Chattering v4.0 (ESM Refactor)
 'use strict'
 
 // --- Manejadores Globales de Errores ---
