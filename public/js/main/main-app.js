@@ -182,7 +182,7 @@ function setupSocketListeners() {
 
 async function checkChangelog() {
     try {
-        const currentVersion = await window.electronAPI.getVersion(); // Corregido
+        const currentVersion = await window.electronAPI.getVersion();
         const lastVersion = cfg.lastVersion;
 
         if (currentVersion !== lastVersion) {
@@ -191,7 +191,7 @@ async function checkChangelog() {
             const changelogBody = document.getElementById('changelog-body');
 
             if (changelogOverlay && changelogVersion && changelogBody) {
-                const response = await fetch('../changelog.md');
+                const response = await fetch('changelog.md'); // Corregido
                 const text = await response.text();
 
                 changelogVersion.textContent = `v${currentVersion}`;
