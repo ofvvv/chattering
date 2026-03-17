@@ -1,153 +1,143 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   CHAT Y MENSAJES
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* public/css/main/chat.css */
 
-.win-main #chat-wrap { 
-  flex: 1; 
-  min-height: 0; 
-  position: relative; 
+#chat {
+    flex-grow: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.6;
+    word-wrap: break-word;
 }
 
-.win-main #chat {
-  height: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  padding: 8px 12px;
-  word-wrap: break-word;
-  line-height: 1.5;
-  font-size: 13px;
-  font-weight: 500;
+.linea {
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    transition: background-color 0.2s ease;
 }
 
-.win-main .linea {
-  padding: 3px 6px;
-  margin: 0 -6px;
-  border-radius: 4px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  position: relative;
-  transition: background-color 0.2s;
-  line-height: 1.4;
+.linea-bg-even {
+    background-color: var(--color-bg-alt1);
 }
 
-.win-main .linea-bg-even { background-color: var(--bg-even, transparent); }
-.win-main .linea-bg-odd { background-color: var(--bg-odd, rgba(8,8,10,0.5)); }
-.win-main .linea-highlight { background-color: var(--bg-highlight, rgba(155,155,245,0.08)); }
-.win-main .linea-mencion { background-color: var(--bg-mention, rgba(245,188,91,0.1)); }
-.win-main .linea-deleted { opacity: 0.5; filter: grayscale(80%); }
-
-.win-main .linea-new {
-  animation: msg-fade-in 0.3s ease-out;
+.linea-bg-odd {
+    background-color: var(--color-bg-alt2);
 }
 
-@keyframes msg-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ─── COMPONENTES DEL MENSAJE ──────────────────────────────────────────────── */
-
-.win-main .timestamp {
-  font-size: 10.5px;
-  color: #555;
-  margin-right: 6px;
-  font-weight: 600;
+.linea-highlight {
+    background-color: var(--color-highlight-bg);
+    border-left: 3px solid var(--color-highlight-accent);
+    padding-left: 5px;
 }
 
-.win-main .badges {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  margin-right: 5px;
-  height: 18px;
-  vertical-align: middle;
+.linea-mencion {
+    background-color: var(--color-mention-bg);
+    border-left: 3px solid var(--color-mention-accent);
+    padding-left: 5px;
 }
 
-.win-main .badge {
-  width: 16px; 
-  height: 16px;
+.linea-new {
+    animation: fadeIn 0.3s ease-out;
 }
 
-.win-main .username {
-  font-weight: 800;
-  margin-right: 5px;
-  cursor: pointer;
+.linea-deleted {
+    opacity: 0.5;
+    font-style: italic;
 }
 
-.win-main .username:hover { text-decoration: underline; }
-
-.win-main .pronouns {
-  font-size: 11px;
-  color: #777;
-  background: #1e1e24;
-  padding: 1px 4px;
-  border-radius: 3px;
-  margin-right: 5px;
-  font-weight: 600;
+.timestamp {
+    color: var(--color-text-light);
+    font-size: 0.8em;
+    margin-right: 6px;
 }
 
-.win-main .msg-text {
-  color: var(--text, #dadada);
-  white-space: pre-wrap;
-  word-break: break-word;
+.pronouns {
+    background-color: var(--color-bg-alt3);
+    color: var(--color-text-mid);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    margin-right: 4px;
 }
 
-.win-main .msg-text.accion { color: inherit; }
-
-.win-main .emote {
-  width: auto;
-  height: 24px;
-  margin: -4px 1px;
-  vertical-align: middle;
-  transition: all 0.2s;
+.badges {
+    margin-right: 4px;
+    vertical-align: middle;
 }
 
-.win-main .emote-lg { height: 48px; }
-.win-main .emote:hover { transform: scale(1.2); z-index: 5; position: relative; }
-
-.win-main .mencion {
-  background: var(--bg-mention, rgba(245,188,91,0.1));
-  color: var(--text-mention, #f5bc5b);
-  border-radius: 3px;
-  padding: 1px 3px;
-  font-weight: 600;
+.badge {
+    width: 16px;
+    height: 16px;
+    margin: 0 1px;
+    vertical-align: middle;
 }
 
-/* ─── EVENTOS (Follow, Sub, etc) ───────────────────────────────────────────── */
-
-.win-main .linea-evento {
-  background: var(--bg3, #1a1a1e);
-  color: #999;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin: 4px 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.username {
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.win-main .ev-icon { font-size: 14px; }
-.win-main .ev-user { font-weight: 700; }
+.msg-text {
+    color: var(--color-text-main);
+}
 
-.win-main .follow-color { color: #9b9bf5; }
-.win-main .gift-color { color: #ffcc00; }
-.win-main .like-color { color: #ff2b54; }
+.msg-text.accion {
+    font-style: italic;
+}
 
-/* ─── OTROS ELEMENTOS ──────────────────────────────────────────────────────── */
+.emote {
+    height: 24px; 
+    vertical-align: middle;
+    margin: -4px 2px;
+}
 
-.win-main #scroll-paused {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--accent, #9b9bf5);
-  color: #fff;
-  padding: 5px 15px;
-  border-radius: 15px 15px 0 0;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  display: none;
-  z-index: 20;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+.mencion {
+    background-color: var(--color-mention-inline-bg);
+    color: var(--color-mention-inline-text);
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+/* Scrollbar */
+#chat::-webkit-scrollbar {
+    width: 8px;
+}
+#chat::-webkit-scrollbar-track {
+    background: transparent;
+}
+#chat::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+#chat::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-hover);
+}
+
+
+#scroll-paused {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-accent);
+    color: var(--color-accent-text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

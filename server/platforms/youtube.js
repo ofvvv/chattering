@@ -80,28 +80,34 @@ export async function connect(username) {
 
         chat.on('chat', item => {
             try {
-                let text = ''
-                const ytEmotes = []
-                if (item.message) {
-                    item.message.forEach((m, i) => {
-                        if (m.text) {
-                            text += m.text
-                        } else if (m.url) {
-                            const ph = `__YT_EMOTE_${i}__`
-                            text += ph
-                            ytEmotes.push({ placeholder: ph, url: m.url, name: m.alt || m.emojiText || 'emote' })
-                        }
-                    })
-                }
-                if (!text || !item.author?.channelId) return
+                if (!item.message || !item.author?.channelId) return
 
                 updateStatus('YT', true)
                 if (updatePlatformState) updatePlatformState('YT', 'connected')
-
-                const avatar = item.author?.thumbnail?.url || null
+                
                 const isFirst = procesarUsuario(item.author.channelId, item.author.name, 'YT')
+                const finalBadges = item.author.badge?.icons?.map(b => ({name: b.tooltip, url: b.url})) || [];
+                const { text, emotes } = processYouTubeMessage(item.message);
 
-                emitMsg({ plat: 'YT', type: 'msg', user: item.author.name, userId: item.author.channelId, avatar, text, isFirst, badges: { mod: item.author.isChatModerator || item.author.isChatOwner, sub: item.author.isChatSponsor }, badgeUrls: item.author.badge?.icons?.map(b => ({name: b.tooltip, url: b.url})) || [], ytEmotes })
+                emitMsg({
+                    plat: 'YT',
+                    type: 'msg',
+                    msgId: item.id,
+                    user: item.author.name,
+                    userId: item.author.channelId,
+                    userColor: null, // YouTube does not provide user color via this API
+                    avatar: item.author?.thumbnail?.url || null,
+                    text: text,
+                    isFirst,
+                    isAction: false,
+                    isHighlight: false,
+                    isMention: false,
+                    isSub: item.author.isChatSponsor,
+                    isMod: item.author.isChatModerator || item.author.isChatOwner,
+                    badges: finalBadges, // CORRECTED: Use the array with the standard name
+                    emotes: emotes // CORRECTED: Use the processed array with the standard name
+                });
+
             } catch (e) { console.error('[YouTube] Error in onChat handler:', e.message, e.stack) }
         })
 
@@ -141,4 +147,25 @@ export async function connect(username) {
         disconnect()
         reconnectTimer = setTimeout(() => connect(username), delay)
     }
+}
+
+function processYouTubeMessage(messageParts) {
+    let text = '';
+    const emotes = [];
+
+    messageParts.forEach((part, index) => {
+        if (part.text) {
+            text += part.text;
+        } else if (part.url) {
+            // Use a simple, unique placeholder that won't be escaped.
+            const emoteName = `_YT_EMOTE_${index}_`;
+            text += emoteName;
+            emotes.push({
+                name: emoteName,
+                url: part.url
+            });
+        }
+    });
+
+    return { text, emotes };
 }
