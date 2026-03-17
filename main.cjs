@@ -1,3 +1,4 @@
+console.log('--- MAIN.CJS V1 LOADED ---');
 const { app, BrowserWindow, ipcMain, screen, shell, safeStorage, nativeTheme } = require('electron')
 const path   = require('path')
 const fs     = require('fs')
@@ -218,6 +219,7 @@ app.on('window-all-closed', () => {
 })
 
 // ─── IPC HANDLERS ────────────────────────────────────────────────────────────
+writeLog('--- MAIN.CJS: Registering IPC Handlers ---');
 
 ipcMain.on('log-error', (_event, errorLog) => {
     writeLog(`[Renderer Process] ${errorLog}`);
@@ -267,11 +269,20 @@ ipcMain.handle('open-settings', () => {
 })
 ipcMain.handle('close-settings', () => { settingsWindow?.close() })
 
-// ESTE ES EL HANDLER QUE FALTABA
 ipcMain.handle('preview-settings', (event, partialConfig) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('settings-preview', partialConfig);
     }
+});
+
+
+ipcMain.handle('sync-filters', (e, filters) => {
+    writeLog(`[Main] SYNC-FILTERS HANDLER EXECUTED. Data: ${JSON.stringify(filters)}`);
+    const currentConfig = loadConfig() || {};
+    currentConfig.blockedWords = filters.blocked || [];
+    currentConfig.highlightWords = filters.highlight || [];
+    saveConfig(currentConfig);
+    return true;
 });
 
 ipcMain.handle('save-settings', async (_e, cfg) => {
